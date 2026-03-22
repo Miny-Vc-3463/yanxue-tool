@@ -1,0 +1,825 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>厌学核心成因评估工具</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px 20px;
+            text-align: center;
+        }
+        .header h1 { font-size: 24px; margin-bottom: 10px; }
+        .header p { font-size: 14px; opacity: 0.9; }
+        .content { padding: 25px 20px; }
+        .progress-bar {
+            height: 6px;
+            background: #e0e0e0;
+            border-radius: 3px;
+            margin-bottom: 25px;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            transition: width 0.3s ease;
+        }
+        .step { display: none; }
+        .step.active { display: block; }
+        .step-title {
+            font-size: 18px;
+            color: #333;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #667eea;
+        }
+        .form-group { margin-bottom: 20px; }
+        .form-group label {
+            display: block;
+            font-size: 15px;
+            color: #444;
+            margin-bottom: 10px;
+            line-height: 1.6;
+        }
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .option {
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 14px;
+            color: #555;
+        }
+        .option:hover { border-color: #667eea; background: #f8f9ff; }
+        .option.selected {
+            border-color: #667eea;
+            background: #667eea;
+            color: white;
+        }
+        .btn {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .btn:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(102,126,234,0.4); }
+        .btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+        .result-section {
+            background: #f8f9ff;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .result-title {
+            font-size: 16px;
+            color: #667eea;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+        .dimension-score {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        .dimension-score:last-child { border-bottom: none; }
+        .dimension-name { font-size: 14px; color: #444; }
+        .score-value { font-size: 18px; font-weight: bold; }
+        .score-high { color: #e74c3c; }
+        .score-medium { color: #f39c12; }
+        .score-low { color: #27ae60; }
+        .intervention-box {
+            background: white;
+            border-left: 4px solid #667eea;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 0 8px 8px 0;
+        }
+        .intervention-title {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+        }
+        .intervention-content {
+            font-size: 14px;
+            color: #666;
+            line-height: 1.6;
+        }
+        .disclaimer {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 20px;
+            font-size: 13px;
+            color: #856404;
+            line-height: 1.6;
+        }
+        .submit-section input:focus,
+        .submit-section textarea:focus {
+            border-color: #667eea;
+            outline: none;
+        }
+        .chart-container {
+            position: relative;
+            height: 300px;
+            margin: 20px 0;
+        }
+        .welcome-text {
+            font-size: 14px;
+            color: #666;
+            line-height: 1.8;
+            margin-bottom: 20px;
+        }
+        .welcome-text ul {
+            margin: 15px 0;
+            padding-left: 20px;
+        }
+        .welcome-text li { margin: 8px 0; }
+        @media print {
+            body { background: white; }
+            .container { box-shadow: none; }
+            .btn { display: none; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>厌学核心成因评估工具</h1>
+            <p>基于成都237例实证数据开发 | 5维度20题专业评估</p>
+        </div>
+        
+        <div class="content">
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+            </div>
+
+            <!-- 欢迎页 -->
+            <div class="step active" id="step0">
+                <div class="welcome-text">
+                    <p><strong>欢迎使用厌学核心成因评估工具</strong></p>
+                    <p>本工具旨在精准识别导致6-18岁学生厌学/休学的核心成因，为个性化干预方案提供靶向依据。</p>
+                    <ul>
+                        <li>评估时长：约10-15分钟</li>
+                        <li>题目数量：20道专业量表题</li>
+                        <li>评估维度：家庭系统、学业认知、社交适应、情绪调节、个体发展</li>
+                    </ul>
+                    <p>请根据孩子最近<strong>2周内</strong>的实际情况作答。</p>
+                </div>
+                <button class="btn" onclick="nextStep()">开始评估</button>
+            </div>
+
+            <!-- 评估题目 -->
+            <div class="step" id="step1">
+                <h3 class="step-title">家庭系统动力维度 (1/5)</h3>
+                <div class="form-group">
+                    <label>1. 父母对学习的要求是否超出孩子能力？</label>
+                    <div class="options" data-question="F1" data-dimension="family">
+                        <div class="option" data-value="1">1 = 完全没有</div>
+                        <div class="option" data-value="2">2 = 轻微</div>
+                        <div class="option" data-value="3">3 = 中等</div>
+                        <div class="option" data-value="4">4 = 明显</div>
+                        <div class="option" data-value="5">5 = 严重</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="step" id="step2">
+                <h3 class="step-title">家庭系统动力维度 (2/5)</h3>
+                <div class="form-group">
+                    <label>2. 家庭互动中是否存在指责/贬低？</label>
+                    <div class="options" data-question="F2" data-dimension="family">
+                        <div class="option" data-value="1">1 = 从不</div>
+                        <div class="option" data-value="2">2 = 偶尔</div>
+                        <div class="option" data-value="3">3 = 经常</div>
+                        <div class="option" data-value="4">4 = 频繁</div>
+                        <div class="option" data-value="5">5 = 持续</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="step" id="step3">
+                <h3 class="step-title">家庭系统动力维度 (3/5)</h3>
+                <div class="form-group">
+                    <label>3. 孩子是否缺乏自主决策机会？</label>
+                    <div class="options" data-question="F3" data-dimension="family">
+                        <div class="option" data-value="1">1 = 完全自主</div>
+                        <div class="option" data-value="2">2 = 较多</div>
+                        <div class="option" data-value="3">3 = 一般</div>
+                        <div class="option" data-value="4">4 = 较少</div>
+                        <div class="option" data-value="5">5 = 没有</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="step" id="step4">
+                <h3 class="step-title">家庭系统动力维度 (4/5)</h3>
+                <div class="form-group">
+                    <label>4. 家庭成员间情感交流频率？</label>
+                    <div class="options" data-question="F4" data-dimension="family">
+                        <div class="option" data-value="1">1 = 每天多次</div>
+                        <div class="option" data-value="2">2 = 每天1次</div>
+                        <div class="option" data-value="3">3 = 每周3次</div>
+                        <div class="option" data-value="4">4 = 每周1次</div>
+                        <div class="option" data-value="5">5 = 每月更少</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="step" id="step5">
+                <h3 class="step-title">学业认知偏差维度 (1/4)</h3>
+                <div class="form-group">
+                    <label>5. 孩子是否认为"成绩差就是笨"？</label>
+                    <div class="options" data-question="A1" data-dimension="academic">
+                        <div class="option" data-value="1">1 = 完全不认同</div>
+                        <div class="option" data-value="2">2 = 不太认同</div>
+                        <div class="option" data-value="3">3 = 不确定</div>
+                        <div class="option" data-value="4">4 = 比较认同</div>
+                        <div class="option" data-value="5">5 = 完全认同</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="step" id="step6">
+                <h3 class="step-title">学业认知偏差维度 (2/4)</h3>
+                <div class="form-group">
+                    <label>6. 对学习困难的归因方式？</label>
+                    <div class="options" data-question="A2" data-dimension="academic">
+                        <div class="option" data-value="1">1 = 努力不够</div>
+                        <div class="option" data-value="2">2 = 方法不对</div>
+                        <div class="option" data-value="3">3 = 两者都有</div>
+                        <div class="option" data-value="4">4 = 题目太难</div>
+                        <div class="option" data-value="5">5 = 自己太笨</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="step" id="step7">
+                <h3 class="step-title">学业认知偏差维度 (3/4)</h3>
+                <div class="form-group">
+                    <label>7. 学习目标设定是否合理？</label>
+                    <div class="options" data-question="A3" data-dimension="academic">
+                        <div class="option" data-value="1">1 = 非常合理</div>
+                        <div class="option" data-value="2">2 = 比较合理</div>
+                        <div class="option" data-value="3">3 = 一般</div>
+                        <div class="option" data-value="4">4 = 不太合理</div>
+                        <div class="option" data-value="5">5 = 完全不合理</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="step" id="step8">
+                <h3 class="step-title">学业认知偏差维度 (4/4)</h3>
+                <div class="form-group">
+                    <label>8. 对"失败"的恐惧程度？</label>
+                    <div class="options" data-question="A4" data-dimension="academic">
+                        <div class="option" data-value="1">1 = 毫无恐惧</div>
+                        <div class="option" data-value="2">2 = 轻微</div>
+                        <div class="option" data-value="3">3 = 中等</div>
+                        <div class="option" data-value="4">4 = 明显</div>
+                        <div class="option" data-value="5">5 = 严重</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="step" id="step9">
+                <h3 class="step-title">社交适应障碍维度 (1/4)</h3>
+                <div class="form-group">
+                    <label>9. 在学校是否有固定玩伴？</label>
+                    <div class="options" data-question="S1" data-dimension="social">
+                        <div class="option" data-value="1">1 = 3个以上</div>
+                        <div class="option" data-value="2">2 = 2个</div>
+                        <div class="option" data-value="3">3 = 1个</div>
+                        <div class="option" data-value="4">4 = 偶尔有</div>
+                        <div class="option" data-value="5">5 = 没有</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="step" id="step10">
+                <h3 class="step-title">社交适应障碍维度 (2/4)</h3>
+                <div class="form-group">
+                    <label>10. 与教师互动是否存在紧张感？</label>
+                    <div class="options" data-question="S2" data-dimension="social">
+                        <div class="option" data-value="1">1 = 完全没有</div>
+                        <div class="option" data-value="2">2 = 轻微</div>
+                        <div class="option" data-value="3">3 = 中等</div>
+                        <div class="option" data-value="4">4 = 明显</div>
+                        <div class="option" data-value="5">5 = 严重</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="step" id="step11">
+                <h3 class="step-title">社交适应障碍维度 (3/4)</h3>
+                <div class="form-group">
+                    <label>11. 是否害怕被同学评价外貌/成绩？</label>
+                    <div class="options" data-question="S3" data-dimension="social">
+                        <div class="option" data-value="1">1 = 完全不害怕</div>
+                        <div class="option" data-value="2">2 = 轻微</div>
+                        <div class="option" data-value="3">3 = 中等</div>
+                        <div class="option" data-value="4">4 = 明显</div>
+                        <div class="option" data-value="5">5 = 严重</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="step" id="step12">
+                <h3 class="step-title">社交适应障碍维度 (4/4)</h3>
+                <div class="form-group">
+                    <label>12. 参与集体活动的主动性？</label>
+                    <div class="options" data-question="S4" data-dimension="social">
+                        <div class="option" data-value="1">1 = 非常主动</div>
+                        <div class="option" data-value="2">2 = 比较主动</div>
+                        <div class="option" data-value="3">3 = 一般</div>
+                        <div class="option" data-value="4">4 = 不太主动</div>
+                        <div class="option" data-value="5">5 = 完全不主动</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="step" id="step13">
+                <h3 class="step-title">情绪调节缺陷维度 (1/4)</h3>
+                <div class="form-group">
+                    <label>13. 负面情绪持续时间？</label>
+                    <div class="options" data-question="E1" data-dimension="emotion">
+                        <div class="option" data-value="1">1 = 几小时</div>
+                        <div class="option" data-value="2">2 = 半天</div>
+                        <div class="option" data-value="3">3 = 1天</div>
+                        <div class="option" data-value="4">4 = 2-3天</div>
+                        <div class="option" data-value="5">5 = 更久</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="step" id="step14">
+                <h3 class="step-title">情绪调节缺陷维度 (2/4)</h3>
+                <div class="form-group">
+                    <label>14. 是否掌握至少2种情绪调节方法？</label>
+                    <div class="options" data-question="E2" data-dimension="emotion">
+                        <div class="option" data-value="1">1 = 5种以上</div>
+                        <div class="option" data-value="2">2 = 3-4种</div>
+                        <div class="option" data-value="3">3 = 2种</div>
+                        <div class="option" data-value="4">4 = 1种</div>
+                        <div class="option" data-value="5">5 = 没有</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="step" id="step15">
+                <h3 class="step-title">情绪调节缺陷维度 (3/4)</h3>
+                <div class="form-group">
+                    <label>15. 学业压力引发的躯体症状频率？</label>
+                    <div class="options" data-question="E3" data-dimension="emotion">
+                        <div class="option" data-value="1">1 = 从不</div>
+                        <div class="option" data-value="2">2 = 每月1次</div>
+                        <div class="option" data-value="3">3 = 每周1次</div>
+                        <div class="option" data-value="4">4 = 每周3次</div>
+                        <div class="option" data-value="5">5 = 每天</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="step" id="step16">
+                <h3 class="step-title">情绪调节缺陷维度 (4/4)</h3>
+                <div class="form-group">
+                    <label>16. 对未来的乐观程度？</label>
+                    <div class="options" data-question="E4" data-dimension="emotion">
+                        <div class="option" data-value="1">1 = 非常乐观</div>
+                        <div class="option" data-value="2">2 = 比较乐观</div>
+                        <div class="option" data-value="3">3 = 一般</div>
+                        <div class="option" data-value="4">4 = 不太乐观</div>
+                        <div class="option" data-value="5">5 = 非常悲观</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="step" id="step17">
+                <h3 class="step-title">个体发展失衡维度 (1/4)</h3>
+                <div class="form-group">
+                    <label>17. 每日户外活动时间？</label>
+                    <div class="options" data-question="D1" data-dimension="development">
+                        <div class="option" data-value="1">1 = 2小时以上</div>
+                        <div class="option" data-value="2">2 = 1-2小时</div>
+                        <div class="option" data-value="3">3 = 0.5-1小时</div>
+                        <div class="option" data-value="4">4 = 低于0.5小时</div>
+                        <div class="option" data-value="5">5 = 几乎没有</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="step" id="step18">
+                <h3 class="step-title">个体发展失衡维度 (2/4)</h3>
+                <div class="form-group">
+                    <label>18. 睡眠质量与时长？</label>
+                    <div class="options" data-question="D2" data-dimension="development">
+                        <div class="option" data-value="1">1 = 很好/9小时以上</div>
+                        <div class="option" data-value="2">2 = 良好/8-9小时</div>
+                        <div class="option" data-value="3">3 = 一般/7-8小时</div>
+                        <div class="option" data-value="4">4 = 较差/6-7小时</div>
+                        <div class="option" data-value="5">5 = 很差/低于6小时</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="step" id="step19">
+                <h3 class="step-title">个体发展失衡维度 (3/4)</h3>
+                <div class="form-group">
+                    <label>19. 是否有非学业兴趣爱好？</label>
+                    <div class="options" data-question="D3" data-dimension="development">
+                        <div class="option" data-value="1">1 = 3个以上</div>
+                        <div class="option" data-value="2">2 = 2个</div>
+                        <div class="option" data-value="3">3 = 1个</div>
+                        <div class="option" data-value="4">4 = 偶尔有</div>
+                        <div class="option" data-value="5">5 = 没有</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="step" id="step20">
+                <h3 class="step-title">个体发展失衡维度 (4/4)</h3>
+                <div class="form-group">
+                    <label>20. 自我认同程度（喜欢自己吗）？</label>
+                    <div class="options" data-question="D4" data-dimension="development">
+                        <div class="option" data-value="1">1 = 非常喜欢</div>
+                        <div class="option" data-value="2">2 = 比较喜欢</div>
+                        <div class="option" data-value="3">3 = 一般</div>
+                        <div class="option" data-value="4">4 = 不太喜欢</div>
+                        <div class="option" data-value="5">5 = 非常不喜欢</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 结果页 -->
+            <div class="step" id="step21">
+                <h3 class="step-title">评估报告</h3>
+                
+                <div class="result-section">
+                    <div class="result-title">五维度得分</div>
+                    <div id="dimensionScores"></div>
+                </div>
+
+                <div class="result-section">
+                    <div class="result-title">成因雷达图</div>
+                    <div class="chart-container">
+                        <canvas id="radarChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="result-section">
+                    <div class="result-title">核心诊断</div>
+                    <div id="diagnosisResult"></div>
+                </div>
+
+                <div class="result-section">
+                    <div class="result-title">干预建议</div>
+                    <div id="interventionAdvice"></div>
+                </div>
+
+                <div class="disclaimer">
+                    <strong>免责声明：</strong>本评估工具基于成都237例实证数据开发，仅供参考使用，不构成医疗诊断。如孩子存在严重情绪或行为问题，请及时寻求专业心理咨询师或精神科医生的帮助。
+                </div>
+
+                <!-- 提交给咨询师表单 -->
+                <div class="submit-section" id="submitSection" style="margin-top:20px; display:none;">
+                    <div class="result-section">
+                        <div class="result-title">📤 提交给咨询师</div>
+                        <p style="font-size:13px;color:#666;margin-bottom:15px;line-height:1.6;">
+                            填写您的联系信息，提交后将自动发送评估报告给咨询师。
+                        </p>
+                        <form id="submitForm" action="https://formspree.io/f/YOUR_FORM_ID" method="POST">
+                            <div class="form-group" style="margin-bottom:15px;">
+                                <label style="font-size:14px;color:#444;margin-bottom:8px;display:block;">家长姓名</label>
+                                <input type="text" name="家长姓名" placeholder="请输入您的姓名" required
+                                    style="width:100%;padding:12px;border:2px solid #e0e0e0;border-radius:10px;font-size:14px;box-sizing:border-box;">
+                            </div>
+                            <div class="form-group" style="margin-bottom:15px;">
+                                <label style="font-size:14px;color:#444;margin-bottom:8px;display:block;">联系电话</label>
+                                <input type="tel" name="联系电话" placeholder="请输入手机号" required
+                                    style="width:100%;padding:12px;border:2px solid #e0e0e0;border-radius:10px;font-size:14px;box-sizing:border-box;">
+                            </div>
+                            <div class="form-group" style="margin-bottom:15px;">
+                                <label style="font-size:14px;color:#444;margin-bottom:8px;display:block;">备注（选填）</label>
+                                <textarea name="备注" placeholder="如有特殊情况可简要说明" rows="2"
+                                    style="width:100%;padding:12px;border:2px solid #e0e0e0;border-radius:10px;font-size:14px;box-sizing:border-box;resize:none;"></textarea>
+                            </div>
+                            <!-- 隐藏字段：传递评估结果 -->
+                            <input type="hidden" name="评估结果JSON" id="resultJson">
+                            <input type="hidden" name="评估报告文本" id="resultText">
+                            <button type="submit" class="btn" id="submitBtn" style="background:#27ae60;">
+                                一键提交给咨询师
+                            </button>
+                        </form>
+                        <div id="submitSuccess" style="display:none;padding:20px;text-align:center;color:#27ae60;">
+                            <div style="font-size:32px;margin-bottom:10px;">✅</div>
+                            <div style="font-size:16px;font-weight:bold;">提交成功！</div>
+                            <div style="font-size:14px;margin-top:8px;color:#666;">咨询师将在24小时内与您联系</div>
+                        </div>
+                    </div>
+                </div>
+
+                <button class="btn" onclick="window.print()">打印/保存报告</button>
+                <button class="btn" onclick="location.reload()" style="margin-top:10px;background:#6c757d">重新评估</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentStep = 0;
+        const totalSteps = 21;
+        const answers = {};
+        
+        const thresholds = {
+            family: { major: 16, secondary: 12, potential: 8 },
+            academic: { major: 16, secondary: 12, potential: 8 },
+            social: { major: 16, secondary: 12, potential: 8 },
+            emotion: { major: 16, secondary: 12, potential: 8 },
+            development: { major: 16, secondary: 12, potential: 8 }
+        };
+
+        const dimensionNames = {
+            family: '家庭系统动力',
+            academic: '学业认知偏差',
+            social: '社交适应障碍',
+            emotion: '情绪调节缺陷',
+            development: '个体发展失衡'
+        };
+
+        const interventions = {
+            family: {
+                title: '家庭系统动力干预',
+                content: '建议：改善亲子沟通方式，减少指责性语言，增加情感交流频率。可尝试"3x3沟通方格"方法，每天固定时间进行非学业话题交流。'
+            },
+            academic: {
+                title: '学业认知偏差干预',
+                content: '建议：帮助孩子建立合理的学业归因模式，引导关注努力过程而非仅看结果。可通过成功日记训练，记录每日小成就，逐步重建学习信心。'
+            },
+            social: {
+                title: '社交适应障碍干预',
+                content: '建议：鼓励参与同伴互动小组，逐步提升社交技能。可与老师沟通，创造低压力的课堂参与机会，减少被评价焦虑。'
+            },
+            emotion: {
+                title: '情绪调节缺陷干预',
+                content: '建议：教授情绪识别和调节技巧，如情绪温度计、正念呼吸法等。如躯体症状频繁，建议寻求专业心理评估。'
+            },
+            development: {
+                title: '个体发展失衡干预',
+                content: '建议：保障充足睡眠和户外活动时间，培养非学业兴趣爱好。建立规律作息，减少电子产品使用，增强自我认同感。'
+            }
+        };
+
+        document.querySelectorAll('.options').forEach(container => {
+            container.querySelectorAll('.option').forEach(option => {
+                option.addEventListener('click', function() {
+                    container.querySelectorAll('.option').forEach(o => o.classList.remove('selected'));
+                    this.classList.add('selected');
+                    const question = container.dataset.question;
+                    const dimension = container.dataset.dimension;
+                    const value = parseInt(this.dataset.value);
+                    answers[question] = { dimension, value };
+                    setTimeout(nextStep, 300);
+                });
+            });
+        });
+
+        function nextStep() {
+            document.getElementById(`step${currentStep}`).classList.remove('active');
+            currentStep++;
+            document.getElementById(`step${currentStep}`).classList.add('active');
+            const progress = (currentStep / totalSteps) * 100;
+            document.getElementById('progressFill').style.width = `${progress}%`;
+            if (currentStep === 21) {
+                generateReport();
+            }
+        }
+
+        function calculateScores() {
+            const scores = { family: 0, academic: 0, social: 0, emotion: 0, development: 0 };
+            Object.values(answers).forEach(answer => {
+                scores[answer.dimension] += answer.value;
+            });
+            return scores;
+        }
+
+        function generateReport() {
+            const scores = calculateScores();
+            
+            let scoresHtml = '';
+            Object.entries(scores).forEach(([dim, score]) => {
+                const threshold = thresholds[dim];
+                let level, className;
+                if (score >= threshold.major) {
+                    level = '主要成因';
+                    className = 'score-high';
+                } else if (score >= threshold.secondary) {
+                    level = '次要成因';
+                    className = 'score-medium';
+                } else if (score >= threshold.potential) {
+                    level = '潜在成因';
+                    className = 'score-low';
+                } else {
+                    level = '正常范围';
+                    className = 'score-low';
+                }
+                scoresHtml += `
+                    <div class="dimension-score">
+                        <span class="dimension-name">${dimensionNames[dim]}</span>
+                        <span class="score-value ${className}">${score}分 (${level})</span>
+                    </div>
+                `;
+            });
+            document.getElementById('dimensionScores').innerHTML = scoresHtml;
+
+            drawRadarChart(scores);
+            generateDiagnosis(scores);
+            generateIntervention(scores);
+        }
+
+        function drawRadarChart(scores) {
+            const ctx = document.getElementById('radarChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'radar',
+                data: {
+                    labels: Object.values(dimensionNames),
+                    datasets: [{
+                        label: '当前得分',
+                        data: Object.values(scores),
+                        backgroundColor: 'rgba(102, 126, 234, 0.2)',
+                        borderColor: 'rgba(102, 126, 234, 1)',
+                        borderWidth: 2,
+                        pointBackgroundColor: 'rgba(102, 126, 234, 1)'
+                    }, {
+                        label: '主要成因临界值',
+                        data: [16, 16, 16, 16, 16],
+                        backgroundColor: 'transparent',
+                        borderColor: 'rgba(231, 76, 60, 0.5)',
+                        borderWidth: 1,
+                        borderDash: [5, 5],
+                        pointRadius: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        r: {
+                            min: 0,
+                            max: 20,
+                            ticks: { stepSize: 4 }
+                        }
+                    },
+                    plugins: {
+                        legend: { position: 'bottom' }
+                    }
+                }
+            });
+        }
+
+        function generateDiagnosis(scores) {
+            const majorCauses = [];
+            const secondaryCauses = [];
+            
+            Object.entries(scores).forEach(([dim, score]) => {
+                if (score >= thresholds[dim].major) {
+                    majorCauses.push(dimensionNames[dim]);
+                } else if (score >= thresholds[dim].secondary) {
+                    secondaryCauses.push(dimensionNames[dim]);
+                }
+            });
+
+            let diagnosisHtml = '';
+            
+            if (majorCauses.length > 0) {
+                diagnosisHtml += `
+                    <div class="intervention-box">
+                        <div class="intervention-title">主要成因</div>
+                        <div class="intervention-content">${majorCauses.join('、')}</div>
+                    </div>
+                `;
+            }
+            
+            if (secondaryCauses.length > 0) {
+                diagnosisHtml += `
+                    <div class="intervention-box">
+                        <div class="intervention-title">次要成因</div>
+                        <div class="intervention-content">${secondaryCauses.join('、')}</div>
+                    </div>
+                `;
+            }
+
+            if (majorCauses.length === 0 && secondaryCauses.length === 0) {
+                diagnosisHtml = `
+                    <div class="intervention-box">
+                        <div class="intervention-title">评估结果</div>
+                        <div class="intervention-content">各维度得分均在正常范围内，未发现明显的厌学核心成因。建议关注孩子的日常情绪变化，保持良好的亲子沟通。</div>
+                    </div>
+                `;
+            }
+
+            document.getElementById('diagnosisResult').innerHTML = diagnosisHtml;
+        }
+
+        function generateIntervention(scores) {
+            let interventionHtml = '';
+            
+            Object.entries(scores).forEach(([dim, score]) => {
+                if (score >= thresholds[dim].secondary) {
+                    interventionHtml += `
+                        <div class="intervention-box">
+                            <div class="intervention-title">${interventions[dim].title}</div>
+                            <div class="intervention-content">${interventions[dim].content}</div>
+                        </div>
+                    `;
+                }
+            });
+            
+            if (!interventionHtml) {
+                interventionHtml = `
+                    <div class="intervention-box">
+                        <div class="intervention-title">日常建议</div>
+                        <div class="intervention-content">继续保持良好的家庭氛围，关注孩子的情绪状态，鼓励其参与社交活动和兴趣培养。</div>
+                    </div>
+                `;
+            }
+            
+            document.getElementById('interventionAdvice').innerHTML = interventionHtml;
+
+            // 显示提交给咨询师区域
+            document.getElementById('submitSection').style.display = 'block';
+
+            // 填充评估结果到隐藏字段
+            const scores = calculateScores();
+            const allAnswers = Object.entries(answers).map(([q, a]) => `${q}: ${a.value}`).join('\n');
+            const scoresText = Object.entries(scores).map(([dim, score]) => `${dimensionNames[dim]}: ${score}分`).join('\n');
+
+            document.getElementById('resultJson').value = JSON.stringify({ scores, answers }, null, 2);
+            document.getElementById('resultText').value = `五维度得分:\n${scoresText}\n\n主要成因: ${majorCauses.length > 0 ? majorCauses.join('、') : '无'}\n次要成因: ${secondaryCauses.length > 0 ? secondaryCauses.join('、') : '无'}`;
+        }
+
+        // 表单提交处理
+        const submitForm = document.getElementById('submitForm');
+        submitForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const btn = document.getElementById('submitBtn');
+            btn.disabled = true;
+            btn.textContent = '提交中...';
+
+            const formData = new FormData(submitForm);
+
+            try {
+                const response = await fetch(submitForm.action, {
+                    method: 'POST',
+                    body: formData,
+                    headers: { 'Accept': 'application/json' }
+                });
+
+                if (response.ok) {
+                    submitForm.style.display = 'none';
+                    document.getElementById('submitSuccess').style.display = 'block';
+                } else {
+                    throw new Error('提交失败');
+                }
+            } catch (error) {
+                // 如果 Formspree 不可用，使用邮件回退
+                const body = encodeURIComponent(
+                    `家长姓名: ${formData.get('家长姓名')}\n联系电话: ${formData.get('联系电话')}\n备注: ${formData.get('备注')}\n\n评估报告:\n${formData.get('评估报告文本')}`
+                );
+                window.location.href = `mailto:YOUR_EMAIL@example.com?subject=厌学评估报告提交&body=${body}`;
+                submitForm.style.display = 'none';
+                document.getElementById('submitSuccess').style.display = 'block';
+            }
+        });
+    </script>
+</body>
+</html>

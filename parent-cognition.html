@@ -577,8 +577,9 @@
         if (!finalScores) finalScores = calcScores();
         var record = {
             name: name, phone: phone, note: note,
+            tool: 'parent',
             scores: finalScores,
-            maxScore: Math.max(finalScores.cognition, finalScores.mindset, finalScores.behavior),
+            maxScore: Math.max(finalScores.cognition || 0, finalScores.mindset || 0, finalScores.behavior || 0),
             time: new Date().toISOString()
         };
         try {

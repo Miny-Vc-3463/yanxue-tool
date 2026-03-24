@@ -111,6 +111,7 @@
                 <p>请根据孩子最近 <strong>2周内</strong> 的实际情况作答。</p>
             </div>
             <button class="btn" id="startBtn">开始评估 →</button>
+            <div style="text-align:center;margin-top:16px;padding-top:16px;border-top:1px solid #eee;"><a href="consultant.html" target="_blank" style="font-size:12px;color:#667eea;text-decoration:none;">🔐 咨询师入口</a></div>
         </div>
         <div class="step" id="step1"><div class="step-title">家庭系统动力维度 (1/4)</div><div class="q-label">1. 父母对学习的要求是否超出孩子能力？</div><div class="options" data-q="F1" data-dim="family"><div class="option" data-v="1">1 = 完全没有</div><div class="option" data-v="2">2 = 轻微</div><div class="option" data-v="3">3 = 中等</div><div class="option" data-v="4">4 = 明显</div><div class="option" data-v="5">5 = 严重</div></div></div>
         <div class="step" id="step2"><div class="step-title">家庭系统动力维度 (2/4)</div><div class="q-label">2. 家庭互动中是否存在指责/贬低？</div><div class="options" data-q="F2" data-dim="family"><div class="option" data-v="1">1 = 从不</div><div class="option" data-v="2">2 = 偶尔</div><div class="option" data-v="3">3 = 经常</div><div class="option" data-v="4">4 = 频繁</div><div class="option" data-v="5">5 = 持续</div></div></div>
@@ -141,6 +142,7 @@
             <div class="disclaimer"><strong>⚠️ 免责声明：</strong>本评估工具基于成都237例实证数据开发，仅供参考，不构成医疗诊断。如孩子存在严重情绪或行为问题，请及时寻求专业心理咨询师或精神科医生的帮助。</div>
             <button class="btn btn-green" onclick="showSummaryModal()">✅ 完成评估 → 填写信息并保存报告</button>
             <button class="btn btn-gray" onclick="location.reload()" style="margin-top:10px;">🔄 重新评估</button>
+            <div style="text-align:center;margin-top:16px;padding-top:16px;border-top:1px solid #eee;"><a href="consultant.html" target="_blank" style="font-size:12px;color:#667eea;text-decoration:none;">🔐 咨询师入口</a></div>
         </div>
     </div>
 </div>
@@ -368,6 +370,10 @@
     }
 
     function saveRecord(name, phone, note) {
+        if (!finalScores) {
+            console.error('finalScores 未定义，重新计算');
+            finalScores = calcScores();
+        }
         var record = {
             name: name,
             phone: phone,
@@ -380,7 +386,10 @@
             var data = JSON.parse(localStorage.getItem('yanxue_records') || '[]');
             data.unshift(record);
             localStorage.setItem('yanxue_records', JSON.stringify(data));
-        } catch(e) {}
+            console.log('✅ 数据已保存到 localStorage:', record);
+        } catch(e) {
+            console.error('❌ 保存失败:', e);
+        }
     }
 
     window.doSubmit = function() {

@@ -450,7 +450,7 @@
 
     function saveRecord(name, phone, note) {
         if (!finalScores) return;
-        var record = { name: name, phone: phone, note: note, tool: 'family-pattern', basicInfo: basicInfo, scores: finalScores, maxScore: Math.max(finalScores.C, finalScores.E, finalScores.D), time: new Date().toISOString() };
+        var record = { name: name, phone: phone, note: note, tool: 'family', basicInfo: basicInfo, scores: finalScores, maxScore: Math.max(finalScores.C || 0, finalScores.E || 0, finalScores.D || 0), time: new Date().toISOString() };
         try { var data = JSON.parse(localStorage.getItem('yanxue_records') || '[]'); data.unshift(record); localStorage.setItem('yanxue_records', JSON.stringify(data)); } catch(e) {}
     }
 

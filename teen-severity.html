@@ -1,0 +1,719 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>青少年厌学程度评估</title>
+    <meta name="description" content="科学评估青少年厌学程度，3维度12题量化分析">
+    <meta property="og:title" content="青少年厌学程度评估">
+    <meta property="og:description" content="学业参与度·学校适应·情绪态度 | 3维度量化评估">
+    <meta property="og:image" content="https://raw.githubusercontent.com/miny-vc-3463/yanxue-tool/main/cover.jpg">
+    <meta property="og:url" content="https://miny-vc-3463.github.io/yanxue-tool/teen-severity.html">
+    <meta property="og:type" content="website">
+    <meta name="twitter:card" content="summary_large_image">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', sans-serif; background: linear-gradient(135deg, #e17055 0%, #fdcb6e 100%); min-height: 100vh; padding: 20px; }
+        .container { max-width: 600px; margin: 0 auto; background: white; border-radius: 20px; box-shadow: 0 20px 60px rgba(0,0,0,0.25); overflow: hidden; }
+        .header { background: linear-gradient(135deg, #e17055, #fdcb6e); color: white; padding: 26px 20px; text-align: center; }
+        .header h1 { font-size: 20px; margin-bottom: 6px; }
+        .header p { font-size: 12px; opacity: 0.9; }
+        .content { padding: 22px 18px; }
+        .progress-bar { height: 5px; background: #e0e0e0; border-radius: 3px; margin-bottom: 20px; overflow: hidden; }
+        .progress-fill { height: 100%; background: linear-gradient(90deg, #e17055, #fdcb6e); transition: width 0.4s ease; width: 0%; }
+        .step { display: none; }
+        .step.active { display: block; }
+        .step-title { font-size: 15px; color: #333; margin-bottom: 14px; padding-bottom: 8px; border-bottom: 2px solid #e17055; font-weight: 700; }
+        .q-label { font-size: 13px; color: #222; margin-bottom: 10px; line-height: 1.6; font-weight: 500; }
+        .step-sub { font-size: 11px; color: #888; margin-bottom: 12px; background: #fef9f0; padding: 7px 10px; border-radius: 6px; }
+        /* 基本信息表 */
+        .info-grid { display: grid; gap: 12px; }
+        .info-row { display: flex; align-items: center; gap: 10px; }
+        .info-row label { font-size: 13px; color: #555; width: 80px; flex-shrink: 0; font-weight: 600; }
+        .info-row input, .info-row select { flex: 1; padding: 9px 11px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 13px; outline: none; font-family: inherit; transition: border-color 0.2s; }
+        .info-row input:focus, .info-row select:focus { border-color: #e17055; }
+        .radio-group { display: flex; flex-wrap: wrap; gap: 8px; flex: 1; }
+        .radio-item { padding: 5px 12px; border: 2px solid #e0e0e0; border-radius: 20px; font-size: 12px; cursor: pointer; color: #666; transition: all 0.2s; user-select: none; }
+        .radio-item.selected { border-color: #e17055; background: #fff0eb; color: #e17055; }
+        /* 表格型 Likert */
+        .likert-table { width: 100%; border-collapse: collapse; font-size: 12px; margin-bottom: 6px; }
+        .likert-table th { background: #fef9f0; padding: 8px 4px; text-align: center; font-weight: 600; color: #555; border-bottom: 2px solid #f0e0d0; }
+        .likert-table th:first-child { text-align: left; width: 40%; }
+        .likert-table td { padding: 6px 4px; text-align: center; vertical-align: middle; }
+        .likert-table td:first-child { text-align: left; color: #333; font-size: 12px; line-height: 1.5; padding-left: 0; }
+        .likert-cell { width: 12%; }
+        .likert-opt { width: 36px; height: 36px; border: 2px solid #e0e0e0; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; font-size: 12px; color: #999; transition: all 0.2s; }
+        .likert-opt:hover { border-color: #e17055; color: #e17055; }
+        .likert-opt.selected { background: linear-gradient(135deg, #e17055, #fdcb6e); border-color: #e17055; color: white; }
+        .likert-score-label { font-size: 10px; color: #aaa; display: block; margin-top: 2px; }
+        /* 进度标签 */
+        .dim-header { background: #fef9f0; border-radius: 10px; padding: 12px 14px; margin-bottom: 14px; display: flex; justify-content: space-between; align-items: center; }
+        .dim-header .dim-name { font-size: 13px; font-weight: 700; color: #e17055; }
+        .dim-header .dim-progress { font-size: 11px; color: #999; }
+        /* 结果 */
+        .result-section { background: #f8f9f9; border-radius: 12px; padding: 15px; margin-bottom: 13px; }
+        .result-title { font-size: 13px; color: #e17055; margin-bottom: 11px; font-weight: 700; }
+        .dim-row { display: flex; justify-content: space-between; align-items: center; padding: 9px 0; border-bottom: 1px solid #eee; }
+        .dim-row:last-child { border-bottom: none; }
+        .dim-name { font-size: 13px; color: #444; }
+        .dim-score { font-size: 14px; font-weight: bold; }
+        .score-high { color: #e74c3c; }
+        .score-medium { color: #f39c12; }
+        .score-low { color: #27ae60; }
+        .info-box { background: white; border-left: 4px solid #e17055; padding: 12px 13px; margin: 9px 0; border-radius: 0 8px 8px 0; }
+        .info-box.danger { border-left-color: #e74c3c; }
+        .info-box.warning { border-left-color: #f39c12; }
+        .info-box.success { border-left-color: #27ae60; }
+        .info-box.critical { border-left-color: #8e44ad; background: #f8f0ff; }
+        .info-title { font-weight: 700; color: #333; margin-bottom: 4px; font-size: 13px; }
+        .info-content { font-size: 12px; color: #666; line-height: 1.7; }
+        .chart-container { position: relative; height: 220px; margin: 6px 0; }
+        .disclaimer { background: #fff8e1; border: 1px solid #ffe082; border-radius: 10px; padding: 12px; margin-top: 13px; font-size: 11px; color: #795548; line-height: 1.7; }
+        /* 通用 */
+        .btn { width: 100%; padding: 14px; background: linear-gradient(135deg, #e17055 0%, #fdcb6e 100%); color: white; border: none; border-radius: 12px; font-size: 14px; font-weight: 600; cursor: pointer; margin-top: 16px; transition: transform 0.2s, box-shadow 0.2s; -webkit-tap-highlight-color: transparent; }
+        .btn:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(225,112,85,0.35); }
+        .btn:active { transform: scale(0.98); }
+        .btn-green { background: linear-gradient(135deg, #27ae60, #2ecc71); }
+        .btn-gray { background: #6c757d; }
+        .btn:disabled { opacity: 0.6; cursor: not-allowed; }
+        .welcome-text { font-size: 13px; color: #555; line-height: 1.8; margin-bottom: 10px; }
+        .welcome-text ul { margin: 10px 0 10px 18px; }
+        .welcome-text li { margin: 4px 0; }
+        /* 弹窗 */
+        .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.55); display: flex; align-items: center; justify-content: center; z-index: 9999; padding: 20px; opacity: 0; visibility: hidden; transition: opacity 0.3s, visibility 0.3s; }
+        .modal-overlay.show { opacity: 1; visibility: visible; }
+        .modal-box { background: white; border-radius: 18px; width: 100%; max-width: 480px; max-height: 90vh; overflow-y: auto; transform: scale(0.9); transition: transform 0.3s; }
+        .modal-overlay.show .modal-box { transform: scale(1); }
+        .modal-header { background: linear-gradient(135deg, #e17055, #fdcb6e); color: white; padding: 20px 18px 16px; border-radius: 18px 18px 0 0; position: relative; }
+        .modal-header h2 { font-size: 16px; margin-bottom: 3px; }
+        .modal-header p { font-size: 12px; opacity: 0.85; }
+        .modal-close { position: absolute; right: 14px; top: 12px; font-size: 22px; cursor: pointer; opacity: 0.7; }
+        .modal-close:hover { opacity: 1; }
+        .modal-body { padding: 18px; }
+        .form-field { margin-bottom: 13px; }
+        .form-field label { display: block; font-size: 12px; color: #555; margin-bottom: 5px; font-weight: 600; }
+        .form-field label span { color: #e74c3c; }
+        .form-field input, .form-field textarea, .form-field select { width: 100%; padding: 10px 12px; border: 2px solid #e0e0e0; border-radius: 9px; font-size: 13px; outline: none; font-family: inherit; transition: border-color 0.2s; }
+        .form-field input:focus, .form-field textarea:focus, .form-field select:focus { border-color: #e17055; }
+        .btn-row { display: flex; gap: 9px; margin-top: 16px; }
+        .btn-row .btn { margin-top: 0; flex: 1; }
+        .btn-row .btn-outline { background: white; color: #e17055; border: 2px solid #e17055; flex: 1; padding: 12px; }
+        .btn-row .btn-outline:hover { background: #fef9f0; }
+        .success-box { text-align: center; padding: 26px 18px; }
+        .success-box .icon { font-size: 48px; margin-bottom: 10px; }
+        .success-box h3 { font-size: 17px; color: #333; margin-bottom: 7px; }
+        .success-box p { font-size: 12px; color: #888; line-height: 1.7; }
+        .success-box .actions { margin-top: 18px; }
+        .success-box .actions .btn { margin-top: 8px; }
+        /* 高亮 */
+        .highlight-card { background: #fff5f5; border: 2px solid #ffcdd2; border-radius: 12px; padding: 13px; margin-bottom: 11px; }
+        .highlight-card.warning { background: #fffbf0; border-color: #ffe0b2; }
+        .highlight-card.purple { background: #f8f0ff; border-color: #d7bde2; }
+        .highlight-card h4 { font-size: 13px; color: #c62828; margin-bottom: 4px; }
+        .highlight-card.warning h4 { color: #e65100; }
+        .highlight-card.purple h4 { color: #7d3c98; }
+        .highlight-card p { font-size: 12px; color: #555; line-height: 1.6; }
+        .summary-normal { background: #f1f8f4; border: 2px solid #c8e6c9; border-radius: 12px; padding: 11px 14px; margin-bottom: 11px; text-align: center; }
+        .summary-normal h4 { font-size: 13px; color: #2e7d32; margin-bottom: 3px; }
+        .summary-normal p { font-size: 12px; color: #555; }
+        .consultant-link { text-align: center; margin-top: 14px; padding-top: 14px; border-top: 1px solid #eee; }
+        .consultant-link a { font-size: 12px; color: #e17055; text-decoration: none; }
+        .loading-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(255,255,255,0.97); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 99999; opacity: 0; visibility: hidden; transition: opacity 0.3s; }
+        .loading-overlay.show { opacity: 1; visibility: visible; }
+        .spinner { width: 40px; height: 40px; border: 4px solid #e0e0e0; border-top-color: #e17055; border-radius: 50%; animation: spin 0.7s linear infinite; margin-bottom: 12px; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .loading-text { font-size: 14px; color: #555; }
+        @media print { body { background: white; padding: 0; } .container { box-shadow: none; } .btn, .modal-overlay, .loading-overlay { display: none !important; } }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header"><h1>青少年厌学程度评估</h1><p>学业参与度 · 学校适应 · 情绪态度 | 3维度12题</p></div>
+    <div class="content">
+        <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+
+        <!-- 欢迎页 step0 -->
+        <div class="step active" id="step0">
+            <div class="welcome-text">
+                <p><strong>欢迎使用青少年厌学程度评估</strong></p>
+                <p style="margin-top:10px;">本工具用于科学评估6-18岁青少年厌学程度，通过3个维度12道量化题，综合判定厌学严重程度，为干预优先级提供参考依据。</p>
+                <ul>
+                    <li>⏱ 评估时长：约5-8分钟</li>
+                    <li>📋 题目数量：12道评估题</li>
+                    <li>📊 评估维度：学业参与度、学校适应、情绪态度</li>
+                    <li>👤 评估方式：支持自评/家长评/教师评</li>
+                </ul>
+                <p>请根据孩子最近 <strong>1个月</strong> 的实际情况作答。</p>
+            </div>
+            <button class="btn" id="startBtn">开始评估 →</button>
+            <div class="consultant-link"><a href="consultant.html" target="_blank">🔐 咨询师入口</a></div>
+        </div>
+
+        <!-- 基本信息 step1 -->
+        <div class="step" id="step1">
+            <div class="step-title">基本信息</div>
+            <div class="step-sub">以下信息仅用于评估记录，不会对外公开</div>
+            <div class="info-grid">
+                <div class="info-row">
+                    <label>姓名/昵称</label>
+                    <input type="text" id="infoName" placeholder="如：金牛区王同学" maxlength="20">
+                </div>
+                <div class="info-row">
+                    <label>性别</label>
+                    <div class="radio-group" id="genderGroup">
+                        <div class="radio-item" data-v="男">男</div>
+                        <div class="radio-item" data-v="女">女</div>
+                    </div>
+                </div>
+                <div class="info-row">
+                    <label>年龄/年级</label>
+                    <input type="text" id="infoGrade" placeholder="如：13岁/初中一年级" maxlength="20">
+                </div>
+                <div class="info-row">
+                    <label>起始时间</label>
+                    <input type="text" id="infoDuration" placeholder="如：2025年3月（持续2个月）" maxlength="30">
+                </div>
+                <div class="info-row">
+                    <label>评估方式</label>
+                    <div class="radio-group" id="methodGroup">
+                        <div class="radio-item" data-v="自评">自评</div>
+                        <div class="radio-item" data-v="家长评">家长评</div>
+                        <div class="radio-item" data-v="教师评">教师评</div>
+                    </div>
+                </div>
+            </div>
+            <button class="btn" onclick="submitBasicInfo()" style="margin-top:16px;">下一题 →</button>
+        </div>
+
+        <!-- 学业参与度 step2 -->
+        <div class="step" id="step2">
+            <div class="dim-header">
+                <span class="dim-name">📚 学业参与度（4题）</span>
+                <span class="dim-progress" id="dim1Progress">0/4 已答</span>
+            </div>
+            <div class="step-title">学业参与度（得分越高，参与度越低）</div>
+            <div class="step-sub">请根据最近1个月的情况选择最符合的选项</div>
+            <table class="likert-table">
+                <thead>
+                    <tr>
+                        <th>行为表现</th>
+                        <th>1</th>
+                        <th>2</th>
+                        <th>3</th>
+                        <th>4</th>
+                        <th>5</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>拒绝完成作业</td>
+                        <td class="likert-cell"><div class="likert-opt" data-q="A1" data-v="1">1<div class="likert-score-label">从不</div></div></td>
+                        <td class="likert-cell"><div class="likert-opt" data-q="A1" data-v="2">2</div></td>
+                        <td class="likert-cell"><div class="likert-opt" data-q="A1" data-v="3">3</div></td>
+                        <td class="likert-cell"><div class="likert-opt" data-q="A1" data-v="4">4</div></td>
+                        <td class="likert-cell"><div class="likert-opt" data-q="A1" data-v="5">5<div class="likert-score-label">总是</div></div></td>
+                    </tr>
+                    <tr>
+                        <td>上课注意力不集中</td>
+                        <td class="likert-cell"><div class="likert-opt" data-q="A2" data-v="1">1</div></td>
+                        <td class="likert-cell"><div class="likert-opt" data-q="A2" data-v="2">2</div></td>
+                        <td class="likert-cell"><div class="likert-opt" data-q="A2" data-v="3">3</div></td>
+                        <td class="likert-cell"><div class="likert-opt" data-q="A2" data-v="4">4</div></td>
+                        <td class="likert-cell"><div class="likert-opt" data-q="A2" data-v="5">5<div class="likert-score-label">总是</div></div></td>
+                    </tr>
+                    <tr>
+                        <td>逃避谈论学习话题</td>
+                        <td class="likert-cell"><div class="likert-opt" data-q="A3" data-v="1">1</div></td>
+                        <td class="likert-cell"><div class="likert-opt" data-q="A3" data-v="2">2</div></td>
+                        <td class="likert-cell"><div class="likert-opt" data-q="A3" data-v="3">3</div></td>
+                        <td class="likert-cell"><div class="likert-opt" data-q="A3" data-v="4">4</div></td>
+                        <td class="likert-cell"><div class="likert-opt" data-q="A3" data-v="5">5<div class="likert-score-label">总是</div></div></td>
+                    </tr>
+                    <tr>
+                        <td>学业成绩明显下降</td>
+                        <td class="likert-cell"><div class="likert-opt" data-q="A4" data-v="1">1</div></td>
+                        <td class="likert-cell"><div class="likert-opt" data-q="A4" data-v="2">2</div></td>
+                        <td class="likert-cell"><div class="likert-opt" data-q="A4" data-v="3">3</div></td>
+                        <td class="likert-cell"><div class="likert-opt" data-q="A4" data-v="4">4</div></td>
+                        <td class="likert-cell"><div class="likert-opt" data-q="A4" data-v="5">5<div class="likert-score-label">总是</div></div></td>
+                    </tr>
+                </tbody>
+            </table>
+            <div style="font-size:11px;color:#999;margin-top:6px;text-align:right;">学业参与度小计：<strong id="subA" style="color:#e17055;">—</strong> 分</div>
+            <button class="btn" onclick="nextFromDim1()">下一题 →</button>
+        </div>
+
+        <!-- 学校适应 step3 -->
+        <div class="step" id="step3">
+            <div class="dim-header">
+                <span class="dim-name">🏫 学校出勤与适应（4题）</span>
+                <span class="dim-progress" id="dim2Progress">0/4 已答</span>
+            </div>
+            <div class="step-title">学校出勤与适应（得分越高，适应越差）</div>
+            <div class="step-sub">请根据最近1个月的情况选择最符合的选项</div>
+            <table class="likert-table">
+                <thead>
+                    <tr><th>行为表现</th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th></tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>上学前出现躯体不适（无器质性病变）</td>
+                        <td class="likert-cell"><div class="likert-opt" data-q="S1" data-v="1">1<div class="likert-score-label">从不</div></div></td>
+                        <td class="likert-cell"><div class="likert-opt" data-q="S1" data-v="2">2</div></td>
+                        <td class="likert-cell"><div class="likert-opt" data-q="S1" data-v="3">3</div></td>
+                        <td class="likert-cell"><div class="likert-opt" data-q="S1" data-v="4">4</div></td>
+                        <td class="likert-cell"><div class="likert-opt" data-q="S1" data-v="5">5<div class="likert-score-label">总是</div></div></td>
+                    </tr>
+                    <tr>
+                        <td>迟到/早退/旷课</td>
+                        <td class="likert-cell"><div class="likert-opt" data-q="S2" data-v="1">1</div></td>
+                        <td class="likert-cell"><div class="likert-opt" data-q="S2" data-v="2">2</div></td>
+                        <td class="likert-cell"><div class="likert-opt" data-q="S2" data-v="3">3</div></td>
+                        <td class="likert-cell"><div class="likert-opt" data-q="S2" data-v="4">4</div></td>
+                        <td class="likert-cell"><div class="likert-opt" data-q="S2" data-v="5">5<div class="likert-score-label">总是</div></div></td>
+                    </tr>
+                    <tr>
+                        <td>放学后拒绝讨论学校生活</td>
+                        <td class="likert-cell"><div class="likert-opt" data-q="S3" data-v="1">1</div></td>
+                        <td class="likert-cell"><div class="likert-opt" data-q="S3" data-v="2">2</div></td>
+                        <td class="likert-cell"><div class="likert-opt" data-q="S3" data-v="3">3</div></td>
+                        <td class="likert-cell"><div class="likert-opt" data-q="S3" data-v="4">4</div></td>
+                        <td class="likert-cell"><div class="likert-opt" data-q="S3" data-v="5">5<div class="likert-score-label">总是</div></div></td>
+                    </tr>
+                    <tr>
+                        <td>对学校活动无兴趣</td>
+                        <td class="likert-cell"><div class="likert-opt" data-q="S4" data-v="1">1</div></td>
+                        <td class="likert-cell"><div class="likert-opt" data-q="S4" data-v="2">2</div></td>
+                        <td class="likert-cell"><div class="likert-opt" data-q="S4" data-v="3">3</div></td>
+                        <td class="likert-cell"><div class="likert-opt" data-q="S4" data-v="4">4</div></td>
+                        <td class="likert-cell"><div class="likert-opt" data-q="S4" data-v="5">5<div class="likert-score-label">总是</div></div></td>
+                    </tr>
+                </tbody>
+            </table>
+            <div style="font-size:11px;color:#999;margin-top:6px;text-align:right;">学校适应小计：<strong id="subS" style="color:#e17055;">—</strong> 分</div>
+            <button class="btn" onclick="nextFromDim2()">下一题 →</button>
+        </div>
+
+        <!-- 情绪态度 step4 -->
+        <div class="step" id="step4">
+            <div class="dim-header">
+                <span class="dim-name">💭 情绪与态度（4题）</span>
+                <span class="dim-progress" id="dim3Progress">0/4 已答</span>
+            </div>
+            <div class="step-title">情绪与态度（得分越高，负面情绪越严重）</div>
+            <div class="step-sub">请根据最近1个月的情况选择最符合的选项</div>
+            <table class="likert-table">
+                <thead>
+                    <tr><th>行为表现</th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th></tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>提及上学时情绪低落/烦躁</td>
+                        <td class="likert-cell"><div class="likert-opt" data-q="E1" data-v="1">1<div class="likert-score-label">从不</div></div></td>
+                        <td class="likert-cell"><div class="likert-opt" data-q="E1" data-v="2">2</div></td>
+                        <td class="likert-cell"><div class="likert-opt" data-q="E1" data-v="3">3</div></td>
+                        <td class="likert-cell"><div class="likert-opt" data-q="E1" data-v="4">4</div></td>
+                        <td class="likert-cell"><div class="likert-opt" data-q="E1" data-v="5">5<div class="likert-score-label">总是</div></div></td>
+                    </tr>
+                    <tr>
+                        <td>表达"不想上学"的想法</td>
+                        <td class="likert-cell"><div class="likert-opt" data-q="E2" data-v="1">1</div></td>
+                        <td class="likert-cell"><div class="likert-opt" data-q="E2" data-v="2">2</div></td>
+                        <td class="likert-cell"><div class="likert-opt" data-q="E2" data-v="3">3</div></td>
+                        <td class="likert-cell"><div class="likert-opt" data-q="E2" data-v="4">4</div></td>
+                        <td class="likert-cell"><div class="likert-opt" data-q="E2" data-v="5">5<div class="likert-score-label">总是</div></div></td>
+                    </tr>
+                    <tr>
+                        <td>对未来学业前景悲观</td>
+                        <td class="likert-cell"><div class="likert-opt" data-q="E3" data-v="1">1</div></td>
+                        <td class="likert-cell"><div class="likert-opt" data-q="E3" data-v="2">2</div></td>
+                        <td class="likert-cell"><div class="likert-opt" data-q="E3" data-v="3">3</div></td>
+                        <td class="likert-cell"><div class="likert-opt" data-q="E3" data-v="4">4</div></td>
+                        <td class="likert-cell"><div class="likert-opt" data-q="E3" data-v="5">5<div class="likert-score-label">总是</div></div></td>
+                    </tr>
+                    <tr>
+                        <td>因学习问题出现自我否定</td>
+                        <td class="likert-cell"><div class="likert-opt" data-q="E4" data-v="1">1</div></td>
+                        <td class="likert-cell"><div class="likert-opt" data-q="E4" data-v="2">2</div></td>
+                        <td class="likert-cell"><div class="likert-opt" data-q="E4" data-v="3">3</div></td>
+                        <td class="likert-cell"><div class="likert-opt" data-q="E4" data-v="4">4</div></td>
+                        <td class="likert-cell"><div class="likert-opt" data-q="E4" data-v="5">5<div class="likert-score-label">总是</div></div></td>
+                    </tr>
+                </tbody>
+            </table>
+            <div style="font-size:11px;color:#999;margin-top:6px;text-align:right;">情绪态度小计：<strong id="subE" style="color:#e17055;">—</strong> 分</div>
+            <button class="btn btn-green" onclick="showResult()">📊 查看评估结果</button>
+        </div>
+
+        <!-- 结果页 step5 -->
+        <div class="step" id="step5">
+            <div class="step-title">📊 评估报告</div>
+            <div class="result-section">
+                <div class="result-title">三维度得分</div>
+                <div id="dimensionScores"></div>
+            </div>
+            <div class="result-section">
+                <div class="result-title">雷达图</div>
+                <div class="chart-container"><canvas id="radarChart"></canvas></div>
+            </div>
+            <div class="result-section">
+                <div class="result-title">厌学程度判定</div>
+                <div id="diagnosisResult"></div>
+            </div>
+            <div class="result-section">
+                <div class="result-title">干预建议</div>
+                <div id="interventionAdvice"></div>
+            </div>
+            <div class="disclaimer"><strong>⚠️ 免责声明：</strong>本评估工具仅供参考，不构成医疗诊断。如存在严重情绪或行为问题，请及时寻求专业心理咨询师或精神科医生的帮助。</div>
+            <button class="btn btn-green" onclick="showSummaryModal()">✅ 完成评估 → 填写信息并保存报告</button>
+            <button class="btn btn-gray" onclick="location.reload()" style="margin-top:10px;">🔄 重新评估</button>
+            <div class="consultant-link"><a href="consultant.html" target="_blank">🔐 咨询师入口</a></div>
+        </div>
+    </div>
+</div>
+
+<!-- 核心发现弹窗 -->
+<div class="modal-overlay" id="summaryModal">
+    <div class="modal-box">
+        <div class="modal-header">
+            <span class="modal-close" onclick="closeSummaryModal()">×</span>
+            <h2>🎯 评估发现</h2>
+            <p>以下为评估核心发现及建议</p>
+        </div>
+        <div class="modal-body">
+            <div id="summaryContent"></div>
+            <div class="btn-row">
+                <button class="btn btn-outline" onclick="closeSummaryModal()">返回报告</button>
+                <button class="btn btn-green" onclick="goToSubmitModal()">📋 填写信息并保存</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 提交弹窗 -->
+<div class="modal-overlay" id="submitModal">
+    <div class="modal-box">
+        <div class="modal-header">
+            <span class="modal-close" onclick="closeModal()">×</span>
+            <h2>📋 完善联系信息</h2>
+            <p>填写后可保存评估报告，咨询师将主动与您联系</p>
+        </div>
+        <div class="modal-body">
+            <div id="modalForm">
+                <p style="font-size:11px;color:#999;margin-bottom:13px;">💡 提交后将自动生成评估报告PDF并保存，同时咨询师可在后台查看此评估结果。</p>
+                <div class="form-field"><label>您的姓名 <span>*</span></label><input type="text" id="mName" placeholder="请输入您的姓名" maxlength="20"></div>
+                <div class="form-field"><label>联系电话 <span>*</span></label><input type="tel" id="mPhone" placeholder="请输入手机号" maxlength="20"></div>
+                <div class="form-field"><label>备注（选填）</label><textarea id="mNote" rows="2" placeholder="如有特殊情况可简要说明"></textarea></div>
+                <div class="btn-row">
+                    <button class="btn btn-outline" onclick="closeModal()">稍后保存</button>
+                    <button class="btn btn-green" id="confirmBtn" onclick="doSubmit()">✅ 确认提交</button>
+                </div>
+            </div>
+            <div id="modalSuccess" style="display:none;" class="success-box">
+                <div class="icon">🎉</div>
+                <h3>提交成功！</h3>
+                <p>评估报告已保存至您的设备。<br>咨询师将在24小时内与您联系。</p>
+                <div class="actions">
+                    <button class="btn" onclick="location.reload()">🔄 重新评估</button>
+                    <button class="btn btn-gray" onclick="closeModal(); window.scrollTo({top:0,behavior:'smooth'});" style="margin-top:8px;">👀 查看报告</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 加载遮罩 -->
+<div class="loading-overlay" id="loadingOverlay">
+    <div class="spinner"></div>
+    <div class="loading-text" id="loadingText">正在生成报告...</div>
+</div>
+
+<script>
+(function() {
+    'use strict';
+    var currentStep = 0, totalSteps = 5, answers = {}, finalScores = null;
+    var basicInfo = {};
+    var DIM_NAMES = { academic: '学业参与度', school: '学校适应', emotion: '情绪态度' };
+
+    var SEVERITY = [
+        { max: 15, level: '无明显厌学', color: '#27ae60', priority: '观察关注', desc: '偶尔抱怨学习，但不影响出勤和学业表现。建议保持关注。' },
+        { max: 30, level: '轻度厌学', color: '#f39c12', priority: '预防性干预', desc: '对学习兴趣下降，偶尔出现上学抵触情绪。建议增加学习趣味性，关注情绪变化。' },
+        { max: 45, level: '中度厌学', color: '#e67e22', priority: '针对性干预', desc: '频繁拒绝学习任务，每周缺勤1-2天。建议寻求专业心理咨询，配合家庭支持。' },
+        { max: 60, level: '重度厌学', color: '#e74c3c', priority: '强化干预', desc: '长期拒绝上学（≥2周），情绪问题明显。建议专业干预+家庭系统治疗。' },
+        { max: 75, level: '极重度厌学', color: '#8e44ad', priority: '危机干预', desc: '完全休学，伴随严重情绪/行为障碍。建议立即寻求精神科/危机干预。' }
+    ];
+
+    var INTERVENTIONS = {
+        academic: { content: '建议改善学习方法，降低学习难度要求，增加正向反馈。可尝试将大任务拆解为小目标，逐步重建学习兴趣。' },
+        school: { content: '建议与学校老师建立沟通机制，了解孩子在校表现，创造安全的学校环境。可考虑暂时调整学习节奏。' },
+        emotion: { content: '建议进行情绪管理训练，如正念练习、情绪表达写作等。必要时寻求专业心理评估和支持。' }
+    };
+
+    var FINDINGS = {
+        academic: '学业参与度较低，建议从激发学习兴趣入手，避免过度施压。',
+        school: '学校适应存在困难，建议加强家校沟通，关注同伴关系质量。',
+        emotion: '情绪态度问题需要重点关注，建议优先进行情绪疏导和心理支持。'
+    };
+
+    function $(id) { return document.getElementById(id); }
+
+    function goToStep(n) {
+        $('step'+currentStep).classList.remove('active');
+        currentStep = n;
+        $('step'+currentStep).classList.add('active');
+        $('progressFill').style.width = (currentStep / totalSteps * 100) + '%';
+        window.scrollTo(0, 0);
+    }
+
+    // 基本信息
+    $('startBtn').addEventListener('click', function() { goToStep(1); });
+
+    document.querySelectorAll('#genderGroup .radio-item').forEach(function(item) {
+        item.addEventListener('click', function() {
+            document.querySelectorAll('#genderGroup .radio-item').forEach(function(x){ x.classList.remove('selected'); });
+            item.classList.add('selected');
+            basicInfo.gender = item.dataset.v;
+        });
+    });
+
+    document.querySelectorAll('#methodGroup .radio-item').forEach(function(item) {
+        item.addEventListener('click', function() {
+            document.querySelectorAll('#methodGroup .radio-item').forEach(function(x){ x.classList.remove('selected'); });
+            item.classList.add('selected');
+            basicInfo.method = item.dataset.v;
+        });
+    });
+
+    window.submitBasicInfo = function() {
+        basicInfo.name = $('infoName').value.trim() || '匿名';
+        basicInfo.grade = $('infoGrade').value.trim() || '';
+        basicInfo.duration = $('infoDuration').value.trim() || '';
+        goToStep(2);
+    };
+
+    // Likert 选项
+    document.querySelectorAll('.likert-opt').forEach(function(opt) {
+        opt.addEventListener('click', function() {
+            var q = opt.dataset.q;
+            var v = parseInt(opt.dataset.v, 10);
+            // 同题目的其他选项取消选中
+            document.querySelectorAll('.likert-opt[data-q="'+q+'"]').forEach(function(x){ x.classList.remove('selected'); });
+            opt.classList.add('selected');
+            answers[q] = v;
+            updateDimProgress(q);
+        });
+    });
+
+    function updateDimProgress(q) {
+        var prefix = q.charAt(0);
+        var dim, count = 0;
+        if (prefix === 'A') {
+            dim = 'academic';
+            ['A1','A2','A3','A4'].forEach(function(x){ if(answers[x]) count++; });
+            $('dim1Progress').textContent = count + '/4 已答';
+            var sub = (answers.A1||0)+(answers.A2||0)+(answers.A3||0)+(answers.A4||0);
+            $('subA').textContent = sub;
+        } else if (prefix === 'S') {
+            dim = 'school';
+            ['S1','S2','S3','S4'].forEach(function(x){ if(answers[x]) count++; });
+            $('dim2Progress').textContent = count + '/4 已答';
+            var sub = (answers.S1||0)+(answers.S2||0)+(answers.S3||0)+(answers.S4||0);
+            $('subS').textContent = sub;
+        } else if (prefix === 'E') {
+            dim = 'emotion';
+            ['E1','E2','E3','E4'].forEach(function(x){ if(answers[x]) count++; });
+            $('dim3Progress').textContent = count + '/4 已答';
+            var sub = (answers.E1||0)+(answers.E2||0)+(answers.E3||0)+(answers.E4||0);
+            $('subE').textContent = sub;
+        }
+    }
+
+    window.nextFromDim1 = function() {
+        if (!answers.A1||!answers.A2||!answers.A3||!answers.A4) { alert('请完成学业参与度所有题目'); return; }
+        goToStep(3);
+    };
+
+    window.nextFromDim2 = function() {
+        if (!answers.S1||!answers.S2||!answers.S3||!answers.S4) { alert('请完成学校适应所有题目'); return; }
+        goToStep(4);
+    };
+
+    window.showResult = function() {
+        if (!answers.E1||!answers.E2||!answers.E3||!answers.E4) { alert('请完成情绪态度所有题目'); return; }
+        finalScores = {
+            academic: (answers.A1||0)+(answers.A2||0)+(answers.A3||0)+(answers.A4||0),
+            school: (answers.S1||0)+(answers.S2||0)+(answers.S3||0)+(answers.S4||0),
+            emotion: (answers.E1||0)+(answers.E2||0)+(answers.E3||0)+(answers.E4||0)
+        };
+        renderScores(finalScores);
+        renderRadar(finalScores);
+        renderDiagnosis(finalScores);
+        renderIntervention(finalScores);
+        goToStep(5);
+    };
+
+    function renderScores(s) {
+        var total = s.academic + s.school + s.emotion;
+        var h = '';
+        Object.keys(DIM_NAMES).forEach(function(d) {
+            var sc = s[d], cls;
+            if (sc >= 16) cls = 'score-high';
+            else if (sc >= 10) cls = 'score-medium';
+            else cls = 'score-low';
+            h += '<div class="dim-row"><span class="dim-name">' + DIM_NAMES[d] + '</span><span class="dim-score ' + cls + '">' + sc + '分</span></div>';
+        });
+        h += '<div class="dim-row" style="border-top:2px solid #ddd;margin-top:4px;padding-top:10px;"><span class="dim-name"><strong>总分</strong></span><span class="dim-score score-high"><strong>' + total + '分</strong></span></div>';
+        $('dimensionScores').innerHTML = h;
+    }
+
+    function renderRadar(s) {
+        var ctx = $('radarChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'radar',
+            data: {
+                labels: Object.values(DIM_NAMES),
+                datasets: [{
+                    label: '当前得分',
+                    data: [s.academic, s.school, s.emotion],
+                    backgroundColor: 'rgba(225,112,85,0.2)',
+                    borderColor: 'rgba(225,112,85,1)',
+                    borderWidth: 2,
+                    pointBackgroundColor: 'rgba(225,112,85,1)'
+                }, {
+                    label: '轻度临界',
+                    data: [16, 16, 16],
+                    backgroundColor: 'transparent',
+                    borderColor: 'rgba(243,156,18,0.4)',
+                    borderWidth: 1,
+                    borderDash: [4,4],
+                    pointRadius: 0
+                }]
+            },
+            options: { responsive: true, maintainAspectRatio: false, scales: { r: { min: 0, max: 20, ticks: { stepSize: 4 } } }, plugins: { legend: { position: 'bottom' } } }
+        });
+    }
+
+    function renderDiagnosis(s) {
+        var total = s.academic + s.school + s.emotion;
+        var sev = SEVERITY.find(function(item){ return total <= item.max; }) || SEVERITY[SEVERITY.length-1];
+        var h = '';
+        h += '<div class="info-box" style="border-left-color:' + sev.color + ';">';
+        h += '<div class="info-title" style="color:' + sev.color + ';">' + sev.level + '（' + total + '分）</div>';
+        h += '<div class="info-content">' + sev.desc + '</div></div>';
+        h += '<div class="info-box"><div class="info-title">干预优先级：' + sev.priority + '</div><div class="info-content">建议根据厌学程度采取相应干预措施，必要时寻求专业帮助。</div></div>';
+        $('diagnosisResult').innerHTML = h;
+    }
+
+    function renderIntervention(s) {
+        var h = '';
+        Object.keys(s).forEach(function(d) {
+            if (s[d] >= 10) {
+                h += '<div class="info-box"><div class="info-title">' + DIM_NAMES[d] + '建议</div><div class="info-content">' + INTERVENTIONS[d].content + '</div></div>';
+            }
+        });
+        if (!h) h = '<div class="info-box success"><div class="info-title">表现良好</div><div class="info-content">各维度得分均较低，继续保持关注即可。</div></div>';
+        $('interventionAdvice').innerHTML = h;
+    }
+
+    function buildSummaryHtml(s) {
+        var total = s.academic + s.school + s.emotion;
+        var sev = SEVERITY.find(function(item){ return total <= item.max; }) || SEVERITY[SEVERITY.length-1];
+        var h = '<div class="highlight-card" style="border-left-color:' + sev.color + ';"><h4 style="color:' + sev.color + ';">评估结论：' + sev.level + '</h4><p>总分：' + total + '分（学业参与度' + s.academic + ' + 学校适应' + s.school + ' + 情绪态度' + s.emotion + '）</p><p style="margin-top:4px;">' + sev.desc + '</p></div>';
+        Object.keys(s).forEach(function(d) {
+            if (s[d] >= 10) {
+                h += '<div class="highlight-card warning"><h4>' + DIM_NAMES[d] + '：' + s[d] + '分（偏高）</h4><p>' + FINDINGS[d] + '</p></div>';
+            }
+        });
+        return h;
+    }
+
+    window.showSummaryModal = function() {
+        if (!finalScores) return;
+        $('summaryContent').innerHTML = buildSummaryHtml(finalScores);
+        $('summaryModal').classList.add('show');
+    };
+    window.closeSummaryModal = function() { $('summaryModal').classList.remove('show'); };
+    window.goToSubmitModal = function() { $('summaryModal').classList.remove('show'); $('submitModal').classList.add('show'); };
+    window.closeModal = function() {
+        $('submitModal').classList.remove('show');
+        $('modalForm').style.display = 'block';
+        $('modalSuccess').style.display = 'none';
+        $('confirmBtn').disabled = false;
+        $('confirmBtn').textContent = '✅ 确认提交';
+    };
+
+    function saveRecord(name, phone, note) {
+        if (!finalScores) return;
+        var total = finalScores.academic + finalScores.school + finalScores.emotion;
+        var sev = SEVERITY.find(function(item){ return total <= item.max; }) || SEVERITY[SEVERITY.length-1];
+        var record = {
+            name: name, phone: phone, note: note,
+            tool: 'teen-severity',
+            basicInfo: basicInfo,
+            scores: finalScores,
+            totalScore: total,
+            severityLevel: sev.level,
+            maxScore: total,
+            time: new Date().toISOString()
+        };
+        try {
+            var data = JSON.parse(localStorage.getItem('yanxue_records') || '[]');
+            data.unshift(record);
+            localStorage.setItem('yanxue_records', JSON.stringify(data));
+        } catch(e) {}
+    }
+
+    window.doSubmit = function() {
+        var name = $('mName').value.trim();
+        var phone = $('mPhone').value.trim();
+        var note = $('mNote').value.trim();
+        if (!name) { alert('请填写您的姓名'); return; }
+        if (!phone) { alert('请填写联系电话'); return; }
+        $('confirmBtn').disabled = true;
+        $('confirmBtn').textContent = '生成中...';
+        saveRecord(name, phone, note);
+        try {
+            var pdf = new jsPDF();
+            var pageW = pdf.internal.pageSize.getWidth();
+            var m = 15, y = 20, lh = 7;
+            function txt(t, fs, bold, col) {
+                pdf.setFontSize(fs || 11);
+                pdf.setFont('helvetica', bold ? 'bold' : 'normal');
+                if (col) pdf.setTextColor(col[0], col[1]||col[0], col[2]||col[0]);
+                else pdf.setTextColor(40);
+                var lines = pdf.splitTextToSize(t, pageW - m * 2);
+                lines.forEach(function(l) { if (y > 275) { pdf.addPage(); y = 20; } pdf.text(l, m, y); y += lh; }); y += 3;
+            }
+            var total = finalScores.academic + finalScores.school + finalScores.emotion;
+            var sev = SEVERITY.find(function(item){ return total <= item.max; }) || SEVERITY[SEVERITY.length-1];
+            pdf.setFontSize(18); pdf.setFont('helvetica', 'bold'); pdf.setTextColor(225,112,85);
+            pdf.text('青少年厌学程度评估报告', pageW / 2, y, { align: 'center' }); y += 8;
+            pdf.setFontSize(10); pdf.setTextColor(150);
+            pdf.text('基于成都地区常模 | ' + new Date().toLocaleDateString('zh-CN'), pageW / 2, y, { align: 'center' }); y += 12;
+            pdf.setDrawColor(220); pdf.line(m, y, pageW - m, y); y += 8;
+            txt('姓名：' + (basicInfo.name||'匿名') + '  性别：' + (basicInfo.gender||'-') + '  年级：' + (basicInfo.grade||'-'), 10, false, [100,100,100]);
+            txt('评估方式：' + (basicInfo.method||'-') + '  厌学时长：' + (basicInfo.duration||'-'), 9, false, [130,130,130]); y += 5;
+            pdf.line(m, y, pageW - m, y); y += 10;
+            txt('评估结论：' + sev.level + '（' + total + '分）', 13, true, [225,112,85]);
+            txt(sev.desc, 10); y += 5;
+            txt('三维度得分', 12, true, [225,112,85]);
+            txt('学业参与度：' + finalScores.academic + '分', 11, false, [40,40,40]);
+            txt('学校适应：' + finalScores.school + '分', 11, false, [40,40,40]);
+            txt('情绪态度：' + finalScores.emotion + '分', 11, false, [40,40,40]); y += 5;
+            txt('干预优先级：' + sev.priority, 11, true, [40,40,40]);
+            y += 5;
+            pdf.setFillColor(255,248,225);
+            pdf.rect(m, y - 3, pageW - m * 2, 15, 'F');
+            txt('⚠️ 免责声明：本评估工具仅供参考，不构成医疗诊断。', 8, false, [121,85,72]);
+            pdf.save('青少年厌学评估_' + (basicInfo.name||'匿名') + '_' + new Date().toISOString().slice(0,10) + '.pdf');
+        } catch(e) { console.error('PDF生成失败', e); alert('PDF生成遇到问题，数据已保存。'); }
+        setTimeout(function() { $('modalForm').style.display = 'none'; $('modalSuccess').style.display = 'block'; }, 800);
+    };
+
+    document.addEventListener('keydown', function(e) { if (e.key === 'Escape') { closeModal(); closeSummaryModal(); } });
+})();
+</script>
+</body>
+</html>

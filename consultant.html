@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>咨询师后台 - 厌学评估管理</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', sans-serif; background: #f5f6fa; min-height: 100vh; }
+        .header { background: linear-gradient(135deg, #667eea, #764ba2); color: white; padding: 30px; text-align: center; }
+        .header h1 { font-size: 22px; margin-bottom: 6px; }
+        .header p { font-size: 13px; opacity: 0.85; }
+        .container { max-width: 900px; margin: 0 auto; padding: 24px 16px; }
+        
+        /* 表单区域 */
+        .form-section { background: white; border-radius: 16px; padding: 28px; margin-bottom: 24px; box-shadow: 0 2px 12px rgba(0,0,0,0.06); }
+        .form-section h2 { font-size: 16px; color: #333; margin-bottom: 18px; padding-bottom: 12px; border-bottom: 2px solid #667eea; }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px; }
+        .form-field { margin-bottom: 12px; }
+        .form-field label { display: block; font-size: 13px; color: #555; margin-bottom: 5px; font-weight: 600; }
+        .form-field label span { color: #e74c3c; }
+        .form-field input, .form-field select { width: 100%; padding: 10px 12px; border: 2px solid #e0e0e0; border-radius: 10px; font-size: 14px; outline: none; font-family: inherit; }
+        .form-field input:focus { border-color: #667eea; }
+        .btn { padding: 12px 24px; background: linear-gradient(135deg, #667eea, #764ba2); color: white; border: none; border-radius: 10px; font-size: 14px; font-weight: 600; cursor: pointer; transition: transform 0.2s; }
+        .btn:hover { transform: translateY(-1px); box-shadow: 0 4px 14px rgba(102,126,234,0.35); }
+        .btn-green { background: linear-gradient(135deg, #27ae60, #2ecc71); }
+        .btn-red { background: linear-gradient(135deg, #e74c3c, #c0392b); }
+        .btn-sm { padding: 7px 14px; font-size: 12px; }
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        
+        /* 数据说明 */
+        .info-box { background: #f0f4ff; border-radius: 10px; padding: 16px; margin-bottom: 20px; font-size: 13px; color: #555; line-height: 1.8; }
+        .info-box strong { color: #333; }
+        
+        /* 评估列表 */
+        .record-card { background: white; border-radius: 14px; padding: 20px; margin-bottom: 14px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); border-left: 5px solid #667eea; }
+        .record-card.high { border-left-color: #e74c3c; }
+        .record-card.medium { border-left-color: #f39c12; }
+        .record-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; }
+        .record-name { font-size: 16px; font-weight: 700; color: #333; }
+        .record-phone { font-size: 13px; color: #888; margin-top: 3px; }
+        .record-time { font-size: 12px; color: #aaa; }
+        .record-scores { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
+        .score-tag { padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: 600; }
+        .score-tag.high { background: #fde8e8; color: #e74c3c; }
+        .score-tag.medium { background: #fef3e2; color: #f39c12; }
+        .score-tag.low { background: #e8f8f0; color: #27ae60; }
+        .record-note { font-size: 13px; color: #666; background: #f9f9f9; padding: 10px 12px; border-radius: 8px; margin-bottom: 12px; line-height: 1.6; }
+        .record-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+        
+        /* 空状态 */
+        .empty-state { text-align: center; padding: 60px 20px; color: #aaa; }
+        .empty-state .icon { font-size: 64px; margin-bottom: 16px; }
+        .empty-state p { font-size: 15px; }
+        
+        /* 统计 */
+        .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 24px; }
+        .stat-card { background: white; border-radius: 14px; padding: 20px; text-align: center; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+        .stat-card .num { font-size: 28px; font-weight: 800; background: linear-gradient(135deg, #667eea, #764ba2); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .stat-card .num.red { background: linear-gradient(135deg, #e74c3c, #c0392b); -webkit-background-clip: text; }
+        .stat-card .num.orange { background: linear-gradient(135deg, #f39c12, #e67e22); -webkit-background-clip: text; }
+        .stat-card .label { font-size: 12px; color: #999; margin-top: 4px; }
+        
+        /* 弹窗 */
+        .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 9999; padding: 20px; opacity: 0; visibility: hidden; transition: opacity 0.3s; }
+        .modal-overlay.show { opacity: 1; visibility: visible; }
+        .modal-box { background: white; border-radius: 16px; width: 100%; max-width: 500px; max-height: 85vh; overflow-y: auto; }
+        .modal-header { background: linear-gradient(135deg, #667eea, #764ba2); color: white; padding: 20px 24px; border-radius: 16px 16px 0 0; }
+        .modal-header h3 { font-size: 16px; }
+        .modal-body { padding: 24px; }
+        .modal-close { float: right; cursor: pointer; font-size: 20px; color: white; opacity: 0.7; }
+        .modal-close:hover { opacity: 1; }
+        
+        @media (max-width: 600px) {
+            .form-row { grid-template-columns: 1fr; }
+            .stats { grid-template-columns: 1fr 1fr 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🔐 咨询师后台</h1>
+        <p>厌学核心成因评估 - 数据管理</p>
+    </div>
+    
+    <div class="container">
+        <!-- 说明 -->
+        <div class="form-section">
+            <h2>📖 使用说明</h2>
+            <div class="info-box">
+                <p>✅ <strong>自动接收：</strong>家长提交评估后，数据会自动出现在此页面</p>
+                <p>📱 <strong>手机查看：</strong>此页面支持手机访问，可随时随地查看新提交</p>
+                <p>⚠️ <strong>数据安全：</strong>请勿将后台链接分享给无关人员</p>
+                <p>🔄 <strong>刷新数据：</strong>点击"刷新列表"按钮获取最新提交</p>
+            </div>
+        </div>
+        
+        <!-- 统计 -->
+        <div class="stats">
+            <div class="stat-card">
+                <div class="num" id="statTotal">0</div>
+                <div class="label">总评估数</div>
+            </div>
+            <div class="stat-card">
+                <div class="num red" id="statHigh">0</div>
+                <div class="label">高风险</div>
+            </div>
+            <div class="stat-card">
+                <div class="num orange" id="statMedium">0</div>
+                <div class="label">中风险</div>
+            </div>
+        </div>
+        
+        <!-- 操作 -->
+        <div class="form-section">
+            <div style="display:flex;gap:10px;flex-wrap:wrap;">
+                <button class="btn" onclick="loadRecords()">🔄 刷新列表</button>
+                <button class="btn btn-green" onclick="exportCSV()">📥 导出CSV</button>
+                <button class="btn btn-red" onclick="clearAll()" style="background:linear-gradient(135deg,#e74c3c,#c0392b);">🗑️ 清空数据</button>
+            </div>
+        </div>
+        
+        <!-- 评估列表 -->
+        <div class="form-section">
+            <h2>📋 评估记录</h2>
+            <div id="recordList">
+                <div class="empty-state">
+                    <div class="icon">📭</div>
+                    <p>暂无评估记录</p>
+                    <p style="font-size:13px;margin-top:8px;">家长的评估提交后将在此处显示</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 详情弹窗 -->
+    <div class="modal-overlay" id="detailModal">
+        <div class="modal-box">
+            <div class="modal-header">
+                <span class="modal-close" onclick="closeDetail()">×</span>
+                <h3>📊 评估详情</h3>
+            </div>
+            <div class="modal-body" id="detailContent"></div>
+        </div>
+    </div>
+
+    <script>
+    (function() {
+        var STORAGE_KEY = 'yanxue_records';
+        var records = [];
+        
+        // 加载记录
+        function loadRecords() {
+            try {
+                var data = localStorage.getItem(STORAGE_KEY);
+                records = data ? JSON.parse(data) : [];
+                renderRecords();
+                updateStats();
+            } catch(e) { records = []; renderRecords(); updateStats(); }
+        }
+        
+        // 保存记录
+        function saveRecords() {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(records));
+        }
+        
+        // 渲染列表
+        function renderRecords() {
+            var el = document.getElementById('recordList');
+            if (records.length === 0) {
+                el.innerHTML = '<div class="empty-state"><div class="icon">📭</div><p>暂无评估记录</p><p style="font-size:13px;margin-top:8px;">家长的评估提交后将在此处显示</p></div>';
+                return;
+            }
+            var html = '';
+            records.forEach(function(r, i) {
+                var riskClass = r.maxScore >= 16 ? 'high' : (r.maxScore >= 12 ? 'medium' : '');
+                var riskLabel = r.maxScore >= 16 ? '🔴 高风险' : (r.maxScore >= 12 ? '🟡 中风险' : '🟢 正常');
+                var time = new Date(r.time).toLocaleString('zh-CN');
+                var scoresHtml = '';
+                if (r.scores) {
+                    Object.keys(r.scores).forEach(function(dim) {
+                        var sc = r.scores[dim];
+                        var scClass = sc >= 16 ? 'high' : (sc >= 12 ? 'medium' : 'low');
+                        var dimName = {family:'家庭',academic:'学业',social:'社交',emotion:'情绪',development:'发展'}[dim] || dim;
+                        scoresHtml += '<span class="score-tag '+scClass+'">'+dimName+':'+sc+'</span>';
+                    });
+                }
+                html += '<div class="record-card '+riskClass+'">'
+                    + '<div class="record-header">'
+                    + '<div><div class="record-name">'+escHtml(r.name)+'</div>'
+                    + '<div class="record-phone">📞 '+escHtml(r.phone)+'</div></div>'
+                    + '<div class="record-time">'+time+' '+riskLabel+'</div></div>'
+                    + '<div class="record-scores">'+scoresHtml+'</div>';
+                if (r.note && r.note !== '无') {
+                    html += '<div class="record-note">📝 '+escHtml(r.note)+'</div>';
+                }
+                html += '<div class="record-actions">'
+                    + '<button class="btn btn-sm" onclick="showDetail('+i+')">查看详情</button>'
+                    + '<button class="btn btn-sm btn-red" onclick="deleteRecord('+i+')">删除</button></div></div>';
+            });
+            el.innerHTML = html;
+        }
+        
+        // 更新统计
+        function updateStats() {
+            var total = records.length;
+            var high = records.filter(function(r){ return r.maxScore >= 16; }).length;
+            var medium = records.filter(function(r){ return r.maxScore >= 12 && r.maxScore < 16; }).length;
+            document.getElementById('statTotal').textContent = total;
+            document.getElementById('statHigh').textContent = high;
+            document.getElementById('statMedium').textContent = medium;
+        }
+        
+        // 显示详情
+        window.showDetail = function(idx) {
+            var r = records[idx];
+            var html = '<div style="margin-bottom:16px;">'
+                + '<div style="font-size:14px;color:#555;margin-bottom:6px;"><strong>家长姓名：</strong>'+escHtml(r.name)+'</div>'
+                + '<div style="font-size:14px;color:#555;margin-bottom:6px;"><strong>联系电话：</strong>'+escHtml(r.phone)+'</div>'
+                + '<div style="font-size:14px;color:#555;margin-bottom:6px;"><strong>提交时间：</strong>'+new Date(r.time).toLocaleString('zh-CN')+'</div>'
+                + '<div style="font-size:14px;color:#555;"><strong>备注：</strong>'+escHtml(r.note||'无')+'</div></div>'
+                + '<div style="margin-bottom:14px;"><strong style="font-size:14px;color:#333;">五维度得分：</strong></div>';
+            if (r.scores) {
+                Object.keys(r.scores).forEach(function(dim) {
+                    var sc = r.scores[dim];
+                    var scClass = sc >= 16 ? 'high' : (sc >= 12 ? 'medium' : 'low');
+                    var dimName = {family:'家庭系统动力',academic:'学业认知偏差',social:'社交适应障碍',emotion:'情绪调节缺陷',development:'个体发展失衡'}[dim] || dim;
+                    var level = sc >= 16 ? '主要成因' : (sc >= 12 ? '次要成因' : (sc >= 8 ? '潜在成因' : '正常'));
+                    html += '<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #eee;font-size:13px;">'
+                        + '<span>'+dimName+'</span>'
+                        + '<span class="score-tag '+scClass+'" style="padding:3px 8px;">'+sc+'分 - '+level+'</span></div>';
+                });
+            }
+            document.getElementById('detailContent').innerHTML = html;
+            document.getElementById('detailModal').classList.add('show');
+        };
+        
+        window.closeDetail = function() {
+            document.getElementById('detailModal').classList.remove('show');
+        };
+        
+        window.deleteRecord = function(idx) {
+            if (confirm('确定删除这条记录吗？')) {
+                records.splice(idx, 1);
+                saveRecords();
+                loadRecords();
+            }
+        };
+        
+        window.clearAll = function() {
+            if (confirm('确定清空所有记录吗？此操作不可恢复！')) {
+                if (confirm('再次确认：清空后数据将无法恢复！')) {
+                    records = [];
+                    saveRecords();
+                    loadRecords();
+                }
+            }
+        };
+        
+        window.exportCSV = function() {
+            if (records.length === 0) { alert('暂无数据可导出'); return; }
+            var csv = '\uFEFF姓名,电话,提交时间,家庭,学业,社交,情绪,发展,最高分,备注\n';
+            records.forEach(function(r) {
+                csv += '"'+r.name+'","'+r.phone+'","'+new Date(r.time).toLocaleString('zh-CN')+'",'
+                    + (r.scores ? (r.scores.family||0)+','+(r.scores.academic||0)+','+(r.scores.social||0)+','+(r.scores.emotion||0)+','+(r.scores.development||0)+',' : ',,,,')
+                    + (r.maxScore||0)+',"'+(r.note||'')+'"\n';
+            });
+            var blob = new Blob([csv], {type:'text/csv;charset=utf-8'});
+            var a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = '厌学评估记录_'+new Date().toISOString().slice(0,10)+'.csv';
+            a.click();
+        };
+        
+        function escHtml(s) {
+            if (!s) return '';
+            return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+        }
+        
+        // 初始化
+        loadRecords();
+        
+        // 定期刷新（每30秒）
+        setInterval(loadRecords, 30000);
+    })();
+    </script>
+</body>
+</html>

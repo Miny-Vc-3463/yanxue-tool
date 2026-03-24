@@ -207,6 +207,7 @@
                 </div>
             </div>
             <div class="l5-labels"><span>完全不符</span><span>完全符合</span></div>
+            <button class="btn" onclick="nextFromLikert()" style="margin-top:18px;">下一题 →</button>
         </div>
 
         <!-- 行为意向维度 (15-17) -->
@@ -429,6 +430,15 @@
         }
         answers['behavior'] = { dim: 'behavior', val: behaviorAnswers };
         goToStep(13);
+    };
+
+    window.nextFromLikert = function() {
+        // 检查 M1-M4 是否都已作答
+        if (!answers.M1 || !answers.M2 || !answers.M3 || !answers.M4) {
+            alert('请完成所有自我效能评估题（11-14题）');
+            return;
+        }
+        goToStep(12);
     };
 
     function calcScores() {

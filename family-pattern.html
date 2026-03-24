@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>家庭互动模式分析</title>
+    <meta name="description" content="科学分析家庭沟通模式、教育理念与动力结构，识别家庭因素对厌学的影响">
+    <meta property="og:title" content="家庭互动模式分析">
+    <meta property="og:description" content="沟通模式·教育理念·家庭动力 | 3维度10题家庭系统评估">
+    <meta property="og:image" content="https://raw.githubusercontent.com/miny-vc-3463/yanxue-tool/main/cover.jpg">
+    <meta property="og:url" content="https://miny-vc-3463.github.io/yanxue-tool/family-pattern.html">
+    <meta property="og:type" content="website">
+    <meta name="twitter:card" content="summary_large_image">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', sans-serif; background: linear-gradient(135deg, #6c5ce7 0%, #a29bfe 100%); min-height: 100vh; padding: 20px; }
+        .container { max-width: 600px; margin: 0 auto; background: white; border-radius: 20px; box-shadow: 0 20px 60px rgba(0,0,0,0.25); overflow: hidden; }
+        .header { background: linear-gradient(135deg, #6c5ce7, #a29bfe); color: white; padding: 26px 20px; text-align: center; }
+        .header h1 { font-size: 20px; margin-bottom: 6px; }
+        .header p { font-size: 12px; opacity: 0.9; }
+        .content { padding: 22px 18px; }
+        .progress-bar { height: 5px; background: #e0e0e0; border-radius: 3px; margin-bottom: 20px; overflow: hidden; }
+        .progress-fill { height: 100%; background: linear-gradient(90deg, #6c5ce7, #a29bfe); transition: width 0.4s ease; width: 0%; }
+        .step { display: none; }
+        .step.active { display: block; }
+        .step-title { font-size: 15px; color: #333; margin-bottom: 14px; padding-bottom: 8px; border-bottom: 2px solid #6c5ce7; font-weight: 700; }
+        .step-sub { font-size: 11px; color: #888; margin-bottom: 12px; background: #f5f3ff; padding: 7px 10px; border-radius: 6px; }
+        .info-grid { display: grid; gap: 11px; }
+        .info-row { display: flex; align-items: flex-start; gap: 10px; }
+        .info-row label { font-size: 12px; color: #555; width: 70px; flex-shrink: 0; padding-top: 9px; font-weight: 600; }
+        .info-row input, .info-row select, .info-row textarea { flex: 1; padding: 9px 10px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 12px; outline: none; font-family: inherit; transition: border-color 0.2s; resize: vertical; }
+        .info-row input:focus, .info-row textarea:focus, .info-row select:focus { border-color: #6c5ce7; }
+        .radio-group { display: flex; flex-wrap: wrap; gap: 6px; flex: 1; }
+        .radio-item { padding: 5px 10px; border: 2px solid #e0e0e0; border-radius: 20px; font-size: 11px; cursor: pointer; color: #666; transition: all 0.2s; }
+        .radio-item.selected { border-color: #6c5ce7; background: #f0eeff; color: #6c5ce7; }
+        /* 表格 */
+        .likert-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+        .likert-table th { background: #f5f3ff; padding: 7px 3px; text-align: center; font-weight: 600; color: #555; border-bottom: 2px solid #ddd; font-size: 10px; }
+        .likert-table th:first-child { text-align: left; width: 36%; }
+        .likert-table td { padding: 7px 3px; text-align: center; vertical-align: middle; }
+        .likert-table td:first-child { text-align: left; color: #333; font-size: 11px; line-height: 1.5; padding-left: 0; }
+        .likert-opt { width: 30px; height: 30px; border: 2px solid #e0e0e0; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; font-size: 11px; color: #999; transition: all 0.2s; }
+        .likert-opt:hover { border-color: #6c5ce7; color: #6c5ce7; }
+        .likert-opt.selected { background: linear-gradient(135deg, #6c5ce7, #a29bfe); border-color: #6c5ce7; color: white; }
+        /* 结果 */
+        .result-section { background: #f8f9f9; border-radius: 12px; padding: 15px; margin-bottom: 13px; }
+        .result-title { font-size: 13px; color: #6c5ce7; margin-bottom: 11px; font-weight: 700; }
+        .dim-row { display: flex; justify-content: space-between; align-items: center; padding: 9px 0; border-bottom: 1px solid #eee; }
+        .dim-row:last-child { border-bottom: none; }
+        .dim-name { font-size: 13px; color: #444; }
+        .dim-score { font-size: 14px; font-weight: bold; }
+        .score-high { color: #e74c3c; }
+        .score-medium { color: #f39c12; }
+        .score-low { color: #27ae60; }
+        .info-box { background: white; border-left: 4px solid #6c5ce7; padding: 11px 12px; margin: 9px 0; border-radius: 0 8px 8px 0; }
+        .info-box.danger { border-left-color: #e74c3c; }
+        .info-box.warning { border-left-color: #f39c12; }
+        .info-box.success { border-left-color: #27ae60; }
+        .info-box.purple { border-left-color: #8e44ad; background: #f8f0ff; }
+        .info-title { font-weight: 700; color: #333; margin-bottom: 4px; font-size: 12px; }
+        .info-content { font-size: 11px; color: #666; line-height: 1.7; }
+        .chart-container { position: relative; height: 220px; margin: 6px 0; }
+        .disclaimer { background: #fff8e1; border: 1px solid #ffe082; border-radius: 10px; padding: 11px; margin-top: 13px; font-size: 11px; color: #795548; line-height: 1.7; }
+        /* 通用 */
+        .btn { width: 100%; padding: 14px; background: linear-gradient(135deg, #6c5ce7 0%, #a29bfe 100%); color: white; border: none; border-radius: 12px; font-size: 14px; font-weight: 600; cursor: pointer; margin-top: 16px; transition: transform 0.2s, box-shadow 0.2s; -webkit-tap-highlight-color: transparent; }
+        .btn:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(108,92,231,0.35); }
+        .btn:active { transform: scale(0.98); }
+        .btn-green { background: linear-gradient(135deg, #27ae60, #2ecc71); }
+        .btn-gray { background: #6c757d; }
+        .btn:disabled { opacity: 0.6; cursor: not-allowed; }
+        .welcome-text { font-size: 13px; color: #555; line-height: 1.8; margin-bottom: 10px; }
+        .welcome-text ul { margin: 10px 0 10px 18px; }
+        .welcome-text li { margin: 4px 0; }
+        /* 弹窗 */
+        .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.55); display: flex; align-items: center; justify-content: center; z-index: 9999; padding: 20px; opacity: 0; visibility: hidden; transition: opacity 0.3s, visibility 0.3s; }
+        .modal-overlay.show { opacity: 1; visibility: visible; }
+        .modal-box { background: white; border-radius: 18px; width: 100%; max-width: 480px; max-height: 90vh; overflow-y: auto; transform: scale(0.9); transition: transform 0.3s; }
+        .modal-overlay.show .modal-box { transform: scale(1); }
+        .modal-header { background: linear-gradient(135deg, #6c5ce7, #a29bfe); color: white; padding: 20px 18px 16px; border-radius: 18px 18px 0 0; position: relative; }
+        .modal-header h2 { font-size: 16px; margin-bottom: 3px; }
+        .modal-header p { font-size: 12px; opacity: 0.85; }
+        .modal-close { position: absolute; right: 14px; top: 12px; font-size: 22px; cursor: pointer; opacity: 0.7; }
+        .modal-close:hover { opacity: 1; }
+        .modal-body { padding: 18px; }
+        .form-field { margin-bottom: 13px; }
+        .form-field label { display: block; font-size: 12px; color: #555; margin-bottom: 5px; font-weight: 600; }
+        .form-field label span { color: #e74c3c; }
+        .form-field input, .form-field textarea, .form-field select { width: 100%; padding: 10px 12px; border: 2px solid #e0e0e0; border-radius: 9px; font-size: 13px; outline: none; font-family: inherit; transition: border-color 0.2s; }
+        .form-field input:focus, .form-field textarea:focus { border-color: #6c5ce7; }
+        .btn-row { display: flex; gap: 9px; margin-top: 16px; }
+        .btn-row .btn { margin-top: 0; flex: 1; }
+        .btn-row .btn-outline { background: white; color: #6c5ce7; border: 2px solid #6c5ce7; flex: 1; padding: 12px; }
+        .btn-row .btn-outline:hover { background: #f5f3ff; }
+        .success-box { text-align: center; padding: 26px 18px; }
+        .success-box .icon { font-size: 48px; margin-bottom: 10px; }
+        .success-box h3 { font-size: 17px; color: #333; margin-bottom: 7px; }
+        .success-box p { font-size: 12px; color: #888; line-height: 1.7; }
+        .success-box .actions { margin-top: 18px; }
+        .success-box .actions .btn { margin-top: 8px; }
+        .highlight-card { background: #fff5f5; border: 2px solid #ffcdd2; border-radius: 12px; padding: 13px; margin-bottom: 11px; }
+        .highlight-card.warning { background: #fffbf0; border-color: #ffe0b2; }
+        .highlight-card.purple { background: #f8f0ff; border-color: #d7bde2; }
+        .highlight-card h4 { font-size: 13px; color: #c62828; margin-bottom: 4px; }
+        .highlight-card.warning h4 { color: #e65100; }
+        .highlight-card.purple h4 { color: #7d3c98; }
+        .highlight-card p { font-size: 12px; color: #555; line-height: 1.6; }
+        .summary-normal { background: #f1f8f4; border: 2px solid #c8e6c9; border-radius: 12px; padding: 11px 14px; margin-bottom: 11px; text-align: center; }
+        .summary-normal h4 { font-size: 13px; color: #2e7d32; margin-bottom: 3px; }
+        .summary-normal p { font-size: 12px; color: #555; }
+        .consultant-link { text-align: center; margin-top: 14px; padding-top: 14px; border-top: 1px solid #eee; }
+        .consultant-link a { font-size: 12px; color: #6c5ce7; text-decoration: none; }
+        .loading-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(255,255,255,0.97); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 99999; opacity: 0; visibility: hidden; transition: opacity 0.3s; }
+        .loading-overlay.show { opacity: 1; visibility: visible; }
+        .spinner { width: 40px; height: 40px; border: 4px solid #e0e0e0; border-top-color: #6c5ce7; border-radius: 50%; animation: spin 0.7s linear infinite; margin-bottom: 12px; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .loading-text { font-size: 14px; color: #555; }
+        .dim-header { background: #f5f3ff; border-radius: 10px; padding: 11px 13px; margin-bottom: 13px; display: flex; justify-content: space-between; align-items: center; }
+        .dim-header .dim-name { font-size: 13px; font-weight: 700; color: #6c5ce7; }
+        .dim-header .dim-progress { font-size: 11px; color: #999; }
+        .subtotal { font-size: 11px; color: #999; text-align: right; margin-top: 6px; }
+        @media print { body { background: white; padding: 0; } .container { box-shadow: none; } .btn, .modal-overlay, .loading-overlay { display: none !important; } }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header"><h1>家庭互动模式分析</h1><p>沟通模式 · 教育理念 · 家庭动力 | 3维度10题</p></div>
+    <div class="content">
+        <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+
+        <!-- step0 欢迎 -->
+        <div class="step active" id="step0">
+            <div class="welcome-text">
+                <p><strong>欢迎使用家庭互动模式分析</strong></p>
+                <p style="margin-top:10px;">本工具通过3个维度10道量化题，分析家庭沟通模式、教育理念一致性和动力结构，识别家庭因素对厌学的影响，为家庭系统干预提供依据。</p>
+                <ul>
+                    <li>⏱ 评估时长：约8-10分钟</li>
+                    <li>📋 题目数量：10道评估题</li>
+                    <li>📊 评估维度：沟通模式、教育理念、家庭动力</li>
+                </ul>
+                <p>请根据您家庭<strong>最近1个月</strong>的实际情况作答。</p>
+            </div>
+            <button class="btn" id="startBtn">开始分析 →</button>
+            <div class="consultant-link"><a href="consultant.html" target="_blank">🔐 咨询师入口</a></div>
+        </div>
+
+        <!-- step1 基本信息 -->
+        <div class="step" id="step1">
+            <div class="step-title">家庭基本信息</div>
+            <div class="step-sub">以下信息仅用于评估记录，不会对外公开</div>
+            <div class="info-grid">
+                <div class="info-row"><label>家庭成员</label><textarea id="f1" rows="2" placeholder="如：父亲42岁/公司经理，母亲39岁/教师，孩子10岁/小学四年级" maxlength="100"></textarea></div>
+                <div class="info-row"><label>家庭结构</label>
+                    <div class="radio-group" id="rg1">
+                        <div class="radio-item" data-v="核心家庭">核心家庭</div>
+                        <div class="radio-item" data-v="三代同堂">三代同堂</div>
+                        <div class="radio-item" data-v="单亲家庭">单亲家庭</div>
+                        <div class="radio-item" data-v="重组家庭">重组家庭</div>
+                        <div class="radio-item" data-v="其他">其他</div>
+                    </div>
+                </div>
+                <div class="info-row"><label>居住区域</label><input type="text" id="f2" placeholder="如：成都市高新区" maxlength="30"></div>
+                <div class="info-row"><label>主要照料者</label><input type="text" id="f3" placeholder="如：母亲为主，父亲辅助" maxlength="30"></div>
+            </div>
+            <button class="btn" onclick="goStep2()">下一题 →</button>
+        </div>
+
+        <!-- step2 沟通模式 -->
+        <div class="step" id="step2">
+            <div class="dim-header"><span class="dim-name">💬 沟通模式（4题）</span><span class="dim-progress" id="p1">0/4 已答</span></div>
+            <div class="step-title">沟通模式分析</div>
+            <div class="step-sub">请根据您家庭的情况选择最符合的选项</div>
+            <table class="likert-table">
+                <thead><tr><th>沟通特征</th><th>1</th><th>2</th><th>3</th><th>4</th></tr></thead>
+                <tbody>
+                    <tr><td>父母使用"轻松语言"进行情感交流</td><td><div class="likert-opt" data-q="C1" data-v="4">1</div></td><td><div class="likert-opt" data-q="C1" data-v="3">2</div></td><td><div class="likert-opt" data-q="C1" data-v="2">3</div></td><td><div class="likert-opt" data-q="C1" data-v="1">4</div></td></tr>
+                    <tr><td>沟通中存在打断/指责行为</td><td><div class="likert-opt" data-q="C2" data-v="1">1</div></td><td><div class="likert-opt" data-q="C2" data-v="2">2</div></td><td><div class="likert-opt" data-q="C2" data-v="3">3</div></td><td><div class="likert-opt" data-q="C2" data-v="4">4</div></td></tr>
+                    <tr><td>孩子能够自由表达不同意见</td><td><div class="likert-opt" data-q="C3" data-v="4">1</div></td><td><div class="likert-opt" data-q="C3" data-v="3">2</div></td><td><div class="likert-opt" data-q="C3" data-v="2">3</div></td><td><div class="likert-opt" data-q="C3" data-v="1">4</div></td></tr>
+                    <tr><td>沟通聚焦于"问题解决"而非情绪宣泄</td><td><div class="likert-opt" data-q="C4" data-v="4">1</div></td><td><div class="likert-opt" data-q="C4" data-v="3">2</div></td><td><div class="likert-opt" data-q="C4" data-v="2">3</div></td><td><div class="likert-opt" data-q="C4" data-v="1">4</div></td></tr>
+                </tbody>
+            </table>
+            <div class="subtotal">沟通模式总分：<strong id="sC" style="color:#6c5ce7;">—</strong> 分（越低越好）</div>
+            <button class="btn" onclick="nextC()">下一题 →</button>
+        </div>
+
+        <!-- step3 教育理念 -->
+        <div class="step" id="step3">
+            <div class="dim-header"><span class="dim-name">🎯 教育理念一致性（3题）</span><span class="dim-progress" id="p2">0/3 已答</span></div>
+            <div class="step-title">教育理念一致性</div>
+            <div class="step-sub">请评估家庭成员在以下方面的理念差异程度</div>
+            <table class="likert-table">
+                <thead><tr><th>理念差异点</th><th>完全一致<br>(1分)</th><th>轻微差异<br>(2分)</th><th>明显差异<br>(3分)</th><th>严重冲突<br>(4分)</th></tr></thead>
+                <tbody>
+                    <tr><td>对"成绩与成长"的看法</td><td><div class="likert-opt" data-q="E1" data-v="1">✓</div></td><td><div class="likert-opt" data-q="E1" data-v="2">✓</div></td><td><div class="likert-opt" data-q="E1" data-v="3">✓</div></td><td><div class="likert-opt" data-q="E1" data-v="4">✓</div></td></tr>
+                    <tr><td>对"规则与自由"的平衡</td><td><div class="likert-opt" data-q="E2" data-v="1">✓</div></td><td><div class="likert-opt" data-q="E2" data-v="2">✓</div></td><td><div class="likert-opt" data-q="E2" data-v="3">✓</div></td><td><div class="likert-opt" data-q="E2" data-v="4">✓</div></td></tr>
+                    <tr><td>对"电子产品使用"的态度</td><td><div class="likert-opt" data-q="E3" data-v="1">✓</div></td><td><div class="likert-opt" data-q="E3" data-v="2">✓</div></td><td><div class="likert-opt" data-q="E3" data-v="3">✓</div></td><td><div class="likert-opt" data-q="E3" data-v="4">✓</div></td></tr>
+                </tbody>
+            </table>
+            <div class="subtotal">理念一致性总分：<strong id="sE" style="color:#6c5ce7;">—</strong> 分（越低越一致）</div>
+            <button class="btn" onclick="nextE()">下一题 →</button>
+        </div>
+
+        <!-- step4 家庭动力 -->
+        <div class="step" id="step4">
+            <div class="dim-header"><span class="dim-name">🏠 家庭动力结构（3题）</span><span class="dim-progress" id="p3">0/3 已答</span></div>
+            <div class="step-title">家庭动力结构</div>
+            <div class="step-sub">请根据您家庭的实际情况选择（注意反向计分）</div>
+            <table class="likert-table">
+                <thead><tr><th>动力特征</th><th>几乎没有<br>(1分)</th><th>偶尔出现<br>(2分)</th><th>经常出现<br>(3分)</th><th>总是如此<br>(4分)</th></tr></thead>
+                <tbody>
+                    <tr><td>父母过度关注孩子学业（"教育焦虑"）</td><td><div class="likert-opt" data-q="D1" data-v="1">✓</div></td><td><div class="likert-opt" data-q="D1" data-v="2">✓</div></td><td><div class="likert-opt" data-q="D1" data-v="3">✓</div></td><td><div class="likert-opt" data-q="D1" data-v="4">✓</div></td></tr>
+                    <tr><td>孩子在家庭中处于"中心"地位</td><td><div class="likert-opt" data-q="D2" data-v="1">✓</div></td><td><div class="likert-opt" data-q="D2" data-v="2">✓</div></td><td><div class="likert-opt" data-q="D2" data-v="3">✓</div></td><td><div class="likert-opt" data-q="D2" data-v="4">✓</div></td></tr>
+                    <tr><td>家庭成员间情感支持充分</td><td><div class="likert-opt" data-q="D3" data-v="4">✓</div></td><td><div class="likert-opt" data-q="D3" data-v="3">✓</div></td><td><div class="likert-opt" data-q="D3" data-v="2">✓</div></td><td><div class="likert-opt" data-q="D3" data-v="1">✓</div></td></tr>
+                </tbody>
+            </table>
+            <div class="subtotal">家庭动力总分：<strong id="sD" style="color:#6c5ce7;">—</strong> 分（越低越健康）</div>
+            <button class="btn btn-green" onclick="showResult()">📊 查看分析结果</button>
+        </div>
+
+        <!-- step5 结果 -->
+        <div class="step" id="step5">
+            <div class="step-title">📊 家庭互动模式分析报告</div>
+            <div class="result-section"><div class="result-title">三维度得分</div><div id="dimensionScores"></div></div>
+            <div class="result-section"><div class="result-title">雷达图</div><div class="chart-container"><canvas id="radarChart"></canvas></div></div>
+            <div class="result-section"><div class="result-title">模式诊断</div><div id="diagnosisResult"></div></div>
+            <div class="result-section"><div class="result-title">干预建议</div><div id="interventionAdvice"></div></div>
+            <div class="disclaimer"><strong>⚠️ 免责声明：</strong>本分析工具基于成都237例案例开发，仅供参考，不构成专业家庭治疗建议。如需专业帮助，请咨询持证家庭治疗师或心理咨询师。</div>
+            <button class="btn btn-green" onclick="showSummaryModal()">✅ 完成分析 → 填写信息并保存报告</button>
+            <button class="btn btn-gray" onclick="location.reload()" style="margin-top:10px;">🔄 重新分析</button>
+            <div class="consultant-link"><a href="consultant.html" target="_blank">🔐 咨询师入口</a></div>
+        </div>
+    </div>
+</div>
+
+<!-- 核心发现弹窗 -->
+<div class="modal-overlay" id="summaryModal">
+    <div class="modal-box">
+        <div class="modal-header"><span class="modal-close" onclick="closeSummaryModal()">×</span><h2>🎯 分析发现</h2><p>以下为家庭互动模式核心发现</p></div>
+        <div class="modal-body">
+            <div id="summaryContent"></div>
+            <div class="btn-row">
+                <button class="btn btn-outline" onclick="closeSummaryModal()">返回报告</button>
+                <button class="btn btn-green" onclick="goToSubmitModal()">📋 填写信息并保存</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 提交弹窗 -->
+<div class="modal-overlay" id="submitModal">
+    <div class="modal-box">
+        <div class="modal-header"><span class="modal-close" onclick="closeModal()">×</span><h2>📋 完善联系信息</h2><p>填写后可保存分析报告，咨询师将主动与您联系</p></div>
+        <div class="modal-body">
+            <div id="modalForm">
+                <p style="font-size:11px;color:#999;margin-bottom:13px;">💡 提交后将自动生成PDF报告并保存，同时咨询师可在后台查看。</p>
+                <div class="form-field"><label>您的姓名 <span>*</span></label><input type="text" id="mName" placeholder="请输入您的姓名" maxlength="20"></div>
+                <div class="form-field"><label>联系电话 <span>*</span></label><input type="tel" id="mPhone" placeholder="请输入手机号" maxlength="20"></div>
+                <div class="form-field"><label>备注（选填）</label><textarea id="mNote" rows="2" placeholder="如有特殊情况可简要说明"></textarea></div>
+                <div class="btn-row">
+                    <button class="btn btn-outline" onclick="closeModal()">稍后保存</button>
+                    <button class="btn btn-green" id="confirmBtn" onclick="doSubmit()">✅ 确认提交</button>
+                </div>
+            </div>
+            <div id="modalSuccess" style="display:none;" class="success-box">
+                <div class="icon">🎉</div>
+                <h3>提交成功！</h3>
+                <p>分析报告已保存至您的设备。<br>咨询师将在24小时内与您联系。</p>
+                <div class="actions">
+                    <button class="btn" onclick="location.reload()">🔄 重新分析</button>
+                    <button class="btn btn-gray" onclick="closeModal(); window.scrollTo({top:0,behavior:'smooth'});" style="margin-top:8px;">👀 查看报告</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="loading-overlay" id="loadingOverlay"><div class="spinner"></div><div class="loading-text" id="loadingText">正在生成报告...</div></div>
+
+<script>
+(function() {
+    'use strict';
+    var answers = {}, basicInfo = {}, finalScores = null;
+    var DIM_NAMES = { C: '沟通模式', E: '教育理念', D: '家庭动力' };
+
+    var PATTERNS = {
+        C: [
+            { max: 5, type: '开放合作型', color: '#27ae60', desc: '家庭沟通以情感为中心，成员能自由表达，家长采用民主协商方式。', pct: '23%' },
+            { max: 8, type: '指导控制型', color: '#f39c12', desc: '家长主导沟通方向，孩子有一定表达空间，但以听从为主。', pct: '45%' },
+            { max: 12, type: '冲突指责型', color: '#e67e22', desc: '沟通中常出现指责和对抗，孩子表达受限，情绪宣泄多于问题解决。', pct: '22%' },
+            { max: 16, type: '疏离冷漠型', color: '#e74c3c', desc: '家庭成员间沟通极少，缺乏情感交流，孩子感到被忽视或孤立。', pct: '10%' }
+        ],
+        E: [
+            { max: 4, type: '高度一致', color: '#27ae60', desc: '家庭成员在教育理念上高度统一，孩子能感受到一致的期望和支持。' },
+            { max: 8, type: '轻微差异', color: '#f39c12', desc: '在某些方面存在理念差异，但不影响整体教育方向，孩子能适应。' },
+            { max: 10, type: '明显差异', color: '#e67e22', desc: '教育理念差异明显，孩子可能利用家长分歧或感到困惑。', pct: '' },
+            { max: 12, type: '严重冲突', color: '#e74c3c', desc: '家庭成员在核心教育问题上严重对立，孩子承受双重标准，压力巨大。', pct: '' }
+        ],
+        D: [
+            { max: 5, type: '健康平衡型', color: '#27ae60', desc: '家庭动力结构健康，孩子有适度自主空间，情感支持充分。' },
+            { max: 8, type: '过度保护型', color: '#f39c12', desc: '家长过度介入孩子生活，孩子独立性发展受限，抗挫折能力较弱。' },
+            { max: 12, type: '控制支配型', color: '#e67e22', desc: '家庭以孩子为中心或家长高度控制，孩子缺乏自主空间。' },
+            { max: 16, type: '混乱无序型', color: '#e74c3c', desc: '家庭规则不稳定，成员间缺乏协作，孩子缺乏安全感和边界感。' }
+        ]
+    };
+
+    var INTERVENTIONS = {
+        C: '建议改善沟通方式，增加情感交流，减少指责性语言。可采用"先情感后问题"的沟通原则，每周至少一次不涉及学业的家庭交流时间。',
+        E: '建议家庭成员坐下来就教育理念进行坦诚沟通，明确共同的教育目标。可通过家庭会议形式讨论分歧，达成共识后统一执行。',
+        D: '建议调整家庭动力结构，明确家长角色边界，给孩子适度的自主空间。建立稳定的家庭规则，同时保障孩子情感需求得到满足。'
+    };
+
+    function $(id) { return document.getElementById(id); }
+
+    // 选项点击
+    document.querySelectorAll('.likert-opt').forEach(function(opt) {
+        opt.addEventListener('click', function() {
+            var q = opt.dataset.q;
+            var v = parseInt(opt.dataset.v, 10);
+            document.querySelectorAll('.likert-opt[data-q="'+q+'"]').forEach(function(x){ x.classList.remove('selected'); });
+            opt.classList.add('selected');
+            answers[q] = v;
+            updateProgress(q);
+        });
+    });
+
+    function updateProgress(q) {
+        var prefix = q.charAt(0);
+        var dim, keys, count = 0;
+        if (prefix === 'C') { dim = 'C'; keys = ['C1','C2','C3','C4']; }
+        else if (prefix === 'E') { dim = 'E'; keys = ['E1','E2','E3']; }
+        else if (prefix === 'D') { dim = 'D'; keys = ['D1','D2','D3']; }
+        keys.forEach(function(k){ if(answers[k]) count++; });
+        if (dim === 'C') { $('p1').textContent = count+'/4 已答'; var s = (answers.C1||0)+(answers.C2||0)+(answers.C3||0)+(answers.C4||0); $('sC').textContent = s; }
+        else if (dim === 'E') { $('p2').textContent = count+'/3 已答'; var s = (answers.E1||0)+(answers.E2||0)+(answers.E3||0); $('sE').textContent = s; }
+        else if (dim === 'D') { $('p3').textContent = count+'/3 已答'; var s = (answers.D1||0)+(answers.D2||0)+(answers.D3||0); $('sD').textContent = s; }
+    }
+
+    function getStep(n) { return $('step'+n); }
+
+    function goToStep(n, all) {
+        getStep(currentStep).classList.remove('active');
+        currentStep = n;
+        getStep(currentStep).classList.add('active');
+        $('progressFill').style.width = (currentStep / all * 100) + '%';
+        window.scrollTo(0, 0);
+    }
+
+    $('startBtn').addEventListener('click', function() { goToStep(1, 5); });
+
+    window.goStep2 = function() {
+        var struct = null;
+        document.querySelectorAll('#rg1 .radio-item').forEach(function(r){ if(r.classList.contains('selected')) struct = r.dataset.v; });
+        basicInfo.family = $('f1').value.trim() || '未填写';
+        basicInfo.struct = struct || '未选择';
+        basicInfo.area = $('f2').value.trim() || '未填写';
+        basicInfo.caregiver = $('f3').value.trim() || '未填写';
+        goToStep(2, 5);
+    };
+
+    window.nextC = function() {
+        if (!answers.C1||!answers.C2||!answers.C3||!answers.C4) { alert('请完成沟通模式所有题目'); return; }
+        goToStep(3, 5);
+    };
+    window.nextE = function() {
+        if (!answers.E1||!answers.E2||!answers.E3) { alert('请完成教育理念所有题目'); return; }
+        goToStep(4, 5);
+    };
+
+    window.showResult = function() {
+        if (!answers.D1||!answers.D2||!answers.D3) { alert('请完成家庭动力所有题目'); return; }
+        finalScores = {
+            C: (answers.C1||0)+(answers.C2||0)+(answers.C3||0)+(answers.C4||0),
+            E: (answers.E1||0)+(answers.E2||0)+(answers.E3||0),
+            D: (answers.D1||0)+(answers.D2||0)+(answers.D3||0)
+        };
+        renderScores(finalScores);
+        renderRadar(finalScores);
+        renderDiagnosis(finalScores);
+        renderIntervention(finalScores);
+        goToStep(5, 5);
+    };
+
+    function renderScores(s) {
+        var h = '';
+        Object.keys(DIM_NAMES).forEach(function(d) {
+            var sc = s[d], t = PATTERNS[d][PATTERNS[d].length-1], cls;
+            var type = PATTERNS[d].find(function(p){ return sc <= p.max; }) || PATTERNS[d][PATTERNS[d].length-1];
+            cls = sc <= 5 ? 'score-low' : (sc <= 8 ? 'score-medium' : 'score-high');
+            h += '<div class="dim-row"><span class="dim-name">' + DIM_NAMES[d] + '</span><span class="dim-score ' + cls + '">' + sc + '分</span></div>';
+        });
+        $('dimensionScores').innerHTML = h;
+    }
+
+    function renderRadar(s) {
+        var ctx = $('radarChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'radar',
+            data: {
+                labels: ['沟通模式', '教育理念', '家庭动力'],
+                datasets: [{
+                    label: '当前得分', data: [s.C, s.E, s.D], backgroundColor: 'rgba(108,92,231,0.2)', borderColor: 'rgba(108,92,231,1)', borderWidth: 2, pointBackgroundColor: 'rgba(108,92,231,1)'
+                }, {
+                    label: '健康临界', data: [5,4,5], backgroundColor: 'transparent', borderColor: 'rgba(39,174,96,0.4)', borderWidth: 1, borderDash: [4,4], pointRadius: 0
+                }]
+            },
+            options: { responsive: true, maintainAspectRatio: false, scales: { r: { min: 0, max: 16, ticks: { stepSize: 4 } } }, plugins: { legend: { position: 'bottom' } } }
+        });
+    }
+
+    function renderDiagnosis(s) {
+        var h = '';
+        Object.keys(s).forEach(function(d) {
+            var sc = s[d];
+            var type = PATTERNS[d].find(function(p){ return sc <= p.max; }) || PATTERNS[d][PATTERNS[d].length-1];
+            var cls = sc <= 5 ? 'success' : (sc <= 8 ? 'warning' : 'danger');
+            h += '<div class="info-box ' + cls + '"><div class="info-title" style="color:' + type.color + ';">' + DIM_NAMES[d] + '：' + type.type + '（' + sc + '分）</div><div class="info-content">' + type.desc + '</div></div>';
+        });
+        $('diagnosisResult').innerHTML = h;
+    }
+
+    function renderIntervention(s) {
+        var h = '';
+        Object.keys(s).forEach(function(d) {
+            if (s[d] > 5) {
+                h += '<div class="info-box"><div class="info-title">' + DIM_NAMES[d] + '干预建议</div><div class="info-content">' + INTERVENTIONS[d] + '</div></div>';
+            }
+        });
+        if (!h) h = '<div class="info-box success"><div class="info-title">✅ 家庭互动模式良好</div><div class="info-content">各维度得分均在健康范围内，继续保持良好的家庭互动方式。</div></div>';
+        $('interventionAdvice').innerHTML = h;
+    }
+
+    function buildSummaryHtml(s) {
+        var h = '';
+        Object.keys(s).forEach(function(d) {
+            var sc = s[d];
+            var type = PATTERNS[d].find(function(p){ return sc <= p.max; }) || PATTERNS[d][PATTERNS[d].length-1];
+            if (sc > 5) {
+                h += '<div class="highlight-card ' + (sc > 8 ? '' : 'warning') + '"><h4 style="color:' + type.color + ';">' + DIM_NAMES[d] + '：' + type.type + '</h4><p>' + type.desc + '</p></div>';
+            }
+        });
+        if (!h) h = '<div class="summary-normal"><h4>✅ 各维度表现良好</h4><p>家庭互动模式健康，继续保持科学的教育方式。</p></div>';
+        return h;
+    }
+
+    window.showSummaryModal = function() { if (!finalScores) return; $('summaryContent').innerHTML = buildSummaryHtml(finalScores); $('summaryModal').classList.add('show'); };
+    window.closeSummaryModal = function() { $('summaryModal').classList.remove('show'); };
+    window.goToSubmitModal = function() { $('summaryModal').classList.remove('show'); $('submitModal').classList.add('show'); };
+    window.closeModal = function() { $('submitModal').classList.remove('show'); $('modalForm').style.display='block'; $('modalSuccess').style.display='none'; $('confirmBtn').disabled=false; $('confirmBtn').textContent='✅ 确认提交'; };
+
+    function saveRecord(name, phone, note) {
+        if (!finalScores) return;
+        var record = { name: name, phone: phone, note: note, tool: 'family-pattern', basicInfo: basicInfo, scores: finalScores, maxScore: Math.max(finalScores.C, finalScores.E, finalScores.D), time: new Date().toISOString() };
+        try { var data = JSON.parse(localStorage.getItem('yanxue_records') || '[]'); data.unshift(record); localStorage.setItem('yanxue_records', JSON.stringify(data)); } catch(e) {}
+    }
+
+    window.doSubmit = function() {
+        var name = $('mName').value.trim(), phone = $('mPhone').value.trim(), note = $('mNote').value.trim();
+        if (!name) { alert('请填写您的姓名'); return; }
+        if (!phone) { alert('请填写联系电话'); return; }
+        $('confirmBtn').disabled = true; $('confirmBtn').textContent = '生成中...';
+        saveRecord(name, phone, note);
+        try {
+            var pdf = new jsPDF(); var pageW = pdf.internal.pageSize.getWidth(); var m = 15, y = 20, lh = 7;
+            function txt(t, fs, bold, col) {
+                pdf.setFontSize(fs || 11); pdf.setFont('helvetica', bold ? 'bold' : 'normal');
+                if (col) pdf.setTextColor(col[0], col[1]||col[0], col[2]||col[0]); else pdf.setTextColor(40);
+                var lines = pdf.splitTextToSize(t, pageW - m * 2);
+                lines.forEach(function(l) { if (y > 275) { pdf.addPage(); y = 20; } pdf.text(l, m, y); y += lh; }); y += 3;
+            }
+            pdf.setFontSize(18); pdf.setFont('helvetica', 'bold'); pdf.setTextColor(108,92,231);
+            pdf.text('家庭互动模式分析报告', pageW / 2, y, { align: 'center' }); y += 8;
+            pdf.setFontSize(10); pdf.setTextColor(150);
+            pdf.text('基于成都237例案例分析 | ' + new Date().toLocaleDateString('zh-CN'), pageW / 2, y, { align: 'center' }); y += 12;
+            pdf.setDrawColor(220); pdf.line(m, y, pageW - m, y); y += 8;
+            txt('家庭成员：' + (basicInfo.family||'未填写'), 10, false, [100,100,100]);
+            txt('家庭结构：' + (basicInfo.struct||'未选择') + '  居住区域：' + (basicInfo.area||'未填写'), 9, false, [130,130,130]); y += 5;
+            pdf.line(m, y, pageW - m, y); y += 10;
+            txt('三维度得分', 13, true, [108,92,231]);
+            Object.keys(DIM_NAMES).forEach(function(d) {
+                var sc = finalScores[d], type = PATTERNS[d].find(function(p){ return sc <= p.max; }) || PATTERNS[d][PATTERNS[d].length-1];
+                txt(DIM_NAMES[d] + '：' + sc + '分 — ' + type.type, 11, false, [40,40,40]);
+            }); y += 5;
+            pdf.setFillColor(255,248,225); pdf.rect(m, y - 3, pageW - m * 2, 12, 'F');
+            txt('⚠️ 免责声明：本分析仅供参考，不构成专业家庭治疗建议。', 8, false, [121,85,72]);
+            pdf.save('家庭互动分析_' + (basicInfo.area||'匿名') + '_' + new Date().toISOString().slice(0,10) + '.pdf');
+        } catch(e) { console.error('PDF失败', e); alert('PDF生成遇到问题，数据已保存。'); }
+        setTimeout(function() { $('modalForm').style.display='none'; $('modalSuccess').style.display='block'; }, 800);
+    };
+
+    document.addEventListener('keydown', function(e) { if (e.key === 'Escape') { closeModal(); closeSummaryModal(); } });
+    var currentStep = 0;
+})();
+</script>
+</body>
+</html>

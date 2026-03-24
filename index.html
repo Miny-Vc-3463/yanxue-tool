@@ -390,8 +390,9 @@
             name: name,
             phone: phone,
             note: note,
+            tool: 'yanxue',
             scores: finalScores,
-            maxScore: Math.max.apply(null, Object.keys(finalScores).map(function(d){ return finalScores[d]; })),
+            maxScore: Math.max(finalScores.family, finalScores.academic, finalScores.social, finalScores.emotion, finalScores.development),
             time: new Date().toISOString()
         };
         try {

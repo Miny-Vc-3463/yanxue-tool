@@ -7,6 +7,18 @@
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', sans-serif; background: #f5f6fa; min-height: 100vh; }
+        /* 密码锁 */
+        .lock-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: linear-gradient(135deg, #667eea, #764ba2); display: flex; align-items: center; justify-content: center; z-index: 999999; }
+        .lock-overlay.hide { display: none; }
+        .lock-box { background: white; border-radius: 20px; padding: 36px 32px; width: 340px; max-width: 90vw; text-align: center; box-shadow: 0 20px 60px rgba(0,0,0,0.3); }
+        .lock-box .icon { font-size: 48px; margin-bottom: 12px; }
+        .lock-box h2 { font-size: 18px; color: #333; margin-bottom: 6px; }
+        .lock-box p { font-size: 12px; color: #999; margin-bottom: 20px; }
+        .lock-box input { width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 10px; font-size: 15px; text-align: center; outline: none; margin-bottom: 12px; transition: border-color 0.2s; font-family: inherit; }
+        .lock-box input:focus { border-color: #667eea; }
+        .lock-box .btn { width: 100%; padding: 13px; }
+        .lock-box .error { color: #e74c3c; font-size: 12px; margin-top: 8px; display: none; }
+        .lock-box .tip { font-size: 11px; color: #bbb; margin-top: 14px; line-height: 1.6; }
         .header { background: linear-gradient(135deg, #667eea, #764ba2); color: white; padding: 30px; text-align: center; }
         .header h1 { font-size: 22px; margin-bottom: 6px; }
         .header p { font-size: 13px; opacity: 0.85; }
@@ -78,12 +90,26 @@
     </style>
 </head>
 <body>
-    <div class="header">
+
+<!-- 密码锁 -->
+<div class="lock-overlay" id="lockOverlay">
+    <div class="lock-box">
+        <div class="icon">🔐</div>
+        <h2>咨询师后台</h2>
+        <p>请输入访问密码</p>
+        <input type="password" id="lockInput" placeholder="请输入密码" maxlength="20">
+        <button class="btn" onclick="checkPassword()">进入后台</button>
+        <div class="error" id="lockError">密码错误，请重试</div>
+        <div class="tip">首次使用请联系管理员设置密码</div>
+    </div>
+</div>
+
+<div class="header" id="mainHeader" style="display:none;">
         <h1>🔐 咨询师后台</h1>
         <p>厌学核心成因评估 - 数据管理</p>
     </div>
-    
-    <div class="container">
+
+    <div class="container" id="mainContainer" style="display:none;">
         <!-- 说明 -->
         <div class="form-section">
             <h2>📖 使用说明</h2>
@@ -147,7 +173,38 @@
     <script>
     (function() {
         var STORAGE_KEY = 'yanxue_records';
+        var PWD_KEY = 'yanxue_consultant_pwd';
+        var DEFAULT_PWD = 'yanxue2024';
         var records = [];
+
+        // 密码检查
+        function checkPassword() {
+            var input = document.getElementById('lockInput').value.trim();
+            var storedPwd = localStorage.getItem(PWD_KEY) || DEFAULT_PWD;
+            if (input === storedPwd) {
+                document.getElementById('lockOverlay').classList.add('hide');
+                document.getElementById('mainHeader').style.display = 'block';
+                document.getElementById('mainContainer').style.display = 'block';
+                loadRecords();
+            } else {
+                document.getElementById('lockError').style.display = 'block';
+                document.getElementById('lockInput').value = '';
+                document.getElementById('lockInput').focus();
+            }
+        }
+        window.checkPassword = checkPassword;
+
+        // 回车触达密码确认
+        document.addEventListener('DOMContentLoaded', function() {
+            var li = document.getElementById('lockInput');
+            if (li) li.addEventListener('keydown', function(e) { if (e.key === 'Enter') checkPassword(); });
+        });
+
+        // 设置/修改密码（咨询师可在控制台调用 setPassword('新密码')）
+        window.setPassword = function(newPwd) {
+            localStorage.setItem(PWD_KEY, newPwd);
+            alert('密码已更新为: ' + newPwd);
+        };
         
         // 加载记录
         function loadRecords() {

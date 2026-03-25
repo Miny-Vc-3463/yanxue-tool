@@ -1,0 +1,247 @@
+
+        <textarea id="concl_factors" placeholder="列举2-3个最突出的风险因素及其具体表现..."></textarea>
+      </div>
+
+      <div class="conclusion-box">
+        <h4>4.3 风险发展趋势</h4>
+        <textarea id="concl_trend" placeholder="评估若不干预，可能的发展趋势和时间预估，如：若不干预，3个月内可能发展为中度拒学..."></textarea>
+      </div>
+
+      <div class="conclusion-box">
+        <h4>4.4 干预建议摘要</h4>
+        <textarea id="concl_intervention" placeholder="基于风险等级和主要风险领域，给出针对性的干预建议摘要..."></textarea>
+      </div>
+
+      <!-- 签名 -->
+      <div class="signature-row">
+        <div class="signature-item">
+          <div class="sig-label">评估实施人签名</div>
+          <input type="text" placeholder="签名">
+          <div style="font-size:11px;color:#888;margin-top:4px;">年  月  日</div>
+        </div>
+        <div class="signature-item">
+          <div class="sig-label">复核人签名</div>
+          <input type="text" placeholder="签名">
+          <div style="font-size:11px;color:#888;margin-top:4px;">年  月  日</div>
+        </div>
+        <div class="signature-item">
+          <div class="sig-label">机构盖章</div>
+          <input type="text" placeholder="加盖公章处">
+          <div style="font-size:11px;color:#888;margin-top:4px;">年  月  日</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- 附录 -->
+  <div class="card no-print">
+    <div class="card-header" style="background:#666;">
+      <h2 style="font-size:13pt;">附录：评分说明与使用须知</h2>
+    </div>
+    <div class="card-body" style="font-size:12px;color:#666;">
+      <p><strong>评分标准：</strong>1=无风险或极低；2=轻度风险；3=中度风险；4=较高风险；5=极高风险</p>
+      <p style="margin-top:8px;"><strong>风险阈值：</strong></p>
+      <ul style="margin-left:20px;margin-top:4px;">
+        <li>家庭环境风险：≥15分提示高风险（满分20分）</li>
+        <li>学校适应风险：≥12分提示高风险（满分20分）</li>
+        <li>个体发展风险：≥14分提示高风险（满分20分）</li>
+      </ul>
+      <p style="margin-top:8px;"><strong>免责声明：</strong>本报告仅供参考，不作为医学诊断依据。如发现极高风险，请立即联系专业医疗机构进行进一步评估。</p>
+      <p style="margin-top:8px;"><strong>数据保存：</strong>报告数据保存在浏览器本地存储（localStorage）中，清除浏览器数据将导致报告丢失。</p>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const TOOL_KEY = 'yanxue_risk_report';
+
+// Color coding for scores
+function colorCode(el) {
+  const v = parseInt(el.value);
+  el.classList.remove('risk-high', 'risk-medium');
+  if (v >= 4) el.classList.add('risk-high');
+  else if (v >= 3) el.classList.add('risk-medium');
+}
+
+// Domain calculators
+function getVal(id) { return parseInt(document.getElementById(id).value) || 0; }
+
+function calcFamily() {
+  const t = getVal('f1') + getVal('f2') + getVal('f3') + getVal('f4');
+  const el = document.getElementById('family_score');
+  const tip = document.getElementById('family_tip');
+  el.textContent = t;
+  el.className = 'score-display ' + (t >= 15 ? 'risk-high' : t >= 10 ? 'risk-medium' : 'risk-low');
+  tip.className = 'risk-tip ' + (t >= 15 ? 'high' : '');
+  tip.textContent = t >= 15 ? '⚠️ 高风险' : t >= 10 ? '⚡ 中风险' : '✅ 低风险';
+  document.getElementById('family_level').textContent = t >= 15 ? '高风险' : t >= 10 ? '中风险' : '低风险';
+  return t;
+}
+
+function calcSchool() {
+  const t = getVal('s1') + getVal('s2') + getVal('s3') + getVal('s4');
+  const el = document.getElementById('school_score');
+  const tip = document.getElementById('school_tip');
+  el.textContent = t;
+  el.className = 'score-display ' + (t >= 12 ? 'risk-high' : t >= 8 ? 'risk-medium' : 'risk-low');
+  tip.className = 'risk-tip ' + (t >= 12 ? 'high' : '');
+  tip.textContent = t >= 12 ? '⚠️ 高风险' : t >= 8 ? '⚡ 中风险' : '✅ 低风险';
+  document.getElementById('school_level').textContent = t >= 12 ? '高风险' : t >= 8 ? '中风险' : '低风险';
+  return t;
+}
+
+function calcIndividual() {
+  const t = getVal('i1') + getVal('i2') + getVal('i3') + getVal('i4');
+  const el = document.getElementById('individual_score');
+  const tip = document.getElementById('individual_tip');
+  el.textContent = t;
+  el.className = 'score-display ' + (t >= 14 ? 'risk-high' : t >= 9 ? 'risk-medium' : 'risk-low');
+  tip.className = 'risk-tip ' + (t >= 14 ? 'high' : '');
+  tip.textContent = t >= 14 ? '⚠️ 高风险' : t >= 9 ? '⚡ 中风险' : '✅ 低风险';
+  document.getElementById('individual_level').textContent = t >= 14 ? '高风险' : t >= 9 ? '中风险' : '低风险';
+  return t;
+}
+
+function calculateAll() {
+  const family = calcFamily();
+  const school = calcSchool();
+  const individual = calcIndividual();
+  const total = family + school + individual;
+
+  const totalScore = document.getElementById('total_score_num');
+  const totalBadge = document.getElementById('total_badge');
+  const totalDisplay = document.getElementById('total_display');
+  
+  totalDisplay.style.display = 'block';
+  totalScore.textContent = total;
+  
+  // Determine level
+  let level, cls, color;
+  if (total < 30) { level = '低风险'; cls = 'risk-low'; color = '#2E7D32'; }
+  else if (total <= 44) { level = '中风险'; cls = 'risk-medium'; color = '#E65100'; }
+  else if (total <= 59) { level = '高风险'; cls = 'risk-high'; color = '#C62828'; }
+  else { level = '极高风险'; cls = 'risk-critical'; color = '#6A1B9A'; }
+
+  totalScore.className = 'total-score ' + cls;
+  totalBadge.textContent = level;
+  totalBadge.style.background = color;
+  totalBadge.style.color = 'white';
+
+  // Highlight correct level cards
+  ['low','medium','high','critical'].forEach(l => {
+    document.getElementById('card_' + l).classList.remove('selected');
+  });
+  if (total < 30) document.getElementById('card_low').classList.add('selected');
+  else if (total <= 44) document.getElementById('card_medium').classList.add('selected');
+  else if (total <= 59) document.getElementById('card_high').classList.add('selected');
+  else document.getElementById('card_critical').classList.add('selected');
+
+  // Color the print table
+  ['low','medium','high','critical'].forEach(l => {
+    document.getElementById('row_' + l).style.background = '';
+  });
+  if (total < 30) document.getElementById('row_low').style.background = '#E8F5E9';
+  else if (total <= 44) document.getElementById('row_medium').style.background = '#FFF8E1';
+  else if (total <= 59) document.getElementById('row_high').style.background = '#FCE8E8';
+  else document.getElementById('row_critical').style.background = '#F3E5F5';
+
+  // Show print table
+  document.getElementById('print_table').style.display = 'table';
+  document.querySelector('.no-print').style.display = 'flex';
+
+  // Scroll to result
+  totalDisplay.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+function selectLevel(level) {
+  // Manual override
+  const map = { low: ['', '#E8F5E9'], medium: ['30-44', '#FFF8E1'], high: ['45-59', '#FCE8E8'], critical: ['≥60', '#F3E5F5'] };
+  alert('已选择【' + {low:'低风险',medium:'中风险',high:'高风险',critical:'极高风险'}[level] + '】手动评级模式');
+}
+
+function getFormData() {
+  const data = { _savedAt: new Date().toISOString() };
+  document.querySelectorAll('input, textarea, select').forEach(el => {
+    if (el.id) data[el.id] = el.type === 'radio' 
+      ? (document.querySelector('input[name="'+el.name+'"]:checked') || {}).value || ''
+      : el.value;
+  });
+  return data;
+}
+
+function saveReport() {
+  const data = getFormData();
+  const reports = JSON.parse(localStorage.getItem(TOOL_KEY) || '{}');
+  const id = data.info_id || 'RPT-' + Date.now();
+  reports[id] = data;
+  localStorage.setItem(TOOL_KEY, JSON.stringify(reports));
+  alert('报告已保存！\n报告编号：' + id + '\n\n如需加载，请点击"加载已保存报告"');
+}
+
+function loadReport() {
+  const reports = JSON.parse(localStorage.getItem(TOOL_KEY) || '{}');
+  const ids = Object.keys(reports);
+  if (ids.length === 0) { alert('暂无已保存的报告'); return; }
+  
+  let html = '请选择要加载的报告：\n\n';
+  ids.forEach((id, i) => {
+    const r = reports[id];
+    const date = r.info_date || '';
+    const name = r.info_name || id;
+    html += (i+1) + '. [' + date + '] ' + name + ' (' + id + ')\n';
+  });
+  html += '\n请输入编号（1-' + ids.length + '）：';
+  
+  const choice = prompt(html);
+  if (!choice) return;
+  const idx = parseInt(choice) - 1;
+  if (isNaN(idx) || idx < 0 || idx >= ids.length) return;
+  
+  const data = reports[ids[idx]];
+  Object.keys(data).forEach(k => {
+    const el = document.getElementById(k);
+    if (!el) return;
+    if (el.type === 'radio') {
+      const checked = document.querySelector('input[name="'+el.name+'"][value="'+data[k]+'"]');
+      if (checked) checked.checked = true;
+    } else {
+      el.value = data[k];
+    }
+  });
+  
+  // Recalculate
+  ['f1','f2','f3','f4'].forEach(id => { const el = document.getElementById(id); if(el) colorCode(el); });
+  ['s1','s2','s3','s4'].forEach(id => { const el = document.getElementById(id); if(el) colorCode(el); });
+  ['i1','i2','i3','i4'].forEach(id => { const el = document.getElementById(id); if(el) colorCode(el); });
+  calcFamily(); calcSchool(); calcIndividual();
+  alert('报告已加载！请点击"计算风险评分"查看结果。');
+}
+
+function clearAll() {
+  if (!confirm('确定要清空所有内容吗？')) return;
+  document.querySelectorAll('input[type=text], input[type=date], textarea').forEach(el => el.value = '');
+  document.querySelectorAll('input[type=radio]').forEach(el => el.checked = false);
+  document.querySelectorAll('input[type=number]').forEach(el => { el.value = 3; colorCode(el); });
+  document.querySelectorAll('.score-display').forEach(el => el.textContent = '—');
+  document.querySelectorAll('.score-display').forEach(el => el.className = 'score-display');
+  document.querySelectorAll('.risk-tip').forEach(el => { el.textContent = '请完成评分'; el.className = 'risk-tip'; });
+  document.getElementById('total_display').style.display = 'none';
+  document.getElementById('print_table').style.display = 'none';
+}
+
+// Set today's date
+document.getElementById('info_date').valueAsDate = new Date();
+
+// Initialize
+['f1','f2','f3','f4','s1','s2','s3','s4','i1','i2','i3','i4'].forEach(id => {
+  const el = document.getElementById(id);
+  if (el) colorCode(el);
+});
+
+// Generate report ID
+document.getElementById('info_id').value = 'CD-' + new Date().getFullYear() + '-' + String(Math.floor(Math.random()*900+100)).padStart(3,'0');
+</script>
+</body>
+</html>

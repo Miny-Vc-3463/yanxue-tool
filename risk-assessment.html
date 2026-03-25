@@ -1,0 +1,579 @@
+
+                <div class="form-field">
+                    <label>评估实施人（选填）</label>
+                    <input type="text" id="mEvaluator" placeholder="姓名+资质，如：李XX/心理咨询师三级" maxlength="30">
+                </div>
+                <div class="form-field">
+                    <label>备注（选填）</label>
+                    <textarea id="mNote" rows="2" placeholder="如有特殊情况可简要说明"></textarea>
+                </div>
+                <div class="btn-row">
+                    <button class="btn btn-outline" onclick="closeModal()">稍后保存</button>
+                    <button class="btn btn-green" id="confirmBtn" onclick="doSubmit()">✅ 确认提交</button>
+                </div>
+            </div>
+            <div id="modalSuccess" style="display:none;" class="success-box">
+                <div class="icon">🎉</div>
+                <h3>报告已保存！</h3>
+                <p>评估报告已生成并保存至您的设备。<br>咨询师将在24小时内与您联系。</p>
+                <div class="actions">
+                    <button class="btn" onclick="location.reload()">🔄 重新评估</button>
+                    <button class="btn btn-gray" onclick="closeModal(); window.scrollTo({top:0,behavior:'smooth'});" style="margin-top:8px;">👀 查看报告</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 加载遮罩 -->
+<div class="loading-overlay" id="loadingOverlay">
+    <div class="spinner"></div>
+    <div class="loading-text" id="loadingText">正在生成报告...</div>
+</div>
+
+<script>
+(function() {
+    'use strict';
+    var currentStep = 0;
+    var totalSteps = 13;
+    var answers = {};
+    var finalScores = null;
+
+    // 阈值配置
+    var THRESHOLDS = {
+        family:    { major: 15, secondary: 10, max: 20 },  // ≥15高风险
+        school:    { major: 12, secondary: 8,  max: 20 }, // ≥12高风险
+        individual:{ major: 14, secondary: 9,  max: 20 }  // ≥14高风险
+    };
+
+    var DIM_NAMES = {
+        family:    '家庭环境风险',
+        school:    '学校适应风险',
+        individual:'个体发展风险'
+    };
+
+    // 综合等级阈值
+    var LEVELS = [
+        { max: 29,  key: 'low',      label: '低风险',    badge: 'badge-low',      cls: 'badge-low',      color: '#27ae60' },
+        { max: 44,  key: 'medium',  label: '中风险',    badge: 'badge-medium',    cls: 'badge-medium',  color: '#e67e22' },
+        { max: 59,  key: 'high',    label: '高风险',    badge: 'badge-high',      cls: 'badge-high',    color: '#e74c3c' },
+        { max: 999, key: 'critical',label: '极高风险',  badge: 'badge-critical',  cls: 'badge-critical', color: '#6a1b9a' }
+    ];
+
+    // 成都地区资源
+    var RESOURCES = {
+        low: {
+            title: '📍 低风险 — 社区级资源',
+            content: '建议参与社区"周末亲子工坊"、学校兴趣小组等活动，持续关注孩子情绪变化。',
+            color: '#27ae60'
+        },
+        medium: {
+            title: '📍 中风险 — 学校+社区资源',
+            content: '建议联系学校心理辅导室（成华区/锦江区/金牛区均有专业心理教师）+ 社区心理服务站（成华区青龙社区心理中心等）。可考虑参加家长课堂，学习有效亲子沟通方法。',
+            color: '#e67e22'
+        },
+        high: {
+            title: '📍 高风险 — 区级专业资源',
+            content: '建议尽快联系<strong>成都市未成年人心理成长中心</strong>（成华区建设路小学旁，成华区青少年心理援助热线：028-8437-7525），进行专业评估和家庭治疗。可同步联系学校德育处/心理中心，启动学校支持计划。',
+            color: '#e74c3c'
+        },
+        critical: {
+            title: '📍 极高风险 — 紧急医疗资源',
+            content: '<strong>⚠️ 请立即联系专业医疗机构！</strong><br>推荐：<br>• 四川省精神卫生中心·青少年心理科（成都）<br>• 四川大学华西医院·心理卫生中心<br>• 成都市第四人民医院·青少年心理门诊<br>同时联系学校德育处，启动危机响应机制。',
+            color: '#6a1b9a'
+        }
+    };
+
+    // 干预建议
+    var INTERVENTIONS = {
+        family: {
+            title: '🏠 家庭环境干预建议',
+            items: [
+                { level: 'high', text: '立即启动家庭沟通改善计划：固定每日30分钟非学业话题交流；夫妻双方统一教育理念；停止一切指责性语言。' },
+                { level: 'medium', text: '建议每周至少3次高质量亲子交流，减少命令式语言，增加情感确认。可参加家长课堂学习有效沟通技巧。' },
+                { level: 'low', text: '继续保持良好的家庭氛围和亲子沟通频率。' }
+            ]
+        },
+        school: {
+            title: '🏫 学校适应干预建议',
+            items: [
+                { level: 'high', text: '建议主动联系班主任和德育处，了解孩子在校真实状态，共同制定支持计划。同时关注是否存在校园人际问题。' },
+                { level: 'medium', text: '建议与学校心理老师沟通，评估是否需要调整师生关系支持。如有学业下滑，与科任老师协商补救方案。' },
+                { level: 'low', text: '继续保持家校沟通，关注孩子学校适应的动态变化。' }
+            ]
+        },
+        individual: {
+            title: '🌱 个体发展干预建议',
+            items: [
+                { level: 'high', text: '建议寻求专业心理评估（情绪调节、自我认同问题较突出）。同时保障每天8小时睡眠，减少手机使用时间至每日1小时内，逐步培养1-2个积极兴趣爱好以重建价值感。' },
+                { level: 'medium', text: '建议增加户外运动（每周3次，每次30分钟以上），保证充足睡眠（8小时），逐步减少手机依赖。可通过"成功日记"记录每日小成就，重建自我效能感。' },
+                { level: 'low', text: '继续保持规律作息和积极的生活方式。' }
+            ]
+        }
+    };
+
+    function $(id) { return document.getElementById(id); }
+
+    function goToStep(n) {
+        var old = $('step' + currentStep);
+        if (old) old.classList.remove('active');
+        currentStep = n;
+        var ne = $('step' + currentStep);
+        if (ne) ne.classList.add('active');
+        var pct = currentStep === 0 ? 0 : Math.round((currentStep - 1) / (totalSteps - 1) * 100);
+        $('progressFill').style.width = pct + '%';
+        window.scrollTo(0, 0);
+        if (currentStep === totalSteps - 1) generateReport();
+    }
+
+    function updateStepIndicators() {
+        for (var i = 1; i <= 12; i++) {
+            var el = $('stepInd' + i);
+            if (!el) continue;
+            var idx = i;
+            var done = idx < currentStep;
+            var cur = idx === currentStep;
+            el.innerHTML = Array.from({length:12},function(_,j){
+                var cls = j+1 < currentStep ? 'done' : j+1 === currentStep ? 'current' : '';
+                return '<div class="step-dot ' + cls + '"></div>';
+            }).join('');
+        }
+    }
+
+    // 选项点击
+    document.querySelectorAll('.options').forEach(function(c) {
+        c.querySelectorAll('.option').forEach(function(o) {
+            o.addEventListener('click', function() {
+                c.querySelectorAll('.option').forEach(function(x){ x.classList.remove('selected'); });
+                o.classList.add('selected');
+                answers[c.dataset.q] = { dim: c.dataset.dim, val: parseInt(o.dataset.v, 10) };
+                setTimeout(function() {
+                    if (currentStep < totalSteps - 1) {
+                        goToStep(currentStep + 1);
+                        updateStepIndicators();
+                    }
+                }, 280);
+            });
+        });
+    });
+
+    $('startBtn').addEventListener('click', function() {
+        goToStep(1);
+        updateStepIndicators();
+    });
+
+    function calcScores() {
+        var s = { family: 0, school: 0, individual: 0 };
+        Object.keys(answers).forEach(function(q) {
+            var a = answers[q];
+            if (a) s[a.dim] += a.val;
+        });
+        return s;
+    }
+
+    function getScoreLevel(dim, score) {
+        var t = THRESHOLDS[dim];
+        if (score >= t.major) return 'high';
+        if (score >= t.secondary) return 'medium';
+        return 'low';
+    }
+
+    function getScoreColor(level) {
+        return { high: '#e74c3c', medium: '#e67e22', low: '#27ae60' }[level] || '#27ae60';
+    }
+
+    function getScoreLabel(level) {
+        return { high: '高风险', medium: '中风险', low: '正常' }[level] || '正常';
+    }
+
+    function getOverallLevel(total) {
+        for (var i = 0; i < LEVELS.length; i++) {
+            if (total <= LEVELS[i].max) return LEVELS[i];
+        }
+        return LEVELS[LEVELS.length - 1];
+    }
+
+    function generateReport() {
+        finalScores = calcScores();
+        var total = finalScores.family + finalScores.school + finalScores.individual;
+        var overall = getOverallLevel(total);
+
+        // 综合评分大展示
+        $('totalNum').textContent = total + '分';
+        $('totalNum').style.color = overall.color;
+        $('totalLabel').textContent = ['低风险 <30分', '中风险 30-44分', '高风险 45-59分', '极高风险 ≥60分'][LEVELS.indexOf(overall)];
+        var badge = $('totalBadge');
+        badge.textContent = overall.label;
+        badge.className = 'badge ' + overall.badge;
+        badge.style.background = overall.color;
+        badge.style.display = 'inline-block';
+
+        // 三维度得分
+        var dimHtml = '';
+        Object.keys(DIM_NAMES).forEach(function(d) {
+            var sc = finalScores[d];
+            var t = THRESHOLDS[d];
+            var lvl = getScoreLevel(d, sc);
+            var cls = lvl === 'high' ? 'score-high' : lvl === 'medium' ? 'score-medium' : 'score-low';
+            var threshLabel = d === 'family' ? '高风险≥15分' : d === 'school' ? '高风险≥12分' : '高风险≥14分';
+            dimHtml += '<div class="dim-row">'
+                + '<span class="dim-name">' + DIM_NAMES[d] + '</span>'
+                + '<span class="dim-score ' + cls + '">' + sc + '分（' + getScoreLabel(lvl) + '）<span style="font-size:11px;color:#aaa;font-weight:normal;"> | ' + threshLabel + '</span></span>'
+                + '</div>';
+        });
+        $('dimensionScores').innerHTML = dimHtml;
+
+        // 核心诊断
+        var diagHtml = '';
+        var highDims = Object.keys(DIM_NAMES).filter(function(d){ return getScoreLevel(d, finalScores[d]) === 'high'; });
+        var medDims  = Object.keys(DIM_NAMES).filter(function(d){ return getScoreLevel(d, finalScores[d]) === 'medium'; });
+        if (highDims.length > 0) {
+            var detail = {
+                family: '家庭环境存在明显压力源：亲子沟通不足、教育理念分歧或家庭情绪氛围紧张，是厌学的核心促发因素。',
+                school: '学校适应存在明显困难：可能涉及学业下滑、师生/同伴关系紧张或对学校规则的抵触。',
+                individual: '个体发展层面有明显失衡：情绪调节困难、自我效能感低或睡眠问题突出。'
+            };
+            highDims.forEach(function(d) {
+                diagHtml += '<div class="info-box danger"><div class="info-title">🔴 ' + DIM_NAMES[d] + '（高风险）</div>'
+                    + '<div class="info-content">' + detail[d] + '</div></div>';
+            });
+        }
+        if (medDims.length > 0) {
+            var detail2 = {
+                family: '家庭环境存在一定压力，建议关注亲子沟通质量和教育一致性。',
+                school: '学校适应有一定困难，建议与学校保持沟通，关注学业和人际动态。',
+                individual: '个体发展有一定失衡迹象，建议从睡眠和兴趣爱好入手改善。'
+            };
+            medDims.forEach(function(d) {
+                diagHtml += '<div class="info-box warning"><div class="info-title">🟡 ' + DIM_NAMES[d] + '（中风险）</div>'
+                    + '<div class="info-content">' + detail2[d] + '</div></div>';
+            });
+        }
+        if (highDims.length === 0 && medDims.length === 0) {
+            diagHtml = '<div class="info-box success"><div class="info-title">🟢 评估结果</div>'
+                + '<div class="info-content">各维度得分均在正常范围内。建议继续保持关注孩子的日常情绪和学校适应变化。</div></div>';
+        }
+        $('diagnosisResult').innerHTML = diagHtml;
+
+        // 干预建议
+        var intHtml = '';
+        Object.keys(DIM_NAMES).forEach(function(d) {
+            var lvl = getScoreLevel(d, finalScores[d]);
+            var iv = INTERVENTIONS[d];
+            if (lvl === 'high' || lvl === 'medium') {
+                var item = iv.items.find(function(x){ return x.level === lvl; });
+                if (item) {
+                    intHtml += '<div class="info-box"><div class="info-title">' + iv.title + '</div>'
+                        + '<div class="info-content">' + item.text + '</div></div>';
+                }
+            }
+        });
+        if (!intHtml) {
+            intHtml = '<div class="info-box success"><div class="info-title">💡 日常建议</div>'
+                + '<div class="info-content">继续保持良好的家庭氛围和亲子沟通，关注孩子的情绪变化和学校适应情况。</div></div>';
+        }
+        $('interventionAdvice').innerHTML = intHtml;
+
+        // 成都资源
+        var res = RESOURCES[overall.key];
+        var resHtml = '<div class="resource-box" style="border-left-color:' + res.color + ';">'
+            + '<div class="res-title" style="color:' + res.color + ';">' + res.title + '</div>'
+            + '<div style="font-size:12px;line-height:1.7;margin-top:6px;">' + res.content + '</div></div>';
+        $('resourceAdvice').innerHTML = resHtml;
+    }
+
+    // ── 核心发现弹窗 ──
+    function buildSummaryHtml() {
+        var s = finalScores;
+        var total = s.family + s.school + s.individual;
+        var overall = getOverallLevel(total);
+        var h = '';
+
+        // 总体评级
+        h += '<div class="big-score" style="margin-bottom:16px;">'
+            + '<div style="font-size:12px;color:#888;">综合风险等级</div>'
+            + '<div style="font-size:36px;font-weight:bold;color:' + overall.color + ';">' + overall.label + '</div>'
+            + '<div style="font-size:12px;color:#888;margin-top:4px;">总分 ' + total + '分</div></div>';
+
+        var highDims = Object.keys(DIM_NAMES).filter(function(d){ return getScoreLevel(d, finalScores[d]) === 'high'; });
+        var medDims  = Object.keys(DIM_NAMES).filter(function(d){ return getScoreLevel(d, finalScores[d]) === 'medium'; });
+
+        if (highDims.length > 0) {
+            highDims.forEach(function(d) {
+                var detail = {
+                    family: '亲子沟通、教育一致性或家庭情绪氛围存在明显问题，需要重点改善家庭支持系统。',
+                    school: '学业适应或人际交往存在明显困难，需要学校和家庭共同介入支持。',
+                    individual: '情绪调节、自我效能感或睡眠问题突出，需要专业评估和个体化干预。'
+                };
+                h += '<div class="highlight-card high"><h4>🔴 ' + DIM_NAMES[d] + '（高风险，' + finalScores[d] + '分）</h4><p>' + detail[d] + '</p></div>';
+            });
+        }
+        if (medDims.length > 0) {
+            medDims.forEach(function(d) {
+                var detail = {
+                    family: '家庭沟通质量或情绪氛围需要改善，建议增加亲子交流频率。',
+                    school: '学校适应有一定挑战，建议保持家校沟通。',
+                    individual: '个体发展有一定失衡，建议从睡眠和兴趣入手调节。'
+                };
+                h += '<div class="highlight-card warning"><h4>🟡 ' + DIM_NAMES[d] + '（中风险，' + finalScores[d] + '分）</h4><p>' + detail[d] + '</p></div>';
+            });
+        }
+        if (highDims.length === 0 && medDims.length === 0) {
+            h = '<div class="summary-normal"><h4>🟢 评估结果良好</h4><p>各维度得分均在正常范围内，未发现明显的厌学风险因素。建议继续保持关注。</p></div>';
+        }
+
+        return h;
+    }
+
+    window.showSummaryModal = function() {
+        if (!finalScores) finalScores = calcScores();
+        $('summaryContent').innerHTML = buildSummaryHtml();
+        $('summaryModal').classList.add('show');
+    };
+
+    window.closeSummaryModal = function() {
+        $('summaryModal').classList.remove('show');
+    };
+
+    window.goToSubmitModal = function() {
+        $('summaryModal').classList.remove('show');
+        $('submitModal').classList.add('show');
+    };
+
+    window.closeModal = function() {
+        $('submitModal').classList.remove('show');
+        $('modalForm').style.display = 'block';
+        $('modalSuccess').style.display = 'none';
+        $('confirmBtn').disabled = false;
+        $('confirmBtn').textContent = '✅ 确认提交';
+    };
+
+    function escHtml(s) {
+        if (s === undefined || s === null) return '';
+        return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    }
+
+    function showLoading(text) {
+        $('loadingText').textContent = text || '处理中...';
+        $('loadingOverlay').classList.add('show');
+    }
+
+    function hideLoading() {
+        $('loadingOverlay').classList.remove('show');
+    }
+
+    function saveRecord(name, parent, phone, grade, evaluator, note) {
+        if (!finalScores) finalScores = calcScores();
+        var total = finalScores.family + finalScores.school + finalScores.individual;
+        var overall = getOverallLevel(total);
+        var record = {
+            name: name,
+            parent: parent,
+            phone: phone,
+            grade: grade,
+            evaluator: evaluator,
+            note: note,
+            tool: 'risk',
+            scores: finalScores,
+            total: total,
+            level: overall.key,
+            levelLabel: overall.label,
+            time: new Date().toISOString()
+        };
+        try {
+            var data = JSON.parse(localStorage.getItem('yanxue_records') || '[]');
+            data.unshift(record);
+            localStorage.setItem('yanxue_records', JSON.stringify(data));
+        } catch(e) {
+            console.error('Save error:', e);
+        }
+    }
+
+    window.doSubmit = function() {
+        var name = $('mName').value.trim();
+        var parent = $('mParent').value.trim();
+        var phone = $('mPhone').value.trim();
+        var grade = $('mGrade').value.trim();
+        var evaluator = $('mEvaluator').value.trim();
+        var note = $('mNote').value.trim();
+
+        if (!name) { alert('请填写孩子姓名/昵称'); return; }
+        if (!parent) { alert('请填写家长姓名'); return; }
+        if (!phone) { alert('请填写联系电话'); return; }
+
+        $('confirmBtn').disabled = true;
+        $('confirmBtn').textContent = '生成中...';
+
+        saveRecord(name, parent, phone, grade, evaluator, note);
+
+        try {
+            var pdf = new jsPDF();
+            pdf.setAutoPageBreak(true, 15);
+            var pageW = pdf.internal.pageSize.getWidth();
+            var margin = 15;
+            var maxW = pageW - margin * 2;
+            var y = 20;
+            var lh = 7;
+
+            function addText(text, fs, bold, r, g, b) {
+                pdf.setFontSize(fs || 11);
+                pdf.setFont('helvetica', bold ? 'bold' : 'normal');
+                if (r !== undefined) pdf.setTextColor(r, g !== undefined ? g : r, b !== undefined ? b : r);
+                else pdf.setTextColor(40);
+                var lines = pdf.splitTextToSize(text, maxW);
+                lines.forEach(function(line) {
+                    if (y > 275) { pdf.addPage(); y = 20; }
+                    pdf.text(line, margin, y);
+                    y += lh;
+                });
+                y += 2;
+            }
+
+            var total = finalScores.family + finalScores.school + finalScores.individual;
+            var overall = getOverallLevel(total);
+            var today = new Date().toLocaleDateString('zh-CN');
+
+            // 标题
+            pdf.setFillColor(231, 76, 60);
+            pdf.rect(0, 0, pageW, 40, 'F');
+            pdf.setFontSize(20);
+            pdf.setFont('helvetica', 'bold');
+            pdf.setTextColor(255, 255, 255);
+            pdf.text('青少年厌学风险评估报告', pageW / 2, 18, { align: 'center' });
+            pdf.setFontSize(10);
+            pdf.setFont('helvetica', 'normal');
+            pdf.text('成都地区常模版 | ' + today, pageW / 2, 28, { align: 'center' });
+
+            y = 50;
+
+            // 个人信息
+            pdf.setFillColor(245, 245, 245);
+            pdf.rect(margin, y - 4, maxW, 28, 'F');
+            addText('孩子姓名：' + escHtml(name) + '    年龄/年级：' + escHtml(grade) + '    家长：' + escHtml(parent) + '    电话：' + escHtml(phone), 10, false, 80, 80, 80);
+            if (evaluator) addText('评估实施人：' + escHtml(evaluator), 9, false, 130, 130, 130);
+            y += 28;
+
+            // 综合评级
+            pdf.setFontSize(13);
+            pdf.setFont('helvetica', 'bold');
+            pdf.setTextColor(231, 76, 60);
+            pdf.text('综合风险评估', margin, y);
+            y += 8;
+
+            pdf.setFontSize(36);
+            pdf.setFont('helvetica', 'bold');
+            pdf.setTextColor(parseInt(overall.color.slice(1,3),16), parseInt(overall.color.slice(3,5),16), parseInt(overall.color.slice(5,7),16));
+            pdf.text(total + '分', margin, y + 10);
+            pdf.setFontSize(12);
+            pdf.setTextColor(100);
+            pdf.setFont('helvetica', 'normal');
+            pdf.text('  ' + overall.label + '  |  ' + ['<30分低风险','30-44分中风险','45-59分高风险','≥60分极高风险'][LEVELS.indexOf(overall)], margin + 35, y + 10);
+            y += 18;
+
+            // 三维度
+            pdf.setFontSize(13);
+            pdf.setFont('helvetica', 'bold');
+            pdf.setTextColor(50);
+            pdf.text('三维度风险得分', margin, y);
+            y += 8;
+
+            Object.keys(DIM_NAMES).forEach(function(d) {
+                var sc = finalScores[d];
+                var lvl = getScoreLevel(d, sc);
+                var col = getScoreColor(lvl);
+                var thresh = d === 'family' ? '高风险≥15' : d === 'school' ? '高风险≥12' : '高风险≥14';
+                pdf.setFillColor(lvl === 'high' ? 255 : lvl === 'medium' ? 255 : 232, lvl === 'high' ? 235 : lvl === 'medium' ? 244 : 245, lvl === 'high' ? 235 : lvl === 'medium' ? 224 : 245);
+                pdf.rect(margin, y - 4, maxW, 14, 'F');
+                pdf.setFontSize(11);
+                pdf.setFont('helvetica', 'normal');
+                pdf.setTextColor(60);
+                pdf.text(DIM_NAMES[d], margin + 4, y + 3);
+                pdf.setFont('helvetica', 'bold');
+                pdf.setTextColor(parseInt(col.slice(1,3),16), parseInt(col.slice(3,5),16), parseInt(col.slice(5,7),16));
+                pdf.text(sc + '分（' + getScoreLabel(lvl) + '）  ' + thresh, pageW - margin - 4, y + 3, { align: 'right' });
+                y += 16;
+            });
+            y += 4;
+
+            // 核心发现
+            pdf.setFontSize(13);
+            pdf.setFont('helvetica', 'bold');
+            pdf.setTextColor(231, 76, 60);
+            pdf.text('核心发现', margin, y);
+            y += 8;
+
+            var highDims = Object.keys(DIM_NAMES).filter(function(d){ return getScoreLevel(d, finalScores[d]) === 'high'; });
+            var medDims  = Object.keys(DIM_NAMES).filter(function(d){ return getScoreLevel(d, finalScores[d]) === 'medium'; });
+            if (highDims.length > 0) {
+                highDims.forEach(function(d) {
+                    addText('【' + DIM_NAMES[d] + '】' + (d === 'family' ? '家庭环境存在明显压力源，是厌学的核心促发因素。' : d === 'school' ? '学校适应存在明显困难，需要学校和家庭共同介入支持。' : '情绪调节或自我效能感问题突出，需要专业评估。'), 10, false, 200, 50, 50);
+                });
+            }
+            if (medDims.length > 0) {
+                medDims.forEach(function(d) {
+                    addText('【' + DIM_NAMES[d] + '】' + (d === 'family' ? '家庭环境存在一定压力，建议关注沟通质量。' : d === 'school' ? '学校适应有一定挑战，建议保持家校沟通。' : '个体发展有一定失衡，建议从睡眠和兴趣入手。'), 10, false, 200, 140, 0);
+                });
+            }
+            if (highDims.length === 0 && medDims.length === 0) {
+                addText('各维度得分均在正常范围内，未发现明显的厌学风险因素。', 10, false, 39, 174, 96);
+            }
+
+            y += 4;
+
+            // 成都资源
+            var res = RESOURCES[overall.key];
+            pdf.setFontSize(13);
+            pdf.setFont('helvetica', 'bold');
+            pdf.setTextColor(parseInt(res.color.slice(1,3),16), parseInt(res.color.slice(3,5),16), parseInt(res.color.slice(5,7),16));
+            pdf.text('成都地区干预资源', margin, y);
+            y += 8;
+            pdf.setFontSize(10);
+            pdf.setFont('helvetica', 'normal');
+            pdf.setTextColor(60);
+            var resLines = pdf.splitTextToSize(res.content.replace(/<[^>]+>/g, ''), maxW);
+            resLines.forEach(function(line) {
+                if (y > 278) { pdf.addPage(); y = 20; }
+                pdf.text(line, margin, y);
+                y += 6;
+            });
+
+            // 免责声明
+            y += 8;
+            pdf.setFillColor(255, 248, 225);
+            pdf.rect(margin, y - 4, maxW, 18, 'F');
+            pdf.setFontSize(8);
+            pdf.setTextColor(121, 85, 72);
+            var dmLines = pdf.splitTextToSize('⚠️ 免责声明：本评估工具依据成都地区常模数据开发，仅供参考，不构成医疗诊断。如发现极高风险，请立即联系专业医疗机构。', maxW);
+            dmLines.forEach(function(line) {
+                if (y > 285) { pdf.addPage(); y = 20; }
+                pdf.text(line, margin, y);
+                y += 5;
+            });
+
+            var filename = '厌学风险评估_' + escHtml(name) + '_' + new Date().toISOString().slice(0,10) + '.pdf';
+            pdf.save(filename);
+        } catch(e) {
+            console.error('PDF error:', e);
+            alert('报告已保存（PDF生成遇到问题），咨询师可在后台查看数据。');
+        }
+
+        setTimeout(function() {
+            $('modalForm').style.display = 'none';
+            $('modalSuccess').style.display = 'block';
+        }, 800);
+    }
+
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            closeModal();
+            closeSummaryModal();
+        }
+    });
+
+    // 默认显示日期
+    var today = new Date();
+    // no date field in this version
+})();
+</script>
+</body>
+</html>

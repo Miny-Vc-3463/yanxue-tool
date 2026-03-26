@@ -260,8 +260,7 @@ html+='<div class="modal-row"><span class="lbl">'+(dimMap[dim]||dim)+'</span><sp
 html+='</div>';
 }
 if(r.note&&r.note!=='无'){
-html+='<div class="modal-section"><h4>备注</h4><div style="background:#f9f9f9;padding:10px;border-radius:8px;font-size:12px">'+esc(r.note)+'</div></div>
-<button class="btn btn-green" onclick="exportExcelAll()">📊 导出Excel</button>';
+html+='<div class="modal-section"><h4>备注</h4><div style="background:#f9f9f9;padding:10px;border-radius:8px;font-size:12px">'+esc(r.note)+'</div></div>';
 }
 document.getElementById('detailContent').innerHTML=html;
 document.getElementById('detailModal').classList.add('show');
@@ -291,10 +290,6 @@ a.click();
 };
 
 function esc(s){if(s===undefined||s===null)return'';return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
-})();
 
 function exportExcelAll(){try{var d=JSON.parse(localStorage.getItem("yanxue_records")||"[]");if(!d.length){alert("no data");return}var wb=XLSX.utils.book_new();var rows=[["date","name","tool","score","summary"]];d.forEach(function(r){rows.push([r.date||"",r.name||"",r.tool||"",r.score||"",(r.summary||"").substring(0,200)])});var ws=XLSX.utils.aoa_to_sheet(rows);ws["!cols"]=[{wch:20},{wch:12},{wch:16},{wch:8},{wch:50}];XLSX.utils.book_append_sheet(wb,ws,"all_records");XLSX.writeFile(wb,"yanxue_consultant_"+(new Date().toISOString().slice(0,10))+".xlsx")}catch(e){alert("export error:"+e.message)}}
-
-</script>
-</body>
-</html>
+})();

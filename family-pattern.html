@@ -495,6 +495,22 @@
 
 function exportExcel(){try{var d=JSON.parse(localStorage.getItem("yanxue_records")||"[]");if(!d.length){alert("no data");return}var wb=XLSX.utils.book_new();var rows=[["date","name","score","summary"]];d.forEach(function(r){rows.push([r.date||"",r.name||"",r.score||"",(r.summary||"").substring(0,100)])});var ws=XLSX.utils.aoa_to_sheet(rows);ws["!cols"]=[{wch:20},{wch:12},{wch:8},{wch:40}];XLSX.utils.book_append_sheet(wb,ws,"records");XLSX.writeFile(wb,"yanxue_"+(new Date().toISOString().slice(0,10))+".xlsx")}catch(e){alert("export error:"+e.message)}}
 
+
+function copyRecord(){
+  var name=document.getElementById('mName')&&document.getElementById('mName').value||'';
+  var phone=document.getElementById('mPhone')&&document.getElementById('mPhone').value||'';
+  var note=document.getElementById('mNote')&&document.getElementById('mNote').value||'';
+  var data={tool:"family",name:name,phone:phone,note:note,time:new Date().toISOString(),scores:window._scores||{},maxScore:window._maxScore||0};
+  var text='\u300A家庭互动评估\u300B\u8BC4\u4F30\u62A5\u544A\n\u300A\u8BF7\u5C06\u6B64\u4EE3\u7801\u53D1\u7ED9\u54A8\u8BE2\u5E08\u300B\n\n'+JSON.stringify(data,null,2);
+  if(navigator.clipboard&&navigator.clipboard.writeText){
+    navigator.clipboard.writeText(text).then(function(){
+      var el=document.createElement('div');el.style='position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:#27ae60;color:#fff;padding:20px 30px;border-radius:12px;font-size:14px;z-index:99999;text-align:center';
+      el.innerHTML='\u2705 \u5DF2\u590D\u5236\u5230\u526A\u8D34\u677F\uFF01<br><span style="font-size:12px;opacity:0.8">\u8BF7\u76F4\u63A5\u7C98\u8D34\u5230\u5FAE\u4FE1\u53D1\u7ED9\u54A8\u8BE2\u5E08</span>';
+      document.body.appendChild(el);setTimeout(function(){document.body.removeChild(el)},3000);
+    }).catch(function(){prompt('\u624B\u52A8\u590D\u5236:',text)});
+  } else {prompt('\u590D\u5236\u6B64\u5185\u5BB9\u53D1\u7ED9\u54A8\u8BE2\u5E08:',text);}
+}
+
 </script>
 </body>
 </html>

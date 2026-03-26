@@ -27,13 +27,15 @@ body{overflow-x:hidden}
 .stat-card{background:#fff;border-radius:12px;padding:16px;text-align:center;box-shadow:0 2px 8px rgba(0,0,0,0.08)}
 .stat-card .num{font-size:24px;font-weight:bold;color:#667eea;margin-bottom:4px}
 .stat-card .label{font-size:12px;color:#999}
-.btn-row{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px}
-.btn2{flex:1;min-width:80px;padding:10px;background:#667eea;color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;transition:all .2s}
-.btn2:hover{transform:translateY(-2px);box-shadow:0 4px 12px rgba(102,126,234,0.4)}
+.btn-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+.btn2{flex:1;min-width:80px;padding:10px;background:#667eea;color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;transition:all .2s;text-align:center;min-height:44px;display:flex;align-items:center;justify-content:center}
+.btn2:hover{transform:translateY(-1px);box-shadow:0 4px 12px rgba(102,126,234,0.4)}
 .btn2.green{background:#27ae60}
 .btn2.green:hover{box-shadow:0 4px 12px rgba(39,174,96,0.4)}
 .btn2.red{background:#e74c3c}
 .btn2.red:hover{box-shadow:0 4px 12px rgba(231,76,60,0.4)}
+.btn2.orange{background:#f39c12}
+.btn2.orange:hover{box-shadow:0 4px 12px rgba(243,156,18,0.4)}
 .filter-bar{display:flex;gap:8px;overflow-x:auto;padding-bottom:8px;margin-bottom:14px}
 .filter-btn{padding:8px 14px;background:#e0e0e0;border:none;border-radius:20px;font-size:12px;cursor:pointer;white-space:nowrap;transition:all .2s}
 .filter-btn.active{background:#667eea;color:#fff}
@@ -58,7 +60,7 @@ body{overflow-x:hidden}
 .score-tag.s3{background:#e8f8f5;color:#27ae60}
 .record-note{font-size:12px;color:#666;background:#f9f9f9;padding:8px;border-radius:6px;margin:8px 0}
 .record-actions{display:flex;gap:8px;margin-top:10px}
-.btn-sm{flex:1;padding:8px;background:#667eea;color:#fff;border:none;border-radius:6px;font-size:12px;cursor:pointer}
+.btn-sm{flex:1;padding:8px;background:#667eea;color:#fff;border:none;border-radius:6px;font-size:12px;cursor:pointer;min-height:36px}
 .btn-sm.red{background:#e74c3c}
 .empty-state{text-align:center;padding:40px 20px;color:#999}
 .empty-state .icon{font-size:48px;margin-bottom:10px}
@@ -79,7 +81,9 @@ body{overflow-x:hidden}
 .modal-row .val.high{color:#e74c3c}
 .modal-row .val.medium{color:#f39c12}
 .modal-row .val.low{color:#27ae60}
-@media(max-width:600px){.stats{grid-template-columns:repeat(2,1fr)}.btn-row{flex-direction:column}.btn2{width:100%}.filter-bar{gap:6px}.record-card{padding:12px}.record-header{flex-direction:column}}
+.toast{position:fixed;bottom:70px;left:50%;transform:translateX(-50%);background:#333;color:#fff;padding:8px 20px;border-radius:20px;font-size:13px;z-index:999999;opacity:0;transition:opacity .3s;pointer-events:none}
+.toast.show{opacity:1}
+@media(max-width:600px){.stats{grid-template-columns:repeat(2,1fr)}.btn-row{flex-direction:column}.btn2{width:100%;min-width:unset}.filter-bar{gap:6px}.record-card{padding:12px}.record-header{flex-direction:column}}
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 </head>
@@ -105,8 +109,8 @@ body{overflow-x:hidden}
 <div class="form-section">
 <div class="info-box">
 <p>✅ <strong>自动接收：</strong>四个评估工具的提交数据会自动显示在此页面</p>
-<p style="margin-top:8px">📱 <strong>手机访问：</strong>支持手机访问</p>
-<p style="margin-top:8px">⚠️ <strong>数据存储：</strong>数据存在浏览器本地，清除缓存会删除</p>
+<p style="margin-top:8px">📱 <strong>手机微信：</strong>点击"📋 复制"将数据复制后发给咨询师</p>
+<p style="margin-top:8px">☁️ <strong>云端同步：</strong>点击"📥 粘贴数据"从微信聊天记录恢复数据</p>
 </div>
 </div>
 
@@ -120,8 +124,10 @@ body{overflow-x:hidden}
 <div class="form-section">
 <div class="btn-row">
 <button class="btn2" onclick="loadRecords()">🔄 刷新</button>
-<button class="btn2 green" onclick="exportExcel()">📊 导出Excel</button>
-<button class="btn2 red" onclick="clearAll()">🗑️ 清空</button>
+<button class="btn2 orange" onclick="copyToClipboard()">📋 复制</button>
+<button class="btn2 green" onclick="pasteFromClipboard()">📥 粘贴</button>
+<button class="btn2" onclick="exportExcel()">📊 Excel</button>
+<button class="btn2 red" onclick="clearAll()">🗑️</button>
 </div>
 <div class="filter-bar" id="filterBar">
 <div class="filter-btn active" onclick="setFilter('all')">全部</div>
@@ -154,6 +160,8 @@ body{overflow-x:hidden}
 </div>
 </div>
 
+<div class="toast" id="toast"></div>
+
 <script>
 (function(){
 var STORAGE_KEY='yanxue_records';
@@ -184,6 +192,7 @@ try{records=JSON.parse(localStorage.getItem(STORAGE_KEY)||'[]')}catch(e){records
 renderRecords();
 updateStats();
 }
+window.loadRecords=loadRecords;
 
 var TOOL_NAMES={yanxue:'厌学成因',parent:'家长心态',teen:'厌学程度',family:'家庭互动'};
 
@@ -224,7 +233,7 @@ html+='<div class="record-header"><div><div class="record-name">'+esc(r.name)+'<
 html+='<div class="record-meta"><div class="record-time">'+time+'</div><span class="record-tool t'+(tool==='yanxue'?1:tool==='parent'?2:tool==='teen'?3:4)+'">'+toolName+'</span><div>'+getRiskLabel(r)+'</div></div>';
 if(scoresHtml)html+='<div class="record-scores">'+scoresHtml+'</div>';
 if(r.note&&r.note!=='无')html+='<div class="record-note">📝 '+esc(r.note)+'</div>';
-html+='<div class="record-actions"><button class="btn-sm" onclick="showDetail('+records.indexOf(r)+')">查看详情</button><button class="btn-sm red" onclick="deleteRecord('+records.indexOf(r)+')">删除</button></div></div>';
+html+='<div class="record-actions"><button class="btn-sm" onclick="showDetail('+records.indexOf(r)+')">查看</button><button class="btn-sm red" onclick="deleteRecord('+records.indexOf(r)+')">删除</button></div></div>';
 });
 el.innerHTML=html;
 }
@@ -289,9 +298,90 @@ XLSX.utils.book_append_sheet(wb,ws,'评估记录');
 XLSX.writeFile(wb,'咨询师数据_'+new Date().toISOString().slice(0,10)+'.xlsx');
 };
 
+// ── Toast notification ──
+function showToast(msg){
+var t=document.getElementById('toast');
+t.textContent=msg;t.classList.add('show');
+setTimeout(function(){t.classList.remove('show')},2500);
+}
+window.showToast=showToast;
+
+// ── Copy to clipboard (微信可用) ──
+window.copyToClipboard=function(){
+if(records.length===0){alert('暂无数据');return}
+var lines=['【咨询师后台数据】','================================',''];
+records.forEach(function(r,i){
+var t=r.tool||'yanxue';
+lines.push('['+(i+1)+'] '+r.name+' | '+r.phone+' | '+TOOL_NAMES[t]+' | 分:'+(r.maxScore||''));
+if(r.scores){var sc=[];Object.keys(r.scores).forEach(function(k){sc.push(k+':'+r.scores[k])});lines.push('  维度:'+sc.join(' | '));}
+if(r.note&&r.note!=='无')lines.push('  备注:'+r.note);
+lines.push('--------------------------------');
+});
+var text=lines.join('
+');
+if(navigator.clipboard&&navigator.clipboard.writeText){
+navigator.clipboard.writeText(text).then(function(){
+showToast('✓ 已复制，可直接粘贴到微信发给咨询师');
+}).catch(function(){prompt('手动复制:',text)});
+}else{
+var ta=document.createElement('textarea');
+ta.value=text;
+ta.style='position:fixed;top:0;left:-9999px';
+document.body.appendChild(ta);
+ta.select();
+try{document.execCommand('copy');showToast('✓ 已复制')}catch(e){prompt('复制:',text)}
+document.body.removeChild(ta);
+}
+};
+
+// ── Paste from clipboard (从微信恢复) ──
+window.pasteFromClipboard=function(){
+var text=prompt('请粘贴从评估工具复制的报告内容：
+
+（微信中：长按报告卡片 → 复制 → 粘贴到这里）');
+if(!text||!text.trim())return;
+try{
+// Try JSON format first
+if(text.indexOf('"tool"')>=0||text.indexOf('"name"')>=0){
+var data=JSON.parse(text);
+if(!data.tool){alert('数据格式不正确');return;}
+var exists=false;
+for(var i=0;i<records.length;i++){
+if(records[i].tool===data.tool&&records[i].name===data.name&&Math.abs(new Date(records[i].time)-new Date(data.time))<86400000){
+records[i]=data;exists=true;break;
+}
+}
+if(!exists)records.push(data);
+localStorage.setItem(STORAGE_KEY,JSON.stringify(records));
+renderRecords();updateStats();
+showToast('✓ 已导入 '+records.length+' 条记录');
+return;
+}
+// Try text format
+var lines=text.split('
+');
+var newCount=0;
+for(var i=0;i<lines.length;i++){
+var m=lines[i].match(/^[(d+)]s*(.+?)s*|s*(.+?)s*|s*(.+?)s*|s*分:(S*)/);
+if(m){
+var exists2=false;
+for(var j=0;j<records.length;j++){
+if(records[j].name===m[2]&&records[j].tool===m[4]){exists2=true;break;
+}
+}
+if(!exists2){records.push({name:m[2],phone:m[3],tool:m[4],maxScore:parseFloat(m[5])||0,time:new Date().toISOString()});newCount++;}
+}
+}
+if(newCount>0){
+localStorage.setItem(STORAGE_KEY,JSON.stringify(records));
+renderRecords();updateStats();
+showToast('✓ 已导入 '+newCount+' 条新记录');
+}else{alert('未能识别有效数据，请确保粘贴的是评估报告内容');}
+}catch(e){alert('解析失败，请确保粘贴的是完整报告内容');}
+};
+
 function esc(s){if(s===undefined||s===null)return'';return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
 
-window.loadRecords=loadRecords;
 })();
 </script>
 

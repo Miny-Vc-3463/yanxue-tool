@@ -121,6 +121,7 @@
         .l5-labels { display: flex; justify-content: space-between; font-size: 10px; color: #aaa; margin-top: 2px; }
         @media print { body { background: white; padding: 0; } .container { box-shadow: none; } .btn, .modal-overlay, .loading-overlay { display: none !important; } }
     </style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 </head>
 <body>
 <div class="container">
@@ -319,7 +320,7 @@
         <div class="modal-body">
             <div id="modalForm">
                 <p style="font-size:11px;color:#999;margin-bottom:14px;">💡 提交后将自动生成评估报告PDF并保存，同时咨询师可在后台查看此评估结果。</p>
-                <div class="form-field"><label>您的姓名 <span>*</span></label><input type="text" id="mName" placeholder="请输入您的姓名" maxlength="20"></div>
+                <div class="form-field"><label>您���姓名 <span>*</span></label><input type="text" id="mName" placeholder="请输入您的姓名" maxlength="20"></div>
                 <div class="form-field"><label>联系电话 <span>*</span></label><input type="tel" id="mPhone" placeholder="请输入手机号" maxlength="20"></div>
                 <div class="form-field"><label>备注（选填）</label><textarea id="mNote" rows="2" placeholder="如有特殊情况可简要说明"></textarea></div>
                 <div class="btn-row">
@@ -549,7 +550,7 @@
                 h += '<div class="' + cardClass + '"><h4>' + DIM_NAMES[d] + '</h4><p>' + FINDINGS[d].medium + '</p></div>';
             }
         });
-        if (!h) h = '<div class="summary-normal"><h4>✅ 各维度表现良好</h4><p>您的认知、心态和行为总体积极，建议继续保持科学干预方式。</p></div>';
+        if (!h) h = '<div class="summary-normal"><h4>✅ 各维度表现良好</h4><p>您的认知、心态和行为总体积极，建议继续保持科学干预��式。</p></div>';
         return h;
     }
 
@@ -630,6 +631,9 @@
 
     document.addEventListener('keydown', function(e) { if (e.key === 'Escape') { closeModal(); closeSummaryModal(); } });
 })();
+
+function exportExcel(){try{var d=JSON.parse(localStorage.getItem("yanxue_records")||"[]");if(!d.length){alert("暂无数据可导出");return}var wb=XLSX.utils.book_new();var rows=[["时间","姐名","总分","报告摘要"]];d.forEach(function(r){rows.push([r.date||"",r.name||"",r.score||"",(r.summary||"").substring(0,100)])});var ws=XLSX.utils.aoa_to_sheet(rows);ws["!cols"]=[{wch:20},{wch:12},{wch:8},{wch:40}];XLSX.utils.book_append_sheet(wb,ws,"评估记录");XLSX.writeFile(wb,"厌学评估记录_"+(new Date().toISOString().slice(0,10))+".xlsx")}catch(e){alert("导出失败："+e.message)}}
+
 </script>
 </body>
 </html>

@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>厌学核心成因评估工具</title>
+    <meta name="description" content="精准识别6-18岁学生厌学/休学的核心成因，为个性化干预提供靶向依据">
+    <!-- 微信分享封面 -->
+    <meta property="og:title" content="厌学核心成因评估工具">
+    <meta property="og:description" content="基于成都237例实证数据 | 5维度20题专业评估 | 精准识别厌学核心成因">
+    <meta property="og:image" content="https://raw.githubusercontent.com/miny-vc-3463/yanxue-tool/main/cover.jpg">
+    <meta property="og:url" content="https://miny-vc-3463.github.io/yanxue-tool/">
+    <meta property="og:type" content="website">
+    <!-- Twitter分享 -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="厌学核心成因评估工具">
+    <meta name="twitter:description" content="基于成都237例实证数据 | 5维度20题专业评估">
+    <meta name="twitter:image" content="https://raw.githubusercontent.com/miny-vc-3463/yanxue-tool/main/cover.jpg">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; padding: 20px; }
+        .container { max-width: 600px; margin: 0 auto; background: white; border-radius: 20px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); overflow: hidden; }
+        .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 28px 20px; text-align: center; }
+        .header h1 { font-size: 21px; margin-bottom: 7px; }
+        .header p { font-size: 12px; opacity: 0.9; }
+        .content { padding: 24px 20px; }
+        .progress-bar { height: 5px; background: #e0e0e0; border-radius: 3px; margin-bottom: 22px; overflow: hidden; }
+        .progress-fill { height: 100%; background: linear-gradient(90deg, #667eea, #764ba2); transition: width 0.4s ease; width: 0%; }
+        .step { display: none; }
+        .step.active { display: block; }
+        .step-title { font-size: 16px; color: #333; margin-bottom: 18px; padding-bottom: 9px; border-bottom: 2px solid #667eea; font-weight: 700; }
+        .q-label { font-size: 15px; color: #333; margin-bottom: 13px; line-height: 1.7; font-weight: 500; }
+        .options { display: flex; flex-direction: column; gap: 9px; }
+        .option { padding: 13px 15px; border: 2px solid #e0e0e0; border-radius: 11px; cursor: pointer; transition: all 0.2s; font-size: 14px; color: #555; user-select: none; -webkit-tap-highlight-color: transparent; }
+        .option:hover { border-color: #667eea; background: #f0f2ff; }
+        .option:active { transform: scale(0.98); }
+        .option.selected { border-color: #667eea; background: linear-gradient(135deg, #667eea, #764ba2); color: white; }
+        .btn { width: 100%; padding: 15px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 12px; font-size: 15px; font-weight: 600; cursor: pointer; margin-top: 18px; transition: transform 0.2s, box-shadow 0.2s; -webkit-tap-highlight-color: transparent; }
+        .btn:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(102,126,234,0.4); }
+        .btn:active { transform: scale(0.98); }
+        .btn-green { background: linear-gradient(135deg, #27ae60, #2ecc71); }
+        .btn-gray { background: #6c757d; }
+        .btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none !important; }
+        .welcome-text { font-size: 14px; color: #555; line-height: 1.9; margin-bottom: 10px; }
+        .welcome-text ul { margin: 11px 0 11px 20px; }
+        .welcome-text li { margin: 5px 0; }
+        .result-section { background: #f8f9ff; border-radius: 12px; padding: 17px; margin-bottom: 15px; }
+        .result-title { font-size: 14px; color: #667eea; margin-bottom: 13px; font-weight: 700; }
+        .dim-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #eee; }
+        .dim-row:last-child { border-bottom: none; }
+        .dim-name { font-size: 13px; color: #444; }
+        .dim-score { font-size: 15px; font-weight: bold; }
+        .score-high { color: #e74c3c; }
+        .score-medium { color: #f39c12; }
+        .score-low { color: #27ae60; }
+        .info-box { background: white; border-left: 4px solid #667eea; padding: 13px 15px; margin: 11px 0; border-radius: 0 9px 9px 0; }
+        .info-box.danger { border-left-color: #e74c3c; }
+        .info-box.warning { border-left-color: #f39c12; }
+        .info-box.success { border-left-color: #27ae60; }
+        .info-title { font-weight: 700; color: #333; margin-bottom: 5px; font-size: 13px; }
+        .info-content { font-size: 12px; color: #666; line-height: 1.7; }
+        .chart-container { position: relative; height: 260px; margin: 8px 0; }
+        .disclaimer { background: #fff8e1; border: 1px solid #ffe082; border-radius: 10px; padding: 13px; margin-top: 15px; font-size: 11px; color: #795548; line-height: 1.7; }
+        .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.55); display: flex; align-items: center; justify-content: center; z-index: 9999; padding: 20px; opacity: 0; visibility: hidden; transition: opacity 0.3s, visibility 0.3s; }
+        .modal-overlay.show { opacity: 1; visibility: visible; }
+        .modal-box { background: white; border-radius: 18px; width: 100%; max-width: 480px; max-height: 90vh; overflow-y: auto; transform: scale(0.9); transition: transform 0.3s; }
+        .modal-overlay.show .modal-box { transform: scale(1); }
+        .modal-header { background: linear-gradient(135deg, #667eea, #764ba2); color: white; padding: 22px 20px 18px; border-radius: 18px 18px 0 0; position: relative; }
+        .modal-header h2 { font-size: 17px; margin-bottom: 4px; }
+        .modal-header p { font-size: 12px; opacity: 0.85; }
+        .modal-close { position: absolute; right: 16px; top: 14px; font-size: 24px; cursor: pointer; opacity: 0.7; line-height: 1; }
+        .modal-close:hover { opacity: 1; }
+        .modal-body { padding: 20px; }
+        .form-field { margin-bottom: 14px; }
+        .form-field label { display: block; font-size: 13px; color: #555; margin-bottom: 6px; font-weight: 600; }
+        .form-field label span { color: #e74c3c; }
+        .form-field input, .form-field textarea { width: 100%; padding: 11px 13px; border: 2px solid #e0e0e0; border-radius: 10px; font-size: 14px; outline: none; font-family: inherit; transition: border-color 0.2s; }
+        .form-field input:focus, .form-field textarea:focus { border-color: #667eea; }
+        .btn-row { display: flex; gap: 10px; margin-top: 18px; }
+        .btn-row .btn { margin-top: 0; flex: 1; }
+        .btn-row .btn-outline { background: white; color: #667eea; border: 2px solid #667eea; flex: 1; padding: 13px; }
+        .btn-row .btn-outline:hover { background: #f0f2ff; }
+        .success-box { text-align: center; padding: 28px 20px; }
+        .success-box .icon { font-size: 52px; margin-bottom: 12px; }
+        .success-box h3 { font-size: 18px; color: #333; margin-bottom: 8px; }
+        .success-box p { font-size: 13px; color: #888; line-height: 1.7; }
+        .success-box .actions { margin-top: 20px; }
+        .success-box .actions .btn { margin-top: 8px; }
+        /* 高亮总结 */
+        .highlight-card { background: #fff5f5; border: 2px solid #ffcdd2; border-radius: 12px; padding: 15px; margin-bottom: 12px; }
+        .highlight-card.warning { background: #fffbf0; border-color: #ffe0b2; }
+        .highlight-card h4 { font-size: 14px; color: #c62828; margin-bottom: 6px; display: flex; align-items: center; gap: 6px; }
+        .highlight-card.warning h4 { color: #e65100; }
+        .highlight-card p { font-size: 12px; color: #555; line-height: 1.7; }
+        .summary-normal { background: #f1f8f4; border: 2px solid #c8e6c9; border-radius: 12px; padding: 12px 15px; margin-bottom: 12px; text-align: center; }
+        .summary-normal h4 { font-size: 14px; color: #2e7d32; margin-bottom: 4px; }
+        .summary-normal p { font-size: 12px; color: #555; }
+        /* 加载 */
+        .loading-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(255,255,255,0.97); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 99999; opacity: 0; visibility: hidden; transition: opacity 0.3s; }
+        .loading-overlay.show { opacity: 1; visibility: visible; }
+        .spinner { width: 44px; height: 44px; border: 4px solid #e0e0e0; border-top: 4px solid #667eea; border-radius: 50%; animation: spin 0.7s linear infinite; margin-bottom: 14px; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .loading-text { font-size: 15px; color: #555; }
+        @media print { body { background: white; padding: 0; } .container { box-shadow: none; } .btn, .modal-overlay, .loading-overlay { display: none !important; } }
+    </style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+</head>
+<body>
+<div class="container">
+    <div class="header"><h1>厌学核心成因评估工具</h1><p>基于成都237例实证数据 | 5维度20题专业评估</p></div>
+    <div class="content">
+        <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+        <div class="step active" id="step0">
+            <div class="welcome-text">
+                <p><strong>欢迎使用厌学核心成因评估工具</strong></p>
+                <p style="margin-top:10px;">本工具旨在精准识别导致6-18岁学生厌学/休学的核心成因，为个性化干预方案提供靶向依据。</p>
+                <ul>
+                    <li>⏱ 评估时长：约10-15分钟</li>
+                    <li>📋 题目数量：20道专业量表题</li>
+                    <li>📊 评估维度：家庭系统、学业认知、社交适应、情绪调节、个体发展</li>
+                </ul>
+                <p>请根据孩子最近 <strong>2周内</strong> 的实际情况作答。</p>
+            </div>
+            <button class="btn" id="startBtn">开始评估 →</button>
+            <div style="text-align:center;margin-top:16px;padding-top:16px;border-top:1px solid #eee;"><a href="consultant.html" target="_blank" style="font-size:12px;color:#667eea;text-decoration:none;">🔐 咨询师入口</a></div>
+        </div>
+        <div class="step" id="step1"><div class="step-title">家庭系统动力维度 (1/4)</div><div class="q-label">1. 父母对学习的要求是否超出孩子能力？</div><div class="options" data-q="F1" data-dim="family"><div class="option" data-v="1">1 = 完全没有</div><div class="option" data-v="2">2 = 轻微</div><div class="option" data-v="3">3 = 中等</div><div class="option" data-v="4">4 = 明显</div><div class="option" data-v="5">5 = 严重</div></div></div>
+        <div class="step" id="step2"><div class="step-title">家庭系统动力维度 (2/4)</div><div class="q-label">2. 家庭互动中是否存在指责/贬低？</div><div class="options" data-q="F2" data-dim="family"><div class="option" data-v="1">1 = 从不</div><div class="option" data-v="2">2 = 偶尔</div><div class="option" data-v="3">3 = 经常</div><div class="option" data-v="4">4 = 频繁</div><div class="option" data-v="5">5 = 持续</div></div></div>
+        <div class="step" id="step3"><div class="step-title">家庭系统动力维度 (3/4)</div><div class="q-label">3. 孩子是否缺乏自主决策机会？</div><div class="options" data-q="F3" data-dim="family"><div class="option" data-v="1">1 = 完全自主</div><div class="option" data-v="2">2 = 较多</div><div class="option" data-v="3">3 = 一般</div><div class="option" data-v="4">4 = 较少</div><div class="option" data-v="5">5 = 没有</div></div></div>
+        <div class="step" id="step4"><div class="step-title">家庭系统动力维度 (4/4)</div><div class="q-label">4. 家庭成员间情感交流频率？</div><div class="options" data-q="F4" data-dim="family"><div class="option" data-v="1">1 = 每天多次</div><div class="option" data-v="2">2 = 每天1次</div><div class="option" data-v="3">3 = 每周3次</div><div class="option" data-v="4">4 = 每周1次</div><div class="option" data-v="5">5 = 每月更少</div></div></div>
+        <div class="step" id="step5"><div class="step-title">学业认知偏差维度 (1/4)</div><div class="q-label">5. 孩子是否认为"成绩差就是笨"？</div><div class="options" data-q="A1" data-dim="academic"><div class="option" data-v="1">1 = 完全不认同</div><div class="option" data-v="2">2 = 不太认同</div><div class="option" data-v="3">3 = 不确定</div><div class="option" data-v="4">4 = 比较认同</div><div class="option" data-v="5">5 = 完全认同</div></div></div>
+        <div class="step" id="step6"><div class="step-title">学业认知偏差维度 (2/4)</div><div class="q-label">6. 对学习困难的归因方式？</div><div class="options" data-q="A2" data-dim="academic"><div class="option" data-v="1">1 = 努力不够</div><div class="option" data-v="2">2 = 方法不对</div><div class="option" data-v="3">3 = 两者都有</div><div class="option" data-v="4">4 = 题目太难</div><div class="option" data-v="5">5 = 自己太笨</div></div></div>
+        <div class="step" id="step7"><div class="step-title">学业认知偏差维度 (3/4)</div><div class="q-label">7. 学习目标设定是否合理？</div><div class="options" data-q="A3" data-dim="academic"><div class="option" data-v="1">1 = 非常合理</div><div class="option" data-v="2">2 = 比较合理</div><div class="option" data-v="3">3 = 一般</div><div class="option" data-v="4">4 = 不太合理</div><div class="option" data-v="5">5 = 完全不合理</div></div></div>
+        <div class="step" id="step8"><div class="step-title">学业认知偏差维度 (4/4)</div><div class="q-label">8. 对"失败"的恐惧程度？</div><div class="options" data-q="A4" data-dim="academic"><div class="option" data-v="1">1 = 毫无恐惧</div><div class="option" data-v="2">2 = 轻微</div><div class="option" data-v="3">3 = 中等</div><div class="option" data-v="4">4 = 明显</div><div class="option" data-v="5">5 = 严重</div></div></div>
+        <div class="step" id="step9"><div class="step-title">社交适应障碍维度 (1/4)</div><div class="q-label">9. 在学校是否有固定玩伴？</div><div class="options" data-q="S1" data-dim="social"><div class="option" data-v="1">1 = 3个以上</div><div class="option" data-v="2">2 = 2个</div><div class="option" data-v="3">3 = 1个</div><div class="option" data-v="4">4 = 偶尔有</div><div class="option" data-v="5">5 = 没有</div></div></div>
+        <div class="step" id="step10"><div class="step-title">社交适应障碍维度 (2/4)</div><div class="q-label">10. 与教师互动是否存在紧张感？</div><div class="options" data-q="S2" data-dim="social"><div class="option" data-v="1">1 = 完全没有</div><div class="option" data-v="2">2 = 轻微</div><div class="option" data-v="3">3 = 中等</div><div class="option" data-v="4">4 = 明显</div><div class="option" data-v="5">5 = 严重</div></div></div>
+        <div class="step" id="step11"><div class="step-title">社交适应障碍维度 (3/4)</div><div class="q-label">11. 是否害怕被同学评价外貌/成绩？</div><div class="options" data-q="S3" data-dim="social"><div class="option" data-v="1">1 = 完全不害怕</div><div class="option" data-v="2">2 = 轻微</div><div class="option" data-v="3">3 = 中等</div><div class="option" data-v="4">4 = 明显</div><div class="option" data-v="5">5 = 严重</div></div></div>
+        <div class="step" id="step12"><div class="step-title">社交适应障碍维度 (4/4)</div><div class="q-label">12. 参与集体活动的主动性？</div><div class="options" data-q="S4" data-dim="social"><div class="option" data-v="1">1 = 非常主动</div><div class="option" data-v="2">2 = 比较主动</div><div class="option" data-v="3">3 = 一般</div><div class="option" data-v="4">4 = 不太主动</div><div class="option" data-v="5">5 = 完全不主动</div></div></div>
+        <div class="step" id="step13"><div class="step-title">情绪调节缺陷维度 (1/4)</div><div class="q-label">13. 负面情绪持续时间？</div><div class="options" data-q="E1" data-dim="emotion"><div class="option" data-v="1">1 = 几小时</div><div class="option" data-v="2">2 = 半天</div><div class="option" data-v="3">3 = 1天</div><div class="option" data-v="4">4 = 2-3天</div><div class="option" data-v="5">5 = 更久</div></div></div>
+        <div class="step" id="step14"><div class="step-title">情绪调节缺陷维度 (2/4)</div><div class="q-label">14. 是否掌握情绪调节方法？</div><div class="options" data-q="E2" data-dim="emotion"><div class="option" data-v="1">1 = 5种以上</div><div class="option" data-v="2">2 = 3-4种</div><div class="option" data-v="3">3 = 2种</div><div class="option" data-v="4">4 = 1种</div><div class="option" data-v="5">5 = 没有</div></div></div>
+        <div class="step" id="step15"><div class="step-title">情绪调节缺陷维度 (3/4)</div><div class="q-label">15. 学业压力引发的躯体症状频率？</div><div class="options" data-q="E3" data-dim="emotion"><div class="option" data-v="1">1 = 从不</div><div class="option" data-v="2">2 = 每月1次</div><div class="option" data-v="3">3 = 每周1次</div><div class="option" data-v="4">4 = 每周多次</div><div class="option" data-v="5">5 = 每天</div></div></div>
+        <div class="step" id="step16"><div class="step-title">情绪调节缺陷维度 (4/4)</div><div class="q-label">16. 情绪爆发后的恢复速度？</div><div class="options" data-q="E4" data-dim="emotion"><div class="option" data-v="1">1 = 很快（1小时内）</div><div class="option" data-v="2">2 = 较快（半天）</div><div class="option" data-v="3">3 = 一般（1天）</div><div class="option" data-v="4">4 = 较慢（2-3天）</div><div class="option" data-v="5">5 = 很慢（更久）</div></div></div>
+        <div class="step" id="step17"><div class="step-title">个体发展失衡维度 (1/4)</div><div class="q-label">17. 孩子对未来是否有期待？</div><div class="options" data-q="D1" data-dim="development"><div class="option" data-v="1">1 = 非常有期待</div><div class="option" data-v="2">2 = 比较有期待</div><div class="option" data-v="3">3 = 一般</div><div class="option" data-v="4">4 = 不太有</div><div class="option" data-v="5">5 = 完全没有</div></div></div>
+        <div class="step" id="step18"><div class="step-title">个体发展失衡维度 (2/4)</div><div class="q-label">18. 睡眠质量与时长？</div><div class="options" data-q="D2" data-dim="development"><div class="option" data-v="1">1 = 很好/9小时以上</div><div class="option" data-v="2">2 = 较好/8-9小时</div><div class="option" data-v="3">3 = 一般/7-8小时</div><div class="option" data-v="4">4 = 较差/6-7小时</div><div class="option" data-v="5">5 = 很差/低于6小时</div></div></div>
+        <div class="step" id="step19"><div class="step-title">个体发展失衡维度 (3/4)</div><div class="q-label">19. 是否有非学业兴趣爱好？</div><div class="options" data-q="D3" data-dim="development"><div class="option" data-v="1">1 = 3个以上</div><div class="option" data-v="2">2 = 2个</div><div class="option" data-v="3">3 = 1个</div><div class="option" data-v="4">4 = 偶尔有</div><div class="option" data-v="5">5 = 没有</div></div></div>
+        <div class="step" id="step20"><div class="step-title">个体发展失衡维度 (4/4)</div><div class="q-label">20. 自我认同程度（喜欢自己吗）？</div><div class="options" data-q="D4" data-dim="development"><div class="option" data-v="1">1 = 非常喜欢</div><div class="option" data-v="2">2 = 比较喜欢</div><div class="option" data-v="3">3 = 一般</div><div class="option" data-v="4">4 = 不太喜欢</div><div class="option" data-v="5">5 = 非常不喜欢</div></div></div>
+        <div class="step" id="step21">
+            <div class="step-title">📊 评估报告</div>
+            <div class="result-section"><div class="result-title">五维度得分</div><div id="dimensionScores"></div></div>
+            <div class="result-section"><div class="result-title">成因雷达图</div><div class="chart-container"><canvas id="radarChart"></canvas></div></div>
+            <div class="result-section"><div class="result-title">核心诊断</div><div id="diagnosisResult"></div></div>
+            <div class="result-section"><div class="result-title">干预建议</div><div id="interventionAdvice"></div></div>
+            <div class="disclaimer"><strong>⚠️ 免责声明：</strong>本评估工具基于成都237例实证数据开发，仅供参考，不构成医疗诊断。如孩子存在严重情绪或行为问题，请及时寻求专业心理咨询师或精神科医生的帮助。</div>
+            <button class="btn btn-green" onclick="showSummaryModal()">✅ 完成评估 → 填写信息并保存报告</button>
+            <button class="btn btn-gray" onclick="location.reload()" style="margin-top:10px;">🔄 重新评估</button>
+            <div style="text-align:center;margin-top:16px;padding-top:16px;border-top:1px solid #eee;"><a href="consultant.html" target="_blank" style="font-size:12px;color:#667eea;text-decoration:none;">🔐 咨询师入口</a></div>
+        </div>
+    </div>
+</div>
+
+<!-- 核心发现弹窗 -->
+<div class="modal-overlay" id="summaryModal">
+    <div class="modal-box">
+        <div class="modal-header">
+            <span class="modal-close" onclick="closeSummaryModal()">×</span>
+            <h2>🎯 核心发现</h2>
+            <p>以下是需要重点关注的维度</p>
+        </div>
+        <div class="modal-body">
+            <div id="summaryContent"></div>
+            <div class="btn-row">
+                <button class="btn btn-outline" onclick="closeSummaryModal()">返回报告</button>
+                <button class="btn btn-green" onclick="goToSubmitModal()">📋 填写信息并保存</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 提交弹窗 -->
+<div class="modal-overlay" id="submitModal">
+    <div class="modal-box">
+        <div class="modal-header">
+            <span class="modal-close" onclick="closeModal()">×</span>
+            <h2>📋 完善联系信息</h2>
+            <p>填写后可保存评估报告，咨询师将主动与您联系</p>
+        </div>
+        <div class="modal-body">
+            <div id="modalForm">
+                <p style="font-size:11px;color:#999;margin-bottom:14px;line-height:1.6;">💡 提交后将自动生成评估报告PDF并保存到您的设备，同时咨询师可在后台查看此评估结果。</p>
+                <div class="form-field"><label>家长姓名 <span>*</span></label><input type="text" id="mName" placeholder="请输入您的姓名" maxlength="20"></div>
+                <div class="form-field"><label>联系电话 <span>*</span></label><input type="tel" id="mPhone" placeholder="请输入手机号" maxlength="20"></div>
+                <div class="form-field"><label>备注（选填）</label><textarea id="mNote" rows="2" placeholder="如有特殊情况可简要说明"></textarea></div>
+                <div class="btn-row">
+                    <button class="btn btn-outline" onclick="closeModal()">稍后保存</button>
+                    <button class="btn btn-green" id="confirmBtn" onclick="doSubmit()">✅ 确认提交</button>
+                </div>
+            </div>
+            <div id="modalSuccess" style="display:none;" class="success-box">
+                <div class="icon">🎉</div>
+                <h3>提交成功！</h3>
+                <p>评估报告已保存至您的设备。<br>咨询师将在24小时内与您联系。</p>
+                <div class="actions">
+                    <button class="btn" onclick="location.reload()">🔄 重新评估</button>
+                    <button class="btn btn-gray" onclick="closeModal(); window.scrollTo({top:0,behavior:'smooth'});" style="margin-top:8px;">👀 查看报告</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 加载遮罩 -->
+<div class="loading-overlay" id="loadingOverlay">
+    <div class="spinner"></div>
+    <div class="loading-text" id="loadingText">正在生成报告...</div>
+</div>
+
+<script>
+(function() {
+    'use strict';
+    var currentStep = 0, totalSteps = 21, answers = {}, finalScores = null;
+    var THRESHOLDS = { family:{major:16,secondary:12,potential:8}, academic:{major:16,secondary:12,potential:8}, social:{major:16,secondary:12,potential:8}, emotion:{major:16,secondary:12,potential:8}, development:{major:16,secondary:12,potential:8} };
+    var DIM_NAMES = { family:'家庭系统动力', academic:'学业认知偏差', social:'社交适应障碍', emotion:'情绪调节缺陷', development:'个体发展失衡' };
+    var INTERVENTIONS = { family:{title:'家庭系统动力干预',content:'改善亲子沟通方式，减少指责性语言，增加情感交流频率。每天固定时间进行非学业话题交流，建立安全的家庭表达空间。'}, academic:{title:'学业认知偏差干预',content:'帮助建立合理的学业归因模式，引导关注努力过程而非仅看结果。可通过"成功日记"训练，记录每日小成就，逐步重建学习信心。'}, social:{title:'社交适应障碍干预',content:'鼓励参与同伴互动小组，逐步提升社交技能。可与老师沟通，创造低压力的课堂参与机会，减少被评价焦虑。'}, emotion:{title:'情绪调节缺陷干预',content:'教授情绪识别和调节技巧，如情绪温度计、正念呼吸法等。如躯体症状频繁，建议寻求专业心理评估。'}, development:{title:'个体发展失衡干预',content:'保障充足睡眠和户外活动时间，培养非学业兴趣爱好。建立规律作息，减少电子产品使用，增强自我认同感。'} };
+    var FINDINGS = { family:{major:'家庭互动中存在较多指责、贬低或高期待，可能削弱孩子的安全感、学习动力和自我价值感。建议从改善沟通方式入手。',medium:'家庭沟通模式存在一定压力，可尝试增加情感支持，减少批评性语言。'}, academic:{major:'孩子对学业存在明显消极认知（如"我笨"）和失败恐惧，需重点调整归因模式，重建学习信心。',medium:'学业认知存在偏差，对学习困难的归因过于消极，建议关注学习方法而非仅看结果。'}, social:{major:'孩子在学校社交中感到明显压力、孤立或评价焦虑，需要关注同伴关系质量和社交技能培养。',medium:'社交适应存在一定困难，建议鼓励参与同伴互动，减少被评价焦虑。'}, emotion:{major:'孩子情绪调节能力明显不足，负面情绪持续时间长、恢复慢，可能已出现情绪困扰。建议寻求专业心理评估和支持。',medium:'情绪调节存在一定困难，可教授简单的情绪管理技巧，如深呼吸、情绪温度计等。'}, development:{major:'孩子在自我认同、睡眠、兴趣爱好等发展层面存在明显失衡，对未来缺乏期待。建议保障基础生理需求，培养兴趣爱好，逐步重建自我价值感。',medium:'个体发展有一定失衡迹象，建议增加户外活动、保证睡眠，培养非学业成就感。'} };
+
+    function $(id) { return document.getElementById(id); }
+    function el(id) { document.getElementById(id); }
+
+    function goToStep(n) {
+        $('step'+currentStep).classList.remove('active');
+        currentStep = n;
+        $('step'+currentStep).classList.add('active');
+        $('progressFill').style.width = (currentStep/totalSteps*100)+'%';
+        window.scrollTo(0,0);
+        if (currentStep === totalSteps) generateReport();
+    }
+
+    document.querySelectorAll('.options').forEach(function(c) {
+        c.querySelectorAll('.option').forEach(function(o) {
+            o.addEventListener('click', function() {
+                c.querySelectorAll('.option').forEach(function(x){ x.classList.remove('selected'); });
+                o.classList.add('selected');
+                answers[c.dataset.q] = { dim: c.dataset.dim, val: parseInt(o.dataset.v,10) };
+                setTimeout(function(){ goToStep(currentStep+1); }, 280);
+            });
+        });
+    });
+
+    $('startBtn').addEventListener('click', function() { goToStep(1); });
+
+    function calcScores() {
+        var s = { family:0, academic:0, social:0, emotion:0, development:0 };
+        Object.keys(answers).forEach(function(q) { s[answers[q].dim] += answers[q].val; });
+        return s;
+    }
+
+    function generateReport() {
+        finalScores = calcScores();
+        renderScores(finalScores);
+        renderRadar(finalScores);
+        renderDiagnosis(finalScores);
+        renderIntervention(finalScores);
+    }
+
+    function renderScores(s) {
+        var h = '';
+        Object.keys(DIM_NAMES).forEach(function(d) {
+            var sc = s[d], t = THRESHOLDS[d], l, c;
+            if (sc >= t.major) { l = '主要成因'; c = 'score-high'; }
+            else if (sc >= t.secondary) { l = '次要成因'; c = 'score-medium'; }
+            else if (sc >= t.potential) { l = '潜在成因'; c = 'score-low'; }
+            else { l = '正常范围'; c = 'score-low'; }
+            h += '<div class="dim-row"><span class="dim-name">' + DIM_NAMES[d] + '</span><span class="dim-score ' + c + '">' + sc + '分（' + l + '）</span></div>';
+        });
+        $('dimensionScores').innerHTML = h;
+    }
+
+    function renderRadar(s) {
+        var ctx = $('radarChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'radar',
+            data: {
+                labels: Object.values(DIM_NAMES),
+                datasets: [
+                    { label: '当前得分', data: Object.keys(DIM_NAMES).map(function(d){ return s[d]; }), backgroundColor: 'rgba(102,126,234,0.2)', borderColor: 'rgba(102,126,234,1)', borderWidth: 2, pointBackgroundColor: 'rgba(102,126,234,1)' },
+                    { label: '主要成因临界值', data: [16,16,16,16,16], backgroundColor: 'transparent', borderColor: 'rgba(231,76,60,0.5)', borderWidth: 1, borderDash: [5,5], pointRadius: 0 }
+                ]
+            },
+            options: { responsive: true, maintainAspectRatio: false, scales: { r: { min: 0, max: 20, ticks: { stepSize: 4 } } }, plugins: { legend: { position: 'bottom' } } }
+        });
+    }
+
+    function renderDiagnosis(s) {
+        var maj = [], sec = [];
+        Object.keys(s).forEach(function(d) {
+            var sc = s[d], t = THRESHOLDS[d];
+            if (sc >= t.major) maj.push(DIM_NAMES[d]);
+            else if (sc >= t.secondary) sec.push(DIM_NAMES[d]);
+        });
+        var h = '';
+        if (maj.length > 0) h += '<div class="info-box danger"><div class="info-title">🔴 主要成因</div><div class="info-content">' + maj.join('、') + '</div></div>';
+        if (sec.length > 0) h += '<div class="info-box warning"><div class="info-title">🟡 次要成因</div><div class="info-content">' + sec.join('、') + '</div></div>';
+        if (maj.length === 0 && sec.length === 0) h = '<div class="info-box success"><div class="info-title">🟢 评估结果</div><div class="info-content">各维度得分均在正常范围内，未发现明显的厌学核心成因。建议继续关注孩子的日常情绪变化，保持良好的亲子沟通。</div></div>';
+        $('diagnosisResult').innerHTML = h;
+    }
+
+    function renderIntervention(s) {
+        var h = '';
+        Object.keys(s).forEach(function(d) {
+            if (s[d] >= THRESHOLDS[d].secondary) {
+                var iv = INTERVENTIONS[d];
+                h += '<div class="info-box"><div class="info-title">' + iv.title + '</div><div class="info-content">' + iv.content + '</div></div>';
+            }
+        });
+        if (!h) h = '<div class="info-box success"><div class="info-title">日常建议</div><div class="info-content">继续保持良好的家庭氛围，关注孩子的情绪状态，鼓励参与社交活动和兴趣培养。</div></div>';
+        $('interventionAdvice').innerHTML = h;
+    }
+
+    // ── 核心发现弹窗 ──
+    function buildSummaryHtml(s) {
+        var maj = [], sec = [], nor = [];
+        Object.keys(s).forEach(function(d) {
+            var sc = s[d], t = THRESHOLDS[d];
+            if (sc >= t.major) maj.push(d);
+            else if (sc >= t.secondary) sec.push(d);
+            else nor.push(d);
+        });
+        var h = '';
+        if (maj.length > 0) {
+            maj.forEach(function(d) {
+                h += '<div class="highlight-card"><h4>🔴 ' + DIM_NAMES[d] + '（' + s[d] + '分 - 主要成因）</h4><p>' + FINDINGS[d].major + '</p></div>';
+            });
+        }
+        if (sec.length > 0) {
+            sec.forEach(function(d) {
+                h += '<div class="highlight-card warning"><h4>🟡 ' + DIM_NAMES[d] + '（' + s[d] + '分 - 次要成因）</h4><p>' + FINDINGS[d].medium + '</p></div>';
+            });
+        }
+        if (maj.length === 0 && sec.length === 0) {
+            h = '<div class="summary-normal"><h4>🟢 评估结果良好</h4><p>各维度得分均在正常范围内，未发现明显的厌学核心成因。建议继续保持关注。</p></div>';
+        }
+        return h;
+    }
+
+    window.showSummaryModal = function() {
+        if (!finalScores) finalScores = calcScores();
+        $('summaryContent').innerHTML = buildSummaryHtml(finalScores);
+        $('summaryModal').classList.add('show');
+    };
+
+    window.closeSummaryModal = function() {
+        $('summaryModal').classList.remove('show');
+    };
+
+    window.goToSubmitModal = function() {
+        $('summaryModal').classList.remove('show');
+        $('submitModal').classList.add('show');
+    };
+
+    window.showSubmitModal = function() {
+        if (!finalScores) finalScores = calcScores();
+        $('summaryContent').innerHTML = buildSummaryHtml(finalScores);
+        $('summaryModal').classList.add('show');
+    };
+
+    window.closeModal = function() {
+        $('submitModal').classList.remove('show');
+        $('modalForm').style.display = 'block';
+        $('modalSuccess').style.display = 'none';
+        $('confirmBtn').disabled = false;
+        $('confirmBtn').textContent = '✅ 确认提交';
+    };
+
+    function showLoading(text) {
+        $('loadingText').textContent = text || '处理中...';
+        $('loadingOverlay').classList.add('show');
+    }
+
+    function hideLoading() {
+        $('loadingOverlay').classList.remove('show');
+    }
+
+    function saveRecord(name, phone, note) {
+        if (!finalScores) {
+            console.error('finalScores 未定义，重新计算');
+            finalScores = calcScores();
+        }
+        var record = {
+            name: name,
+            phone: phone,
+            note: note,
+            tool: 'yanxue',
+            scores: finalScores,
+            maxScore: Math.max(finalScores.family, finalScores.academic, finalScores.social, finalScores.emotion, finalScores.development),
+            time: new Date().toISOString()
+        };
+        try {
+            var data = JSON.parse(localStorage.getItem('yanxue_records') || '[]');
+            data.unshift(record);
+            localStorage.setItem('yanxue_records', JSON.stringify(data));
+            console.log('✅ 数据已保存到 localStorage:', record);
+        } catch(e) {
+            console.error('❌ 保存失败:', e);
+        }
+    }
+
+    window.doSubmit = function() {
+        var name = $('mName').value.trim();
+        var phone = $('mPhone').value.trim();
+        var note = $('mNote').value.trim();
+        if (!name) { alert('请填写家长姓名'); return; }
+        if (!phone) { alert('请填写联系电话'); return; }
+
+        $('confirmBtn').disabled = true;
+        $('confirmBtn').textContent = '生成中...';
+
+        // 保存到本地（咨询师后台可读取）
+        saveRecord(name, phone, note);
+
+        // 生成文本内容用于PDF
+        var scoresText = Object.keys(DIM_NAMES).map(function(d) {
+            return DIM_NAMES[d] + ': ' + finalScores[d] + '分';
+        }).join('\n');
+
+        // 构建HTML报告用于截图
+        var reportEl = document.createElement('div');
+        reportEl.style.cssText = 'position:fixed;left:-9999px;top:0;width:600px;background:white;padding:30px;font-family:sans-serif;';
+        var diagnosisEls = document.getElementById('diagnosisResult').querySelectorAll('.info-box');
+        var diagnosisText = '';
+        diagnosisEls.forEach(function(el) {
+            var title = el.querySelector('.info-title');
+            var content = el.querySelector('.info-content');
+            if (title && content) diagnosisText += title.textContent + '\n' + content.textContent + '\n\n';
+        });
+        var interventionEls = document.getElementById('interventionAdvice').querySelectorAll('.info-box');
+        var interventionText = '';
+        interventionEls.forEach(function(el) {
+            var title = el.querySelector('.info-title');
+            var content = el.querySelector('.info-content');
+            if (title && content) interventionText += title.textContent + '\n' + content.textContent + '\n\n';
+        });
+
+        reportEl.innerHTML =
+            '<div style="background:linear-gradient(135deg,#667eea,#764ba2);color:white;padding:20px;border-radius:10px;margin-bottom:20px;text-align:center;">' +
+            '<h1 style="margin:0 0 5px;font-size:20px;">厌学核心成因评估报告</h1>' +
+            '<p style="margin:0;font-size:12px;opacity:0.9;">基于成都237例实证数据 | ' + new Date().toLocaleDateString('zh-CN') + '</p></div>' +
+            '<p><strong>家长：</strong>' + escHtml(name) + ' &nbsp; <strong>电话：</strong>' + escHtml(phone) + '</p>' +
+            '<h3 style="margin:15px 0 8px;border-bottom:2px solid #667eea;padding-bottom:5px;">五维度得分</h3>' +
+            '<pre style="font-size:13px;line-height:1.8;">' + escHtml(scoresText) + '</pre>' +
+            '<h3 style="margin:15px 0 8px;border-bottom:2px solid #667eea;padding-bottom:5px;">核心诊断</h3>' +
+            '<pre style="font-size:13px;line-height:1.8;">' + escHtml(diagnosisText) + '</pre>' +
+            '<h3 style="margin:15px 0 8px;border-bottom:2px solid #667eea;padding-bottom:5px;">干预建议</h3>' +
+            '<pre style="font-size:13px;line-height:1.8;">' + escHtml(interventionText) + '</pre>' +
+            '<p style="font-size:11px;color:#888;margin-top:15px;border-top:1px solid #eee;padding-top:10px;">本评估工具基于成都237例实证数据开发，仅供参考，不构成医疗诊断。如孩子存在严重情绪或行为问题，请及时寻求专业心理咨询师或精神科医生的帮助。</p>';
+        document.body.appendChild(reportEl);
+
+        // 用 jsPDF 直接生成文本PDF（不依赖 html2canvas）
+        try {
+            var pdf = new jsPDF();
+            pdf.setAutoPageBreak(true, 15);
+            var pageWidth = pdf.internal.pageSize.getWidth();
+            var margin = 15;
+            var y = 20;
+            var lineH = 7;
+            var fontSize = 11;
+            var maxW = pageWidth - margin * 2;
+
+            function addText(text, fs, bold, color) {
+                pdf.setFontSize(fs || 11);
+                pdf.setFont('helvetica', bold ? 'bold' : 'normal');
+                if (color) pdf.setTextColor(color);
+                else pdf.setTextColor(40);
+                var lines = pdf.splitTextToSize(text, maxW);
+                lines.forEach(function(line) {
+                    if (y > 270) { pdf.addPage(); y = 20; }
+                    pdf.text(line, margin, y);
+                    y += lineH;
+                });
+                y += 3;
+            }
+
+            // 标题
+            pdf.setFontSize(18);
+            pdf.setFont('helvetica', 'bold');
+            pdf.setTextColor(102, 126, 234);
+            pdf.text('厌学核心成因评估报告', pageWidth / 2, y, { align: 'center' });
+            y += 8;
+            pdf.setFontSize(10);
+            pdf.setTextColor(150);
+            pdf.text('基于成都237例实证数据 | ' + new Date().toLocaleDateString('zh-CN'), pageWidth / 2, y, { align: 'center' });
+            y += 12;
+
+            // 个人信息
+            pdf.setDrawColor(230);
+            pdf.setLineWidth(0.5);
+            pdf.line(margin, y, pageWidth - margin, y);
+            y += 8;
+            addText('家长：' + name + '    电话：' + phone, 10, false, [100,100,100]);
+            if (note) addText('备注：' + note, 9, false, [130,130,130]);
+            y += 5;
+            pdf.line(margin, y, pageWidth - margin, y);
+            y += 10;
+
+            // 五维度得分
+            addText('五维度得分', 13, true, [102,126,234]);
+            Object.keys(DIM_NAMES).forEach(function(d) {
+                var sc = finalScores[d], t = THRESHOLDS[d], level, col;
+                if (sc >= t.major) { level = '【主要成因】'; col = [231,76,60]; }
+                else if (sc >= t.secondary) { level = '【次要成因】'; col = [243,156,18]; }
+                else if (sc >= t.potential) { level = '【潜在成因】'; col = [39,174,96]; }
+                else { level = '【正常】'; col = [39,174,96]; }
+                addText(DIM_NAMES[d] + '：' + sc + '分 ' + level, 10, false, col);
+            });
+            y += 5;
+
+            // 核心诊断
+            addText('核心诊断', 13, true, [102,126,234]);
+            var diagText = '';
+            diagnosisEls.forEach(function(el) {
+                var t = el.querySelector('.info-title');
+                var c = el.querySelector('.info-content');
+                if (t && c) diagText += t.textContent + ' ' + c.textContent + '\n';
+            });
+            if (diagText) addText(diagText.trim(), 10);
+            else addText('各维度得分均在正常范围内，未发现明显的厌学核心成因。', 10);
+            y += 5;
+
+            // 干预建议
+            addText('干预建议', 13, true, [102,126,234]);
+            var intText = '';
+            interventionEls.forEach(function(el) {
+                var t = el.querySelector('.info-title');
+                var c = el.querySelector('.info-content');
+                if (t && c) intText += t.textContent + ' ' + c.textContent + '\n';
+            });
+            if (intText) addText(intText.trim(), 10);
+            else addText('继续保持良好的家庭氛围，关注孩子的情绪状态。', 10);
+
+            // 免责声明
+            y += 8;
+            pdf.setFillColor(255,248,225);
+            pdf.rect(margin, y - 4, pageWidth - margin * 2, 20, 'F');
+            pdf.setFontSize(8);
+            pdf.setTextColor(121,85,72);
+            var dmLines = pdf.splitTextToSize('⚠️ 免责声明：本评估工具基于成都237例实证数据开发，仅供参考，不构成医疗诊断。如孩子存在严重情绪或行为问题，请及时寻求专业心理咨询师或精神科医生的帮助。', maxW);
+            dmLines.forEach(function(line) {
+                if (y > 280) { pdf.addPage(); y = 20; }
+                pdf.text(line, margin, y);
+                y += 5;
+            });
+
+            var filename = '厌学评估报告_' + name + '_' + new Date().toISOString().slice(0,10) + '.pdf';
+            pdf.save(filename);
+        } catch(e) {
+            console.error('PDF生成失败:', e);
+            alert('PDF生成遇到问题，数据已保存到咨询师后台。');
+        }
+
+        // 移除临时元素
+        document.body.removeChild(reportEl);
+
+        setTimeout(function() {
+            $('modalForm').style.display = 'none';
+            $('modalSuccess').style.display = 'block';
+        }, 800);
+    }
+
+    function escHtml(s) {
+        if (s === undefined || s === null) return '';
+        return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    }
+
+    // ESC关闭弹窗
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            closeModal();
+            closeSummaryModal();
+        }
+    });
+})();
+
+function exportExcel(){try{var d=JSON.parse(localStorage.getItem("yanxue_records")||"[]");if(!d.length){alert("no data");return}var wb=XLSX.utils.book_new();var rows=[["date","name","score","summary"]];d.forEach(function(r){rows.push([r.date||"",r.name||"",r.score||"",(r.summary||"").substring(0,100)])});var ws=XLSX.utils.aoa_to_sheet(rows);ws["!cols"]=[{wch:20},{wch:12},{wch:8},{wch:40}];XLSX.utils.book_append_sheet(wb,ws,"records");XLSX.writeFile(wb,"yanxue_records_"+(new Date().toISOString().slice(0,10))+".xlsx")}catch(e){alert("export error:"+e.message)}}
+
+</script>
+</body>
+</html>

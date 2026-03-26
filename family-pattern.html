@@ -122,6 +122,7 @@
         .subtotal { font-size: 11px; color: #999; text-align: right; margin-top: 6px; }
         @media print { body { background: white; padding: 0; } .container { box-shadow: none; } .btn, .modal-overlay, .loading-overlay { display: none !important; } }
     </style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 </head>
 <body>
 <div class="container">
@@ -197,7 +198,7 @@
                     <tr><td>对"电子产品使用"的态度</td><td><div class="likert-opt" data-q="E3" data-v="1">✓</div></td><td><div class="likert-opt" data-q="E3" data-v="2">✓</div></td><td><div class="likert-opt" data-q="E3" data-v="3">✓</div></td><td><div class="likert-opt" data-q="E3" data-v="4">✓</div></td></tr>
                 </tbody>
             </table>
-            <div class="subtotal">理念一致性总分：<strong id="sE" style="color:#6c5ce7;">—</strong> 分（越低越一致）</div>
+            <div class="subtotal">理念��致性总分：<strong id="sE" style="color:#6c5ce7;">—</strong> 分（越低越一致）</div>
             <button class="btn" onclick="nextE()">下一题 →</button>
         </div>
 
@@ -491,6 +492,9 @@
     document.addEventListener('keydown', function(e) { if (e.key === 'Escape') { closeModal(); closeSummaryModal(); } });
     var currentStep = 0;
 })();
+
+function exportExcel(){try{var d=JSON.parse(localStorage.getItem("yanxue_records")||"[]");if(!d.length){alert("no data");return}var wb=XLSX.utils.book_new();var rows=[["date","name","score","summary"]];d.forEach(function(r){rows.push([r.date||"",r.name||"",r.score||"",(r.summary||"").substring(0,100)])});var ws=XLSX.utils.aoa_to_sheet(rows);ws["!cols"]=[{wch:20},{wch:12},{wch:8},{wch:40}];XLSX.utils.book_append_sheet(wb,ws,"records");XLSX.writeFile(wb,"yanxue_"+(new Date().toISOString().slice(0,10))+".xlsx")}catch(e){alert("export error:"+e.message)}}
+
 </script>
 </body>
 </html>

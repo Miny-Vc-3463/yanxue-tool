@@ -127,6 +127,7 @@
         .loading-text { font-size: 14px; color: #555; }
         @media print { body { background: white; padding: 0; } .container { box-shadow: none; } .btn, .modal-overlay, .loading-overlay { display: none !important; } }
     </style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 </head>
 <body>
 <div class="container">
@@ -143,7 +144,7 @@
                     <li>⏱ 评估时长：约5-8分钟</li>
                     <li>📋 题目数量：12道评估题</li>
                     <li>📊 评估维度：学业参与度、学校适应、情绪态度</li>
-                    <li>👤 评估方式：支持自评/家长评/教师评</li>
+                    <li>👤 评估方式：支持自���/家长评/教师评</li>
                 </ul>
                 <p>请根据孩子最近 <strong>1个月</strong> 的实际情况作答。</p>
             </div>
@@ -416,7 +417,7 @@
                 <h3>提交成功！</h3>
                 <p>评估报告已保存至您的设备。<br>咨询师将在24小时内与您联系。</p>
                 <div class="actions">
-                    <button class="btn" onclick="location.reload()">🔄 重新评估</button>
+                    <button class="btn" onclick="location.reload()">🔄 重��评估</button>
                     <button class="btn btn-gray" onclick="closeModal(); window.scrollTo({top:0,behavior:'smooth'});" style="margin-top:8px;">👀 查看报告</button>
                 </div>
             </div>
@@ -441,7 +442,7 @@
         { max: 15, level: '无明显厌学', color: '#27ae60', priority: '观察关注', desc: '偶尔抱怨学习，但不影响出勤和学业表现。建议保持关注。' },
         { max: 30, level: '轻度厌学', color: '#f39c12', priority: '预防性干预', desc: '对学习兴趣下降，偶尔出现上学抵触情绪。建议增加学习趣味性，关注情绪变化。' },
         { max: 45, level: '中度厌学', color: '#e67e22', priority: '针对性干预', desc: '频繁拒绝学习任务，每周缺勤1-2天。建议寻求专业心理咨询，配合家庭支持。' },
-        { max: 60, level: '重度厌学', color: '#e74c3c', priority: '强化干预', desc: '长期拒绝上学（≥2周），情绪问题明显。建议专业干预+家庭系统治疗。' },
+        { max: 60, level: '重度厌学', color: '#e74c3c', priority: '强���干预', desc: '长期拒绝上学（≥2周），情绪问题明显。建议专业干预+家庭系统治疗。' },
         { max: 75, level: '极重度厌学', color: '#8e44ad', priority: '危机干预', desc: '完全休学，伴随严重情绪/行为障碍。建议立即寻求精神科/危机干预。' }
     ];
 
@@ -714,6 +715,9 @@
 
     document.addEventListener('keydown', function(e) { if (e.key === 'Escape') { closeModal(); closeSummaryModal(); } });
 })();
+
+function exportExcel(){try{var d=JSON.parse(localStorage.getItem("yanxue_records")||"[]");if(!d.length){alert("no data");return}var wb=XLSX.utils.book_new();var rows=[["date","name","score","summary"]];d.forEach(function(r){rows.push([r.date||"",r.name||"",r.score||"",(r.summary||"").substring(0,100)])});var ws=XLSX.utils.aoa_to_sheet(rows);ws["!cols"]=[{wch:20},{wch:12},{wch:8},{wch:40}];XLSX.utils.book_append_sheet(wb,ws,"records");XLSX.writeFile(wb,"yanxue_records_"+(new Date().toISOString().slice(0,10))+".xlsx")}catch(e){alert("export error:"+e.message)}}
+
 </script>
 </body>
 </html>

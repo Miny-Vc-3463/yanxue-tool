@@ -2,373 +2,303 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no,viewport-fit=cover">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
 <title>咨询师数据后台</title>
-<meta name="description" content="厌学评估工具数据管理后台">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-html,body{width:100%;height:100%;font-family:-apple-system,BlinkMacSystemFont,"PingFang SC",sans-serif;background:#f5f6fa;color:#333}
-body{overflow-x:hidden}
-.lock-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:linear-gradient(135deg,#667eea,#764ba2);display:flex;align-items:center;justify-content:center;z-index:999999;min-height:100vh}
-.lock-overlay.hide{display:none!important}
-.lock-box{background:#fff;border-radius:20px;padding:36px 32px;width:340px;max-width:90vw;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,0.3)}
-.lock-box h2{font-size:18px;color:#333;margin-bottom:6px}
-.lock-box p{font-size:12px;color:#999;margin-bottom:20px}
-.lock-box input{width:100%;padding:12px;border:2px solid #e0e0e0;border-radius:10px;font-size:14px;margin-bottom:14px;outline:none;-webkit-appearance:none}
-.lock-box input:focus{border-color:#667eea}
-.lock-box .btn{width:100%;padding:12px;background:linear-gradient(135deg,#667eea,#764ba2);color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;-webkit-tap-highlight-color:transparent}
-.lock-box .btn:active{transform:scale(0.98)}
-.lock-box .error{display:none;color:#e74c3c;font-size:12px;margin-top:10px}
-.header{background:linear-gradient(135deg,#667eea,#764ba2);color:#fff;padding:20px;text-align:center;display:none}
-.header h1{font-size:18px;margin:0}
-.container{max-width:800px;margin:0 auto;padding:20px;display:none}
-.form-section{background:#fff;border-radius:12px;padding:16px;margin-bottom:14px;box-shadow:0 2px 8px rgba(0,0,0,0.08)}
-.info-box{background:#f0f4ff;border-left:4px solid #667eea;padding:12px;border-radius:0 8px 8px 0;font-size:12px;line-height:1.6;color:#555}
-.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(100px,1fr));gap:12px;margin-bottom:14px}
-.stat-card{background:#fff;border-radius:12px;padding:16px;text-align:center;box-shadow:0 2px 8px rgba(0,0,0,0.08)}
-.stat-card .num{font-size:24px;font-weight:bold;color:#667eea;margin-bottom:4px}
-.stat-card .label{font-size:12px;color:#999}
-.btn-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
-.btn2{flex:1;min-width:80px;padding:10px;background:#667eea;color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;transition:all .2s;text-align:center;min-height:44px;display:flex;align-items:center;justify-content:center;-webkit-tap-highlight-color:transparent}
-.btn2:active{transform:scale(0.98)}
-.btn2.green{background:#27ae60}
-.btn2.red{background:#e74c3c}
-.btn2.orange{background:#f39c12}
-.filter-bar{display:flex;gap:8px;overflow-x:auto;padding-bottom:8px;margin-bottom:14px;-webkit-overflow-scrolling:touch}
-.filter-btn{padding:8px 14px;background:#e0e0e0;border:none;border-radius:20px;font-size:12px;cursor:pointer;white-space:nowrap;transition:all .2s;-webkit-tap-highlight-color:transparent}
-.filter-btn.active{background:#667eea;color:#fff}
-.record-card{background:#fff;border-radius:12px;padding:14px;margin-bottom:10px;border-left:4px solid #667eea;box-shadow:0 2px 8px rgba(0,0,0,0.08)}
-.record-card.high{border-left-color:#e74c3c}
-.record-card.medium{border-left-color:#f39c12}
-.record-card.low{border-left-color:#27ae60}
-.record-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px}
-.record-name{font-weight:600;font-size:14px;color:#333}
-.record-phone{font-size:12px;color:#999;margin-top:2px}
-.record-meta{display:flex;gap:8px;flex-wrap:wrap;font-size:11px;color:#999}
-.record-time{color:#999}
-.record-tool{padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;color:#fff}
-.record-tool.t1{background:#667eea}
-.record-tool.t2{background:#27ae60}
-.record-tool.t3{background:#f39c12}
-.record-tool.t4{background:#764ba2}
-.record-scores{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0;font-size:11px}
-.score-tag{padding:3px 8px;border-radius:4px;background:#f0f4ff;color:#667eea}
-.score-tag.s1{background:#fde8e8;color:#e74c3c}
-.score-tag.s2{background:#fef9f0;color:#f39c12}
-.score-tag.s3{background:#e8f8f5;color:#27ae60}
-.record-note{font-size:12px;color:#666;background:#f9f9f9;padding:8px;border-radius:6px;margin:8px 0}
-.record-actions{display:flex;gap:8px;margin-top:10px}
-.btn-sm{flex:1;padding:8px;background:#667eea;color:#fff;border:none;border-radius:6px;font-size:12px;cursor:pointer;min-height:36px;-webkit-tap-highlight-color:transparent}
-.btn-sm.red{background:#e74c3c}
-.empty-state{text-align:center;padding:40px 20px;color:#999}
-.empty-state .icon{font-size:48px;margin-bottom:10px}
-.modal-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);display:none;align-items:center;justify-content:center;z-index:9999;padding:20px}
-.modal-overlay.show{display:flex}
-.modal-box{background:#fff;border-radius:12px;width:100%;max-width:500px;max-height:80vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,0.3)}
-.modal-header{background:linear-gradient(135deg,#667eea,#764ba2);color:#fff;padding:16px;border-radius:12px 12px 0 0;display:flex;justify-content:space-between;align-items:center}
-.modal-header h3{font-size:16px;margin:0}
-.modal-close{background:none;border:none;color:#fff;font-size:24px;cursor:pointer;opacity:0.7}
-.modal-body{padding:16px}
-.modal-section{margin-bottom:16px}
-.modal-section h4{font-size:13px;color:#333;margin-bottom:10px;font-weight:600}
-.modal-row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #eee;font-size:13px}
-.modal-row:last-child{border-bottom:none}
-.modal-row .lbl{color:#999;font-weight:600}
-.modal-row .val{color:#333;font-weight:600}
-.modal-row .val.high{color:#e74c3c}
-.modal-row .val.medium{color:#f39c12}
-.modal-row .val.low{color:#27ae60}
-.toast{position:fixed;bottom:70px;left:50%;transform:translateX(-50%);background:#333;color:#fff;padding:8px 20px;border-radius:20px;font-size:13px;z-index:999999;opacity:0;transition:opacity .3s;pointer-events:none}
-.toast.show{opacity:1}
-@media(max-width:600px){.stats{grid-template-columns:repeat(2,1fr)}.btn-row{flex-direction:column}.btn2{width:100%;min-width:unset}.filter-bar{gap:6px}.record-card{padding:12px}.record-header{flex-direction:column}}
+body{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC",sans-serif;background:#f5f6fa;min-height:100vh}
+.lock-wrap{position:fixed;inset:0;background:linear-gradient(135deg,#667eea,#764ba2);display:flex;align-items:center;justify-content:center;z-index:9999}
+.lock-box{background:#fff;border-radius:20px;padding:40px 32px;width:320px;max-width:90vw;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.3)}
+.lock-icon{font-size:52px;margin-bottom:14px}
+.lock-box h2{font-size:20px;color:#333;margin-bottom:6px}
+.lock-box p{font-size:13px;color:#999;margin-bottom:22px}
+.lock-input{width:100%;padding:13px 14px;border:2px solid #e0e0e0;border-radius:10px;font-size:15px;outline:none;margin-bottom:14px;-webkit-appearance:none}
+.lock-input:focus{border-color:#667eea}
+.lock-btn{width:100%;padding:14px;background:linear-gradient(135deg,#667eea,#764ba2);color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:600;cursor:pointer}
+.lock-err{display:none;color:#e74c3c;font-size:13px;margin-top:10px}
+.main-wrap{display:none;max-width:800px;margin:0 auto;padding:20px}
+.top-bar{background:linear-gradient(135deg,#667eea,#764ba2);color:#fff;padding:18px 20px;text-align:center;margin:-20px -20px 20px;font-size:18px;font-weight:600}
+.card{background:#fff;border-radius:12px;padding:16px;margin-bottom:14px;box-shadow:0 2px 8px rgba(0,0,0,.08)}
+.info-tip{background:#f0f4ff;border-left:4px solid #667eea;padding:12px;border-radius:0 8px 8px 0;font-size:12px;line-height:1.7;color:#555}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px}
+.stat{background:#fff;border-radius:12px;padding:14px;text-align:center;box-shadow:0 2px 8px rgba(0,0,0,.08)}
+.stat .n{font-size:26px;font-weight:700;color:#667eea}
+.stat .l{font-size:11px;color:#999;margin-top:3px}
+.btn-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+.btn{flex:1;min-width:70px;padding:11px 8px;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;color:#fff;min-height:44px}
+.btn-blue{background:#667eea}
+.btn-orange{background:#f39c12}
+.btn-green{background:#27ae60}
+.btn-excel{background:#1d6f42}
+.btn-red{background:#e74c3c}
+.filters{display:flex;gap:8px;overflow-x:auto;padding-bottom:6px;margin-bottom:12px}
+.f-btn{padding:7px 14px;background:#e8e8e8;border:none;border-radius:20px;font-size:12px;cursor:pointer;white-space:nowrap}
+.f-btn.on{background:#667eea;color:#fff}
+.rec{background:#fff;border-radius:10px;padding:14px;margin-bottom:10px;border-left:4px solid #667eea;box-shadow:0 2px 6px rgba(0,0,0,.07)}
+.rec.high{border-left-color:#e74c3c}
+.rec.medium{border-left-color:#f39c12}
+.rec.low{border-left-color:#27ae60}
+.rec-name{font-weight:700;font-size:14px;color:#333}
+.rec-phone{font-size:12px;color:#999;margin-top:2px}
+.rec-meta{display:flex;gap:8px;flex-wrap:wrap;font-size:11px;color:#999;margin:8px 0}
+.tag{padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;color:#fff}
+.t1{background:#667eea}.t2{background:#27ae60}.t3{background:#f39c12}.t4{background:#764ba2}
+.scores{display:flex;gap:5px;flex-wrap:wrap;margin:6px 0}
+.sc{padding:3px 8px;border-radius:4px;font-size:11px}
+.sc-h{background:#fde8e8;color:#e74c3c}
+.sc-m{background:#fef9f0;color:#f39c12}
+.sc-l{background:#e8f8f5;color:#27ae60}
+.rec-note{font-size:12px;color:#666;background:#f9f9f9;padding:8px;border-radius:6px;margin:6px 0}
+.rec-acts{display:flex;gap:8px;margin-top:10px}
+.sm-btn{flex:1;padding:8px;border:none;border-radius:6px;font-size:12px;cursor:pointer;color:#fff;background:#667eea;min-height:36px}
+.sm-btn.del{background:#e74c3c}
+.empty{text-align:center;padding:40px 20px;color:#bbb}
+.empty-icon{font-size:48px;margin-bottom:10px}
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.5);display:none;align-items:center;justify-content:center;z-index:8888;padding:20px}
+.modal-bg.on{display:flex}
+.modal{background:#fff;border-radius:14px;width:100%;max-width:480px;max-height:85vh;overflow-y:auto}
+.modal-head{background:linear-gradient(135deg,#667eea,#764ba2);color:#fff;padding:16px 20px;border-radius:14px 14px 0 0;display:flex;justify-content:space-between;align-items:center}
+.modal-head h3{font-size:16px;margin:0}
+.close-btn{background:none;border:none;color:#fff;font-size:26px;cursor:pointer;line-height:1;padding:0}
+.modal-body{padding:18px}
+.m-row{display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid #f0f0f0;font-size:13px}
+.m-row:last-child{border:none}
+.m-lbl{color:#999;font-weight:600}
+.m-val{color:#333;font-weight:600}
+.m-val.high{color:#e74c3c}
+.m-val.medium{color:#f39c12}
+.m-val.low{color:#27ae60}
+.toast{position:fixed;bottom:60px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,.8);color:#fff;padding:9px 22px;border-radius:22px;font-size:13px;z-index:99999;opacity:0;transition:opacity .3s;pointer-events:none;white-space:nowrap}
+.toast.on{opacity:1}
+@media(max-width:500px){.stats{grid-template-columns:repeat(2,1fr)}.btn-row{flex-direction:column}.btn{width:100%}}
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 </head>
 <body>
 
-<div class="lock-overlay" id="lockOverlay">
-<div class="lock-box">
-<div style="font-size:48px;margin-bottom:12px">🔐</div>
-<h2>咨询师后台</h2>
-<p>请输入访问密码</p>
-<input type="password" id="lockInput" placeholder="请输入密码" maxlength="20" autocomplete="off">
-<button class="btn" id="loginBtn">进入后台</button>
-<div class="error" id="lockError">密码错误，请重试</div>
-</div>
-</div>
-
-<div class="header" id="mainHeader">
-<h1>🔐 咨询师数据后台</h1>
+<div class="lock-wrap" id="lockWrap">
+  <div class="lock-box">
+    <div class="lock-icon">🔐</div>
+    <h2>咨询师后台</h2>
+    <p>请输入访问密码</p>
+    <input class="lock-input" type="password" id="pwdInput" placeholder="请输入密码" maxlength="30" autocomplete="off">
+    <button class="lock-btn" id="loginBtn">进入后台</button>
+    <div class="lock-err" id="pwdErr">密码错误，请重试</div>
+  </div>
 </div>
 
-<div class="container" id="mainContainer">
+<div class="main-wrap" id="mainWrap">
+  <div class="top-bar">🔐 咨询师数据后台</div>
 
-<div class="form-section">
-<div class="info-box">
-<p>✅ <strong>自动接收：</strong>四个评估工具的提交数据会自动显示在此页面</p>
-<p style="margin-top:8px">📱 <strong>手机微信：</strong>点击"📋 复制"将数据复制后发给咨询师</p>
-<p style="margin-top:8px">☁️ <strong>云端同步：</strong>点击"📥 粘贴数据"从微信聊天记录恢复数据</p>
-</div>
-</div>
+  <div class="card">
+    <div class="info-tip">
+      ✅ <strong>自动接收：</strong>评估工具提交的数据会自动显示在此页面<br>
+      📱 <strong>微信导出：</strong>点击"📋 复制"将数据复制后发给同事<br>
+      📥 <strong>数据导入：</strong>点击"📥 粘贴"从剪贴板导入数据
+    </div>
+  </div>
 
-<div class="stats">
-<div class="stat-card"><div class="num" id="statTotal">0</div><div class="label">总记录</div></div>
-<div class="stat-card"><div class="num" id="statHigh">0</div><div class="label">高风险</div></div>
-<div class="stat-card"><div class="num" id="statMedium">0</div><div class="label">中风险</div></div>
-<div class="stat-card"><div class="num" id="statToday">0</div><div class="label">今日新增</div></div>
-</div>
+  <div class="stats">
+    <div class="stat"><div class="n" id="sTotal">0</div><div class="l">总记录</div></div>
+    <div class="stat"><div class="n" id="sHigh">0</div><div class="l">高风险</div></div>
+    <div class="stat"><div class="n" id="sMed">0</div><div class="l">中风险</div></div>
+    <div class="stat"><div class="n" id="sToday">0</div><div class="l">今日新增</div></div>
+  </div>
 
-<div class="form-section">
-<div class="btn-row">
-<button class="btn2" id="refreshBtn">🔄 刷新</button>
-<button class="btn2 orange" id="copyBtn">📋 复制</button>
-<button class="btn2 green" id="pasteBtn">📥 粘贴</button>
-<button class="btn2" id="exportBtn">📊 Excel</button>
-<button class="btn2 red" id="clearBtn">🗑️</button>
-</div>
-<div class="filter-bar" id="filterBar">
-<div class="filter-btn active" data-filter="all">全部</div>
-<div class="filter-btn" data-filter="yanxue">厌学成因</div>
-<div class="filter-btn" data-filter="parent">家长心态</div>
-<div class="filter-btn" data-filter="teen">厌学程度</div>
-<div class="filter-btn" data-filter="family">家庭互动</div>
-</div>
-</div>
+  <div class="card">
+    <div class="btn-row">
+      <button class="btn btn-blue" id="btnRefresh">🔄 刷新</button>
+      <button class="btn btn-orange" id="btnCopy">📋 复制</button>
+      <button class="btn btn-green" id="btnPaste">📥 粘贴</button>
+      <button class="btn btn-excel" id="btnExcel">📊 Excel</button>
+      <button class="btn btn-red" id="btnClear">🗑️ 清空</button>
+    </div>
+    <div class="filters" id="filters">
+      <button class="f-btn on" data-f="all">全部</button>
+      <button class="f-btn" data-f="yanxue">厌学成因</button>
+      <button class="f-btn" data-f="parent">家长心态</button>
+      <button class="f-btn" data-f="teen">厌学程度</button>
+      <button class="f-btn" data-f="family">家庭互动</button>
+    </div>
+  </div>
 
-<div class="form-section">
-<h3 style="font-size:15px;color:#333;margin-bottom:14px">📋 评估记录</h3>
-<div id="recordList">
-<div class="empty-state">
-<div class="icon">📭</div>
-<p>暂无评估记录</p>
-</div>
-</div>
+  <div class="card">
+    <div style="font-size:15px;font-weight:600;color:#333;margin-bottom:12px">📋 评估记录</div>
+    <div id="recList"><div class="empty"><div class="empty-icon">📭</div><p>暂无评估记录</p></div></div>
+  </div>
 </div>
 
-</div>
-
-<div class="modal-overlay" id="detailModal">
-<div class="modal-box">
-<div class="modal-header">
-<h3>📊 评估详情</h3>
-<button class="modal-close" id="closeModalBtn">×</button>
-</div>
-<div class="modal-body" id="detailContent"></div>
-</div>
+<div class="modal-bg" id="detailBg">
+  <div class="modal">
+    <div class="modal-head">
+      <h3>📊 评估详情</h3>
+      <button class="close-btn" id="closeDetail">×</button>
+    </div>
+    <div class="modal-body" id="detailBody"></div>
+  </div>
 </div>
 
 <div class="toast" id="toast"></div>
 
 <script>
-(function(){
-var STORAGE_KEY='yanxue_records';
-var PWD_KEY='yanxue_consultant_pwd';
-var DEFAULT_PWD='yanxue2024';
-var records=[];
-var currentFilter='all';
-var TOOL_NAMES={yanxue:'厌学成因',parent:'家长心态',teen:'厌学程度',family:'家庭互动'};
+var SK = 'yanxue_records';
+var PK = 'yanxue_consultant_pwd';
+var DP = 'yanxue2024';
+var recs = [];
+var curF = 'all';
+var TN = {yanxue:'厌学成因',parent:'家长心态',teen:'厌学程度',family:'家庭互动'};
 
-function getRisk(r){var ms=r.maxScore||0;if(ms>=16)return'high';if(ms>=12)return'medium';return'low'}
-function getRiskLabel(r){var ms=r.maxScore||0;if(ms>=16)return'🔴 高风险';if(ms>=12)return'🟡 中风险';return'🟢 正常'}
-function esc(s){if(s===undefined||s===null)return'';return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
+function risk(r){var s=r.maxScore||0;return s>=16?'high':s>=12?'medium':'low'}
+function riskLbl(r){var s=r.maxScore||0;return s>=16?'🔴 高风险':s>=12?'🟡 中风险':'🟢 正常'}
+function esc(s){return s==null?'':String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
+function toast(m){var t=document.getElementById('toast');t.textContent=m;t.classList.add('on');setTimeout(function(){t.classList.remove('on')},2500)}
 
-function checkPassword(){
-var input=document.getElementById('lockInput').value.trim();
-var storedPwd=localStorage.getItem(PWD_KEY)||DEFAULT_PWD;
-if(input===storedPwd){
-document.getElementById('lockOverlay').style.display='none';
-document.getElementById('mainHeader').style.display='block';
-document.getElementById('mainContainer').style.display='block';
-loadRecords();
-}else{
-document.getElementById('lockError').style.display='block';
-document.getElementById('lockInput').value='';
-document.getElementById('lockInput').focus();
-}
-}
-
-function loadRecords(){
-try{records=JSON.parse(localStorage.getItem(STORAGE_KEY)||'[]')}catch(e){records=[]}
-renderRecords();
-updateStats();
+function doLogin(){
+  var v=document.getElementById('pwdInput').value.trim();
+  var p=localStorage.getItem(PK)||DP;
+  if(v===p){
+    document.getElementById('lockWrap').style.display='none';
+    document.getElementById('mainWrap').style.display='block';
+    loadRecs();
+  } else {
+    document.getElementById('pwdErr').style.display='block';
+    document.getElementById('pwdInput').value='';
+    document.getElementById('pwdInput').focus();
+  }
 }
 
-function renderRecords(){
-var el=document.getElementById('recordList');
-var filtered=currentFilter==='all'?records:records.filter(function(r){return(r.tool||'yanxue')===currentFilter});
-if(filtered.length===0){
-el.innerHTML='<div class="empty-state"><div class="icon">📭</div><p>暂无记录</p></div>';
-return;
-}
-var html='';
-filtered.forEach(function(r,i){
-var risk=getRisk(r);
-var tool=r.tool||'yanxue';
-var toolName=TOOL_NAMES[tool]||tool;
-var time=new Date(r.time).toLocaleString('zh-CN');
-var scoresHtml='';
-if(r.scores){
-Object.keys(r.scores).forEach(function(dim){
-var sc=r.scores[dim];
-var scR=sc>=16?'s1':(sc>=12?'s2':'s3');
-scoresHtml+='<span class="score-tag '+scR+'">'+dim+':'+sc+'</span>';
-});
-}
-html+='<div class="record-card '+risk+'">';
-html+='<div class="record-header"><div><div class="record-name">'+esc(r.name)+'</div><div class="record-phone">📞 '+esc(r.phone)+'</div></div></div>';
-html+='<div class="record-meta"><div class="record-time">'+time+'</div><span class="record-tool t'+(tool==='yanxue'?1:tool==='parent'?2:tool==='teen'?3:4)+'">'+toolName+'</span><div>'+getRiskLabel(r)+'</div></div>';
-if(scoresHtml)html+='<div class="record-scores">'+scoresHtml+'</div>';
-if(r.note&&r.note!=='无')html+='<div class="record-note">📝 '+esc(r.note)+'</div>';
-html+='<div class="record-actions"><button class="btn-sm" onclick="showDetail('+records.indexOf(r)+')">查看</button><button class="btn-sm red" onclick="deleteRecord('+records.indexOf(r)+')">删除</button></div></div>';
-});
-el.innerHTML=html;
+function loadRecs(){
+  try{recs=JSON.parse(localStorage.getItem(SK)||'[]')}catch(e){recs=[]}
+  render();stats();
 }
 
-function updateStats(){
-var today=new Date().toDateString();
-var todayCount=records.filter(function(r){return new Date(r.time).toDateString()===today}).length;
-var high=records.filter(function(r){return getRisk(r)==='high'}).length;
-var medium=records.filter(function(r){return getRisk(r)==='medium'}).length;
-document.getElementById('statTotal').textContent=records.length;
-document.getElementById('statHigh').textContent=high;
-document.getElementById('statMedium').textContent=medium;
-document.getElementById('statToday').textContent=todayCount;
+function render(){
+  var el=document.getElementById('recList');
+  var list=curF==='all'?recs:recs.filter(function(r){return(r.tool||'yanxue')===curF});
+  if(!list.length){el.innerHTML='<div class="empty"><div class="empty-icon">📭</div><p>暂无记录</p></div>';return}
+  var h='';
+  list.forEach(function(r){
+    var ri=risk(r);var tool=r.tool||'yanxue';var tn=TN[tool]||tool;
+    var ti=tool==='yanxue'?1:tool==='parent'?2:tool==='teen'?3:4;
+    var tm=new Date(r.time).toLocaleString('zh-CN');
+    var sc='';
+    if(r.scores)Object.keys(r.scores).forEach(function(k){var v=r.scores[k];sc+='<span class="sc '+(v>=16?'sc-h':v>=12?'sc-m':'sc-l')+'">'+k+':'+v+'</span>'});
+    var idx=recs.indexOf(r);
+    h+='<div class="rec '+ri+'">';
+    h+='<div class="rec-name">'+esc(r.name)+'</div>';
+    h+='<div class="rec-phone">📞 '+esc(r.phone)+'</div>';
+    h+='<div class="rec-meta"><span>'+tm+'</span><span class="tag t'+ti+'">'+tn+'</span><span>'+riskLbl(r)+'</span></div>';
+    if(sc)h+='<div class="scores">'+sc+'</div>';
+    if(r.note&&r.note!=='无')h+='<div class="rec-note">📝 '+esc(r.note)+'</div>';
+    h+='<div class="rec-acts"><button class="sm-btn" onclick="detail('+idx+')">查看详情</button><button class="sm-btn del" onclick="del('+idx+')">删除</button></div>';
+    h+='</div>';
+  });
+  el.innerHTML=h;
 }
 
-window.showDetail=function(idx){
-var r=records[idx];
-if(!r)return;
-var tool=r.tool||'yanxue';
-var html='<div class="modal-section"><h4>基本信息</h4>';
-html+='<div class="modal-row"><span class="lbl">姓名</span><span class="val">'+esc(r.name)+'</span></div>';
-html+='<div class="modal-row"><span class="lbl">电话</span><span class="val">'+esc(r.phone)+'</span></div>';
-html+='<div class="modal-row"><span class="lbl">工具</span><span class="val">'+(TOOL_NAMES[tool]||tool)+'</span></div>';
-html+='<div class="modal-row"><span class="lbl">风险</span><span class="val '+getRisk(r)+'">'+getRiskLabel(r)+'</span></div></div>';
-if(r.scores){
-html+='<div class="modal-section"><h4>维度得分</h4>';
-Object.keys(r.scores).forEach(function(dim){
-var sc=r.scores[dim];
-var scR=sc>=16?'high':(sc>=12?'medium':'low');
-html+='<div class="modal-row"><span class="lbl">'+dim+'</span><span class="val '+scR+'">'+sc+'</span></div>';
-});
-html+='</div>';
+function stats(){
+  var today=new Date().toDateString();
+  document.getElementById('sTotal').textContent=recs.length;
+  document.getElementById('sHigh').textContent=recs.filter(function(r){return risk(r)==='high'}).length;
+  document.getElementById('sMed').textContent=recs.filter(function(r){return risk(r)==='medium'}).length;
+  document.getElementById('sToday').textContent=recs.filter(function(r){return new Date(r.time).toDateString()===today}).length;
 }
-if(r.note&&r.note!=='无'){
-html+='<div class="modal-section"><h4>备注</h4><div style="background:#f9f9f9;padding:10px;border-radius:8px;font-size:12px">'+esc(r.note)+'</div></div>';
-}
-document.getElementById('detailContent').innerHTML=html;
-document.getElementById('detailModal').classList.add('show');
+
+window.detail=function(i){
+  var r=recs[i];if(!r)return;
+  var tool=r.tool||'yanxue';
+  var h='<div style="margin-bottom:14px"><div class="m-row"><span class="m-lbl">姓名</span><span class="m-val">'+esc(r.name)+'</span></div>';
+  h+='<div class="m-row"><span class="m-lbl">电话</span><span class="m-val">'+esc(r.phone)+'</span></div>';
+  h+='<div class="m-row"><span class="m-lbl">工具</span><span class="m-val">'+(TN[tool]||tool)+'</span></div>';
+  h+='<div class="m-row"><span class="m-lbl">风险</span><span class="m-val '+risk(r)+'">'+riskLbl(r)+'</span></div></div>';
+  if(r.scores){
+    h+='<div style="font-weight:600;font-size:13px;margin-bottom:8px">维度得分</div>';
+    Object.keys(r.scores).forEach(function(k){var v=r.scores[k];h+='<div class="m-row"><span class="m-lbl">'+k+'</span><span class="m-val '+(v>=16?'high':v>=12?'medium':'low')+'">'+v+'</span></div>'});
+  }
+  if(r.note&&r.note!=='无')h+='<div style="margin-top:12px;font-size:12px;background:#f9f9f9;padding:10px;border-radius:8px">📝 '+esc(r.note)+'</div>';
+  document.getElementById('detailBody').innerHTML=h;
+  document.getElementById('detailBg').classList.add('on');
 };
 
-window.deleteRecord=function(idx){
-if(!confirm('确定删除？'))return;
-records.splice(idx,1);
-localStorage.setItem(STORAGE_KEY,JSON.stringify(records));
-renderRecords();
-updateStats();
+window.del=function(i){
+  if(!confirm('确定删除？'))return;
+  recs.splice(i,1);
+  localStorage.setItem(SK,JSON.stringify(recs));
+  render();stats();
 };
 
-function clearAll(){if(confirm('清空所有记录？')){if(confirm('确认清空？')){records=[];localStorage.setItem(STORAGE_KEY,'[]');renderRecords();updateStats()}}}
-
-function exportExcel(){
-if(records.length===0){alert('暂无数据');return}
-var wb=XLSX.utils.book_new();
-var rows=[['时间','姓名','工具','分数','风险','备注']];
-records.forEach(function(r){
-var tool=r.tool||'yanxue';
-rows.push([new Date(r.time).toLocaleString('zh-CN'),r.name||'',TOOL_NAMES[tool]||tool,r.maxScore||'',getRiskLabel(r),r.note||'']);
-});
-var ws=XLSX.utils.aoa_to_sheet(rows);
-ws['!cols']=[{wch:20},{wch:12},{wch:12},{wch:8},{wch:12},{wch:30}];
-XLSX.utils.book_append_sheet(wb,ws,'评估记录');
-XLSX.writeFile(wb,'咨询师数据_'+new Date().toISOString().slice(0,10)+'.xlsx');
+function doCopy(){
+  if(!recs.length){alert('暂无数据');return}
+  var lines=['【咨询师后台数据】','='.repeat(28),''];
+  recs.forEach(function(r,i){
+    var t=r.tool||'yanxue';
+    lines.push('['+(i+1)+'] '+r.name+' | '+r.phone+' | '+TN[t]+' | 分:'+(r.maxScore||''));
+    if(r.scores){var sc=[];Object.keys(r.scores).forEach(function(k){sc.push(k+':'+r.scores[k])});lines.push('  维度:'+sc.join(' | '))}
+    if(r.note&&r.note!=='无')lines.push('  备注:'+r.note);
+    lines.push('-'.repeat(28));
+  });
+  var txt=lines.join('\n');
+  if(navigator.clipboard&&navigator.clipboard.writeText){
+    navigator.clipboard.writeText(txt).then(function(){toast('✓ 已复制到剪贴板')}).catch(function(){prompt('手动复制:',txt)});
+  } else {
+    var ta=document.createElement('textarea');ta.value=txt;ta.style.cssText='position:fixed;top:0;left:-9999px';
+    document.body.appendChild(ta);ta.select();
+    try{document.execCommand('copy');toast('✓ 已复制')}catch(e){prompt('复制:',txt)}
+    document.body.removeChild(ta);
+  }
 }
 
-function showToast(msg){
-var t=document.getElementById('toast');
-t.textContent=msg;t.classList.add('show');
-setTimeout(function(){t.classList.remove('show')},2500);
+function doPaste(){
+  var txt=prompt('请粘贴从评估工具复制的报告内容：');
+  if(!txt||!txt.trim())return;
+  try{
+    var data=JSON.parse(txt);
+    if(!data.tool){alert('格式不正确');return}
+    var found=false;
+    for(var i=0;i<recs.length;i++){
+      if(recs[i].tool===data.tool&&recs[i].name===data.name&&Math.abs(new Date(recs[i].time)-new Date(data.time))<86400000){recs[i]=data;found=true;break}
+    }
+    if(!found)recs.push(data);
+    localStorage.setItem(SK,JSON.stringify(recs));
+    render();stats();toast('✓ 已导入 '+recs.length+' 条记录');
+  }catch(e){alert('解析失败，请确保粘贴的是完整报告内容')}
 }
 
-function copyToClipboard(){
-if(records.length===0){alert('暂无数据');return}
-var lines=['【咨询师后台数据】','================================',''];
-records.forEach(function(r,i){
-var t=r.tool||'yanxue';
-lines.push('['+(i+1)+'] '+r.name+' | '+r.phone+' | '+TOOL_NAMES[t]+' | 分:'+(r.maxScore||''));
-if(r.scores){var sc=[];Object.keys(r.scores).forEach(function(k){sc.push(k+':'+r.scores[k])});lines.push('  维度:'+sc.join(' | '));}
-if(r.note&&r.note!=='无')lines.push('  备注:'+r.note);
-lines.push('--------------------------------');
-});
-var text=lines.join('
-');
-if(navigator.clipboard&&navigator.clipboard.writeText){
-navigator.clipboard.writeText(text).then(function(){showToast('✓ 已复制')}).catch(function(){prompt('手动复制:',text)});
-}else{
-var ta=document.createElement('textarea');
-ta.value=text;
-ta.style='position:fixed;top:0;left:-9999px';
-document.body.appendChild(ta);
-ta.select();
-try{document.execCommand('copy');showToast('✓ 已复制')}catch(e){prompt('复制:',text)}
-document.body.removeChild(ta);
-}
+function doExcel(){
+  if(!recs.length){alert('暂无数据');return}
+  var wb=XLSX.utils.book_new();
+  var rows=[['时间','姓名','工具','分数','风险','备注']];
+  recs.forEach(function(r){rows.push([new Date(r.time).toLocaleString('zh-CN'),r.name||'',TN[r.tool||'yanxue']||r.tool,r.maxScore||'',riskLbl(r),r.note||''])});
+  var ws=XLSX.utils.aoa_to_sheet(rows);
+  ws['!cols']=[{wch:20},{wch:12},{wch:12},{wch:8},{wch:12},{wch:30}];
+  XLSX.utils.book_append_sheet(wb,ws,'评估记录');
+  XLSX.writeFile(wb,'咨询师数据_'+new Date().toISOString().slice(0,10)+'.xlsx');
 }
 
-function pasteFromClipboard(){
-var text=prompt('请粘贴从评估工具复制的报告内容：
-
-（微信中：长按报告卡片 → 复制 → 粘贴到这里）');
-if(!text||!text.trim())return;
-try{
-if(text.indexOf('"tool"')>=0||text.indexOf('"name"')>=0){
-var data=JSON.parse(text);
-if(!data.tool){alert('数据格式不正确');return;}
-var exists=false;
-for(var i=0;i<records.length;i++){
-if(records[i].tool===data.tool&&records[i].name===data.name&&Math.abs(new Date(records[i].time)-new Date(data.time))<86400000){
-records[i]=data;exists=true;break;
-}
-}
-if(!exists)records.push(data);
-localStorage.setItem(STORAGE_KEY,JSON.stringify(records));
-renderRecords();updateStats();
-showToast('✓ 已导入 '+records.length+' 条记录');
-return;
-}
-alert('未能识别数据格式');
-}catch(e){alert('解析失败');}
+function doClear(){
+  if(!confirm('清空所有记录？'))return;
+  if(!confirm('确认清空？不可恢复！'))return;
+  recs=[];localStorage.setItem(SK,'[]');render();stats();toast('已清空');
 }
 
-function setFilter(f){
-currentFilter=f;
-document.querySelectorAll('.filter-btn').forEach(function(b){b.classList.remove('active')});
-event.target.classList.add('active');
-renderRecords();
-}
+// ── 绑定所有事件 ──
+document.getElementById('loginBtn').onclick = doLogin;
+document.getElementById('pwdInput').onkeydown = function(e){if(e.key==='Enter')doLogin()};
+document.getElementById('btnRefresh').onclick = loadRecs;
+document.getElementById('btnCopy').onclick = doCopy;
+document.getElementById('btnPaste').onclick = doPaste;
+document.getElementById('btnExcel').onclick = doExcel;
+document.getElementById('btnClear').onclick = doClear;
+document.getElementById('closeDetail').onclick = function(){document.getElementById('detailBg').classList.remove('on')};
 
-// ── Event Binding (DOMContentLoaded) ──
-document.addEventListener('DOMContentLoaded',function(){
-// Login button
-document.getElementById('loginBtn').addEventListener('click',checkPassword);
-// Enter key on input
-document.getElementById('lockInput').addEventListener('keydown',function(e){if(e.key==='Enter')checkPassword()});
-// Other buttons
-document.getElementById('refreshBtn').addEventListener('click',loadRecords);
-document.getElementById('copyBtn').addEventListener('click',copyToClipboard);
-document.getElementById('pasteBtn').addEventListener('click',pasteFromClipboard);
-document.getElementById('exportBtn').addEventListener('click',exportExcel);
-document.getElementById('clearBtn').addEventListener('click',clearAll);
-document.getElementById('closeModalBtn').addEventListener('click',function(){document.getElementById('detailModal').classList.remove('show')});
-// Filter buttons
-document.querySelectorAll('.filter-btn').forEach(function(btn){
-btn.addEventListener('click',function(){
-setFilter(this.getAttribute('data-filter'));
-});
-});
-});
-})();
+document.getElementById('filters').onclick = function(e){
+  var btn=e.target.closest('.f-btn');
+  if(!btn)return;
+  document.querySelectorAll('.f-btn').forEach(function(b){b.classList.remove('on')});
+  btn.classList.add('on');
+  curF=btn.getAttribute('data-f');
+  render();
+};
 </script>
-
 </body>
 </html>

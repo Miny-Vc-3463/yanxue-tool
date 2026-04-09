@@ -434,7 +434,7 @@
 <script>
 (function() {
     'use strict';
-    var currentStep = 0, totalSteps = 5, answers = {}, finalScores = null;
+    var currentStep = 0, totalSteps = 5, answers = {}; window.answerValues = {};, finalScores = null;
     var basicInfo = {};
     var DIM_NAMES = { academic: 'PHQ-9-A', school: '', emotion: '' };
 
@@ -502,7 +502,7 @@
             // 同题目的其他选项取消选中
             document.querySelectorAll('.likert-opt[data-q="'+q+'"]').forEach(function(x){ x.classList.remove('selected'); });
             opt.classList.add('selected');
-            answers[q] = v;
+            answers[q] = v; window.answerValues = window.answerValues || {}; window.answerValues[q] = v;
             updateDimProgress(q);
         });
     });

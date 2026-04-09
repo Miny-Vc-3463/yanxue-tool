@@ -5,27 +5,24 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>PHQ-9-A 青少年抑郁筛查</title>
 <meta property="og:title" content="PHQ-9-A 青少年抑郁筛查">
-<meta property="og:description" content="9题量化评估 | 专业匿名快速">
+<meta property="og:description" content="9题量化评估">
 <meta property="og:image" content="https://raw.githubusercontent.com/miny-vc-3463/yanxue-tool/main/cover1.jpg">
 <meta property="og:url" content="https://miny-vc-3463.github.io/yanxue-tool/phq9-a.html">
-<meta property="og:type" content="website">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC",sans-serif;background:linear-gradient(135deg,#4a69bd 0%,#6a89cc 100%);min-height:100vh;padding:20px}
+body{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC",sans-serif;background:linear-gradient(135deg,#4a69bd,#6a89cc);min-height:100vh;padding:20px}
 .container{max-width:600px;margin:0 auto;background:#fff;border-radius:20px;box-shadow:0 20px 60px rgba(0,0,0,.25);overflow:hidden}
 .header{background:linear-gradient(135deg,#4a69bd,#6a89cc);color:#fff;padding:24px 20px;text-align:center}
 .header h1{font-size:20px;margin-bottom:6px}
 .header p{font-size:12px;opacity:.9}
 .content{padding:22px 18px}
 .progress-bar{height:5px;background:#e0e0e0;border-radius:3px;margin-bottom:20px;overflow:hidden}
-.progress-fill{height:100%;background:linear-gradient(90deg,#4a69bd,#6a89cc);transition:width .4s ease;width:0%}
-.step{display:none}
-.step.active{display:block}
+.progress-fill{height:100%;background:linear-gradient(90deg,#4a69bd,#6a89cc);transition:width .4s ease;width:0}
+.step{display:none}.step.active{display:block}
 .step-title{font-size:15px;color:#222;margin-bottom:12px;padding-bottom:8px;border-bottom:2px solid #4a69bd;font-weight:700}
 .step-sub{font-size:11px;color:#888;margin-bottom:14px;background:#f0f4ff;padding:8px 12px;border-radius:8px}
-.welcome-text{font-size:13px;color:#555;line-height:1.8;margin-bottom:10px}
+.welcome-text{font-size:13px;color:#555;line-height:1.8}
 .welcome-text ul{margin:8px 0 10px 18px}
 .welcome-text li{margin:5px 0}
 .likert-table{width:100%;border-collapse:collapse;font-size:12px;margin-bottom:6px}
@@ -40,8 +37,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC",sans-serif;backg
 .info-grid{display:grid;gap:12px}
 .info-row{display:flex;align-items:center;gap:10px}
 .info-row label{font-size:13px;color:#555;width:80px;flex-shrink:0;font-weight:600}
-.info-row input,.info-row select{flex:1;padding:9px 11px;border:2px solid #d0d8ee;border-radius:8px;font-size:13px;outline:none;font-family:inherit;transition:border-color .2s}
-.info-row input:focus,.info-row select:focus{border-color:#4a69bd}
+.info-row input{flex:1;padding:9px 11px;border:2px solid #d0d8ee;border-radius:8px;font-size:13px;outline:none}
+.info-row input:focus{border-color:#4a69bd}
 .radio-group{display:flex;flex-wrap:wrap;gap:8px;flex:1}
 .radio-item{padding:5px 14px;border:2px solid #d0d8ee;border-radius:20px;font-size:12px;cursor:pointer;color:#666;transition:all .2s;user-select:none}
 .radio-item.selected{border-color:#4a69bd;background:#eff3ff;color:#4a69bd}
@@ -52,13 +49,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC",sans-serif;backg
 .total-row .num{font-size:36px;font-weight:700;line-height:1}
 .total-row .level{font-size:13px;margin-top:4px;opacity:.9}
 .score-detail-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #eee;font-size:12px}
-.score-detail-row:last-child{border:none}
-.q-name{color:#444;flex:1;font-size:11px;line-height:1.5}
+.q-name{color:#444;flex:1;font-size:11px}
 .q-score{font-weight:700;width:28px;text-align:center;font-size:14px}
 .q-d{font-size:10px;color:#999;width:52px;text-align:right}
-.q-d.high{color:#e74c3c}
-.q-d.medium{color:#f39c12}
-.q-d.low{color:#27ae60}
+.q-d.high{color:#e74c3c}.q-d.medium{color:#f39c12}.q-d.low{color:#27ae60}
 .chart-container{position:relative;height:220px;margin:10px 0 6px}
 .chart-note{font-size:11px;color:#aaa;text-align:center}
 .info-box{background:#fff;border-left:4px solid #4a69bd;padding:12px 13px;margin:9px 0;border-radius:0 8px 8px 0}
@@ -69,14 +63,14 @@ body{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC",sans-serif;backg
 .suggest-card{background:#fff;border-radius:10px;padding:13px;margin-bottom:10px;border:1px solid #e8edf5}
 .suggest-card h4{font-size:13px;color:#4a69bd;margin-bottom:5px}
 .suggest-card p{font-size:12px;color:#555;line-height:1.65}
-.btn{width:100%;padding:14px;background:linear-gradient(135deg,#4a69bd 0%,#6a89cc 100%);color:#fff;border:none;border-radius:12px;font-size:14px;font-weight:600;cursor:pointer;margin-top:14px;transition:transform .2s,box-shadow .2s;-webkit-tap-highlight-color:transparent}
+.btn{width:100%;padding:14px;background:linear-gradient(135deg,#4a69bd,#6a89cc);color:#fff;border:none;border-radius:12px;font-size:14px;font-weight:600;cursor:pointer;margin-top:14px}
 .btn:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(74,105,189,.35)}
 .btn:active{transform:scale(.98)}
 .btn-green{background:linear-gradient(135deg,#27ae60,#2ecc71)}
 .btn:disabled{opacity:.55;cursor:not-allowed}
 .consultant-link{text-align:center;margin-top:14px;padding-top:14px;border-top:1px solid #eee}
 .consultant-link a{font-size:12px;color:#4a69bd;text-decoration:none}
-.modal-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.55);display:flex;align-items:center;justify-content:center;z-index:9999;padding:20px;opacity:0;visibility:hidden;transition:opacity .3s,visibility .3s}
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);display:flex;align-items:center;justify-content:center;z-index:9999;padding:20px;opacity:0;visibility:hidden;transition:opacity .3s}
 .modal-overlay.show{opacity:1;visibility:visible}
 .modal-box{background:#fff;border-radius:18px;width:100%;max-width:480px;max-height:90vh;overflow-y:auto;transform:scale(.9);transition:transform .3s}
 .modal-overlay.show .modal-box{transform:scale(1)}
@@ -85,17 +79,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC",sans-serif;backg
 .modal-close{position:absolute;right:14px;top:12px;font-size:22px;cursor:pointer;opacity:.7;background:none;border:none;color:#fff}
 .form-field{margin-bottom:13px}
 .form-field label{display:block;font-size:12px;color:#555;margin-bottom:5px;font-weight:600}
-.form-field input,.form-field textarea,.form-field select{width:100%;padding:10px 12px;border:2px solid #d0d8ee;border-radius:9px;font-size:13px;outline:none;font-family:inherit;transition:border-color .2s}
-.form-field input:focus,.form-field textarea:focus,.form-field select:focus{border-color:#4a69bd}
+.form-field input,.form-field textarea{width:100%;padding:10px 12px;border:2px solid #d0d8ee;border-radius:9px;font-size:13px;outline:none}
+.form-field input:focus,.form-field textarea:focus{border-color:#4a69bd}
 .btn-row{display:flex;gap:9px;margin-top:16px}
 .btn-row .btn{margin-top:0;flex:1}
 .btn-outline{background:#fff;color:#4a69bd;border:2px solid #4a69bd;padding:12px;border-radius:12px;font-size:14px;font-weight:600;cursor:pointer;flex:1}
-.loading-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(255,255,255,.97);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:99999;opacity:0;visibility:hidden;transition:opacity .3s}
-.loading-overlay.show{opacity:1;visibility:visible}
-.spinner{width:40px;height:40px;border:4px solid #d0d8ee;border-top-color:#4a69bd;border-radius:50%;animation:spin .7s linear infinite;margin-bottom:12px}
-@keyframes spin{to{transform:rotate(360deg)}}
-.loading-text{font-size:14px;color:#555}
-@media print{body{background:#fff;padding:0}.container{box-shadow:none}.btn,.modal-overlay,.loading-overlay{display:none!important}}
 </style>
 </head>
 <body>
@@ -114,9 +102,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC",sans-serif;backg
 <li>🔒 结果完全匿名，仅供家长参考</li>
 <li>⚠️ 本量表不能替代专业诊断</li>
 </ul>
-<p>请选择在过去 <strong>2周</strong> 内，这些情况影响你的程度：<br>（0 = 完全不会 → 3 = 几乎每天）</p>
+<p>请选择在过去 <strong>2周</strong> 内，这些情况影响你的程度（0=完全不会 3=几乎每天）</p>
 </div>
-<button type="button" class="btn" id="startBtn">开始评估 →</button>
+<button class="btn" id="startBtn">开始评估 →</button>
 <div class="consultant-link"><a href="consultant.html" target="_blank">🔐 咨询师入口</a></div>
 </div>
 
@@ -125,45 +113,30 @@ body{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC",sans-serif;backg
 <div class="step-sub">以下信息仅用于评估记录，完全匿名保密</div>
 <div class="info-grid">
 <div class="info-row"><label>姓名/昵称</label><input type="text" id="infoName" placeholder="如：初一学生小明" maxlength="20"></div>
-<div class="info-row"><label>性别</label><div class="radio-group" id="genderGroup"><div class="radio-item" data-v="男">男</div><div class="radio-item" data-v="女">女</div></div></div>
+<div class="info-row"><label>性别</label><div class="radio-group" id="genderGroup"><span class="radio-item" data-v="男">男</span><span class="radio-item" data-v="女">女</span></div></div>
 <div class="info-row"><label>年龄</label><input type="text" id="infoAge" placeholder="如：13岁" maxlength="10"></div>
 </div>
-<button type="button" class="btn" id="nextBtn1">开始答题 →</button>
+<button class="btn" id="nextBtn1">开始答题 →</button>
 </div>
 
 <div class="step" id="step2">
 <div class="step-title">PHQ-9-A 评估问卷</div>
-<div class="step-sub">在过去2周里，以下情况困扰你的程度？（0=完全不会 1=好几天 2=超过一周 3=几乎每天）</div>
+<div class="step-sub">（0=完全不会 1=好几天 2=超过一周 3=几乎每天）</div>
 <table class="likert-table">
 <thead><tr><th></th><th>0<br><span class="score-lbl">完全不会</span></th><th>1<br><span class="score-lbl">好几天</span></th><th>2<br><span class="score-lbl">超过一周</span></th><th>3<br><span class="score-lbl">几乎每天</span></th></tr></thead>
 <tbody id="qTable"></tbody>
 </table>
-<button type="button" class="btn" id="resultBtn" disabled>查看评估结果 →</button>
+<button class="btn" id="resultBtn" disabled>查看评估结果 →</button>
 </div>
 
 <div class="step" id="step3">
-<div class="total-row">
-<div class="label">PHQ-9-A 总分</div>
-<div class="num" id="totalScore">-</div>
-<div class="level" id="levelLabel">-</div>
-</div>
-<div class="result-section">
-<div class="result-title">📊 各题得分详情（0=完全不会 3=几乎每天）</div>
-<div id="qScores"></div>
-</div>
-<div class="result-section">
-<div class="result-title">📈 症状分布雷达图</div>
-<div class="chart-container"><canvas id="radarChart"></canvas></div>
-<div class="chart-note">数值越高 = 该症状越频繁</div>
-</div>
+<div class="total-row"><div class="label">PHQ-9-A 总分</div><div class="num" id="totalScore">-</div><div class="level" id="levelLabel">-</div></div>
+<div class="result-section"><div class="result-title">📊 各题得分详情</div><div id="qScores"></div></div>
+<div class="result-section"><div class="result-title">📈 症状分布雷达图</div><div class="chart-container"><canvas id="radarChart"></canvas></div><div class="chart-note">数值越高=该症状越频繁</div></div>
 <div id="resultAdvice"></div>
-<div class="info-box danger" style="margin-top:12px">
-<div class="info-title">⚠️ 重要提示</div>
-<div class="info-content">本量表结果仅供参考，不能替代专业精神科医生或心理咨询师的评估。如有需要，请及时寻求专业帮助。</div>
-</div>
-<button type="button" class="btn" id="sendBtn">📨 发送给咨询师</button>
-
-<button type="button" class="btn btn-green" id="excelBtn">📊 导出Excel</button>
+<div class="info-box danger"><div class="info-title">⚠️ 重要提示</div><div class="info-content">本量表结果仅供参考，不能替代专业精神科医生或心理咨询师的评估。</div></div>
+<button class="btn" id="sendBtn">📨 发送给咨询师</button>
+<button class="btn btn-green" id="excelBtn">📊 导出Excel</button>
 <div class="consultant-link"><a href="consultant.html" target="_blank">🔐 咨询师入口</a></div>
 </div>
 
@@ -172,75 +145,162 @@ body{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC",sans-serif;backg
 
 <div class="modal-overlay" id="submitModal">
 <div class="modal-box">
-<div class="modal-header"><h2>📨 提交给咨询师</h2><button type="button" class="modal-close" id="closeModalBtn">×</button></div>
+<div class="modal-header"><h2>📨 提交给咨询师</h2><button class="modal-close" id="closeModalBtn">×</button></div>
 <div class="modal-body">
 <div class="form-field"><label>姓名</label><input type="text" id="subName" placeholder="请输入姓名"></div>
 <div class="form-field"><label>联系电话</label><input type="tel" id="subPhone" placeholder="请输入联系电话" maxlength="20"></div>
-<div class="form-field"><label>补充说明 <span style="color:#999;font-weight:400">(选填)</span></label><textarea id="subNote" rows="3" placeholder="其他想告诉咨询师的情况..." maxlength="200"></textarea></div>
-<div class="btn-row">
-<button type="button" class="btn-outline" id="copyBtn">📋 复制报告</button>
-<button type="button" class="btn" id="submitBtn">发送</button>
-</div>
-<div id="submitTip" style="font-size:11px;color:#aaa;margin-top:8px;text-align:center">复制报告后可粘贴到微信发送给咨询师</div>
+<div class="form-field"><label>补充说明（选填）</label><textarea id="subNote" rows="3" placeholder="其他想告诉咨询师的情况..." maxlength="200"></textarea></div>
+<div class="btn-row"><button class="btn-outline" id="copyBtn">📋 复制报告</button><button class="btn" id="submitBtn">发送</button></div>
 </div>
 </div>
 </div>
 
-<div class="loading-overlay" id="loadingOverlay">
-<div class="spinner"></div>
-<div class="loading-text" id="loadingText">正在生成报告...</div>
+</div>
 </div>
 
 <script>
-var PHQ9A=['做事情时感觉毫无兴趣','感觉心情低落、沮丧或绝望','入睡困难或睡不安稳，或睡得太多','感觉疲倦或没有力气','食欲不振，或吃得太多','觉得自己很糟——或觉得自己很失败，或让自己/家人失望','做事情时集中注意力有困难，例如看报纸或看电视','别人可能注意到你动作/说话比平时慢，或者相反（比平时烦躁不安）','有过不如死掉或用某种方式伤害自己的想法'];
-var ANSWERS=new Array(9).fill(null);
-var BASIC={name:"",gender:"",age:""};
-var TOTAL=0;var LEVEL="";var chart=null;
-function scoreLabel(v){return v===0?"完全不会":v===1?"好几天":v===2?"超过一周":"几乎每天"}
-function scoreClass(v){return v>=2?"high":v>=1?"medium":"low"}
-function goStep(n){document.querySelectorAll(".step").forEach(function(s){s.classList.remove("active")});document.getElementById("step"+n).classList.add("active");document.getElementById("progressFill").style.width=(n/3*100)+"%";window.scrollTo(0,0);}
-function saveRecord(){var record={name:BASIC.name,gender:BASIC.gender,age:BASIC.age,tool:"phq9a",toolName:"PHQ-9-A",maxScore:TOTAL,level:LEVEL,answers:ANSWERS.map(function(v,i){return{q:i+1,name:PHQ9A[i],score:v}}),scores:{"PHQ-9-A总分":TOTAL},note:"",time:new Date().toISOString()};try{var records=JSON.parse(localStorage.getItem("yanxue_records")||"[]");var dup=records.findIndex(function(r){return r.tool==="phq9a"&&r.name===record.name&&Math.abs(new Date(r.time)-new Date(record.time))<300000});if(dup>=0)records[dup]=record;else records.push(record);localStorage.setItem("yanxue_records",JSON.stringify(records))}catch(e){}}
-function closeModal(){document.getElementById("submitModal").classList.remove("show")}
-function doExportExcel(){var rows=[["题号","题目","得分(0-3)","频率描述"]];ANSWERS.forEach(function(v,i){rows.push([i+1,PHQ9A[i],v,scoreLabel(v)])});rows.push([""]);rows.push(["姓名",BASIC.name]);rows.push(["性别",BASIC.gender]);rows.push(["年龄",BASIC.age]);rows.push(["总分",TOTAL+"/27"]);rows.push(["评估结果",LEVEL]);var wb=XLSX.utils.book_new();var ws=XLSX.utils.aoa_to_sheet(rows);ws["!cols"]=[{wch:8},{wch:40},{wch:12},{wch:16}];XLSX.utils.book_append_sheet(wb,ws,"PHQ-9-A报告");XLSX.writeFile(wb,"PHQ9A报告_"+new Date().toISOString().slice(0,10)+".xlsx")}
+var Q=[
+"做事情时感觉毫无兴趣",
+"感觉心情低落、沮丧或绝望",
+"入睡困难或睡不安稳，或睡得太多",
+"感觉疲倦或没有力气",
+"食欲不振，或吃得太多",
+"觉得自己很糟——或觉得自己很失败，或让自己/家人失望",
+"做事情时集中注意力有困难，例如看报纸或看电视",
+"别人可能注意到你动作/说话比平时慢，或者相反（比平时烦躁不安）",
+"有过不如死掉或用某种方式伤害自己的想法"
+];
+var A=new Array(9).fill(null);
+var B={name:"",gender:"",age:""};
+var T=0,L="",C=null;
 
-document.getElementById("startBtn").onclick=function(){goStep(1)};
+function sl(v){return v===0?"完全不会":v===1?"好几天":v===2?"超过一周":"几乎每天"}
+function sc(v){return v>=2?"high":v>=1?"medium":"low"}
+function go(n){document.querySelectorAll(".step").forEach(function(s){s.classList.remove("active")});document.getElementById("step"+n).classList.add("active");document.getElementById("progressFill").style.width=(n/3*100)+"%";window.scrollTo(0,0)}
 
-document.getElementById("genderGroup").onclick=function(e){var el=e.target.closest(".radio-item");if(!el)return;document.querySelectorAll("#genderGroup .radio-item").forEach(function(i){i.classList.remove("selected")});el.classList.add("selected");BASIC.gender=el.getAttribute("data-v")};
+document.getElementById("startBtn").onclick=function(){go(1)};
 
-document.getElementById("nextBtn1").onclick=function(){BASIC.name=document.getElementById("infoName").value.trim();BASIC.age=document.getElementById("infoAge").value.trim();if(!BASIC.name){alert("请填写姓名");return}if(!BASIC.gender){alert("请选择性别");return}if(!BASIC.age){alert("请填写年龄");return}ANSWERS=new Array(9).fill(null);renderQuestions();goStep(2);};
-
-function renderQuestions(){var tb=document.getElementById("qTable");tb.innerHTML="";PHQ9A.forEach(function(q,i){var tr=document.createElement("tr");tr.innerHTML="<td>"+(i+1)+". "+q+"</td>";for(var s=0;s<=3;s++){var td=document.createElement("td");td.innerHTML="<div class='likert-opt' data-q='"+i+"' data-s='"+s+"'><span>"+s+"</span></div>";tr.appendChild(td)}tb.appendChild(tr)});tb.querySelectorAll(".likert-opt").forEach(function(el){el.onclick=function(){var qi=parseInt(this.getAttribute("data-q"));var sv=parseInt(this.getAttribute("data-s"));ANSWERS[qi]=sv;this.closest("tr").querySelectorAll(".likert-opt").forEach(function(o){o.classList.remove("selected")});this.classList.add("selected");var unanswered=ANSWERS.filter(function(v){return v===null}).length;var btn=document.getElementById("resultBtn");btn.disabled=(unanswered>0);btn.style.opacity=unanswered>0?".5":"1"}})}
-
-document.getElementById("resultBtn").onclick=function(){
-TOTAL=ANSWERS.reduce(function(a,b){return a+(b||0)},0);
-LEVEL=TOTAL<=4?"正常范围":TOTAL<=9?"轻度抑郁":TOTAL<=14?"中度抑郁":TOTAL<=19?"中重度抑郁":"重度抑郁";
-document.getElementById("totalScore").textContent=TOTAL+" / 27";
-document.getElementById("levelLabel").textContent=LEVEL;
-var sc=document.getElementById("qScores");sc.innerHTML="";
-ANSWERS.forEach(function(v,i){sc.innerHTML+="<div class='score-detail-row'><span class='q-name'>"+(i+1)+". "+PHQ9A[i].substring(0,22)+"...</span><span class='q-score q-d "+scoreClass(v)+"'>"+v+"</span><span class='q-d "+scoreClass(v)+"'>"+scoreLabel(v)+"</span></div>"});
-if(chart&&chart.destroy)chart.destroy();
-var ctx=document.getElementById("radarChart").getContext("2d");
-chart=new Chart(ctx,{type:"radar",data:{labels:PHQ9A.map(function(q,i){return"Q"+(i+1)}),datasets:[{label:"症状得分",data:ANSWERS,fill:true,backgroundColor:"rgba(74,105,189,0.15)",borderColor:"#4a69bd",pointBackgroundColor:"#4a69bd",pointRadius:5}]},options:{responsive:true,maintainAspectRatio:false,scales:{r:{min:0,max:3,ticks:{stepSize:1,font:{size:10}},pointLabels:{font:{size:10}}}},plugins:{legend:{display:false}}}});
-var adv=document.getElementById("resultAdvice");
-if(TOTAL<=4){adv.innerHTML="<div class='result-section'><div class='result-title'>✅ 评估结论</div><div class='info-box success'><div class='info-title'>结果正常</div><div class='info-content'>孩子的情绪状态在正常范围内。继续保持良好的亲子沟通和作息规律即可。</div></div></div>";}
-else if(TOTAL<=9){adv.innerHTML="<div class='result-section'><div class='result-title'>💡 建议</div><div class='suggest-card'><h4>适当关注</h4><p>孩子有轻微的抑郁情绪波动，建议家长多倾听、少说教，保持规律作息和适度运动，观察2-4周后如持续可考虑寻求专业帮助。</p></div></div>";}
-else if(TOTAL<=14){adv.innerHTML="<div class='result-section'><div class='result-title'>⚠️ 建议寻求专业支持</div><div class='suggest-card'><h4>建议预约心理咨询</h4><p>孩子的情绪困扰已持续一段时间，建议预约专业心理咨询师进行系统评估。</p></div><div class='suggest-card' style='background:#fffbf0'><h4 style='color:#e65100'>家长可以做什么？</h4><p>1. 避免过度追问或批评<br>2. 表达理解和接纳<br>3. 鼓励参加户外活动和同伴交往<br>4. 必要时陪同就医</p></div></div>";}
-else{adv.innerHTML="<div class='result-section'><div class='result-title'>🚨 建议尽快寻求专业帮助</div><div class='suggest-card'><h4>请及时联系专业机构</h4><p>孩子的抑郁症状较为明显，建议尽快预约精神科医生或专业心理咨询师进行评估和干预。</p></div><div class='suggest-card' style='background:#fff5f5'><h4 style='color:#c62828'>如有任何自伤想法</h4><p>请立即拨打心理援助热线：<br><strong>成都心理援助热线：028-8437-7525</strong><br>全国心理援助热线：400-161-9995</p></div></div>";}
-saveRecord();goStep(3);
+document.getElementById("genderGroup").onclick=function(e){
+var t=e.target.closest(".radio-item");
+if(!t)return;
+this.querySelectorAll(".radio-item").forEach(function(i){i.classList.remove("selected")});
+t.classList.add("selected");
+B.gender=t.getAttribute("data-v");
 };
 
-);d.setFontSize(10);d.setTextColor(120);d.text("生成时间："+new Date().toLocaleString("zh-CN"),105,33,{align:"center"});d.setDrawColor(74,105,189);d.line(20,38,190,38);d.setFontSize(13);d.setTextColor(40);d.setFont("helvetica","bold");d.text("基本信息",20,48);d.setFontSize(11);d.setFont("helvetica","normal");d.setTextColor(60);d.text("姓名："+BASIC.name+" 性别："+BASIC.gender+" 年龄："+BASIC.age,20,56);d.text("总分："+TOTAL+" / 27  评估结果："+LEVEL,20,64);d.setDrawColor(200,210,240);d.line(20,70,190,70);d.setFontSize(13);d.setFont("helvetica","bold");d.setTextColor(40);d.text("各题得分",20,79);d.setFontSize(10);d.setFont("helvetica","normal");d.setTextColor(60);ANSWERS.forEach(function(v,i){var col=v>=2?[231,76,60]:v>=1?[243,156,18]:[39,174,96];d.setTextColor(col[0],col[1],col[2]);d.text("Q"+(i+1)+". "+PHQ9A[i].substring(0,36)+" -> "+v+" 分  ("+scoreLabel(v)+")",22,88+i*7)});d.setTextColor(40);d.setFontSize(9);d.text("本报告仅供参考，不能替代专业精神科医生或心理咨询师的评估。",105,285,{align:"center"});d.save("PHQ9A报告_"+BASIC.name+".pdf")}catch(e){alert("PDF生成失败:"+e.message)}document.getElementById("loadingOverlay").classList.remove("show")},100)};
+document.getElementById("nextBtn1").onclick=function(){
+B.name=document.getElementById("infoName").value.trim();
+B.age=document.getElementById("infoAge").value.trim();
+if(!B.name){alert("请填写姓名");return}
+if(!B.gender){alert("请选择性别");return}
+if(!B.age){alert("请填写年龄");return}
+A=new Array(9).fill(null);
+var tb=document.getElementById("qTable");
+tb.innerHTML="";
+Q.forEach(function(q,i){
+var tr=document.createElement("tr");
+tr.innerHTML="<td>"+(i+1)+". "+q+"</td>";
+for(var s=0;s<=3;s++){
+var td=document.createElement("td");
+td.innerHTML="<span class="likert-opt" data-q=""+i+"" data-s=""+s+"">"+s+"</span>";
+tr.appendChild(td);
+}
+tb.appendChild(tr);
+});
+tb.querySelectorAll(".likert-opt").forEach(function(el){
+el.onclick=function(){
+var qi=parseInt(this.getAttribute("data-q"));
+var sv=parseInt(this.getAttribute("data-s"));
+A[qi]=sv;
+this.closest("tr").querySelectorAll(".likert-opt").forEach(function(o){o.classList.remove("selected")});
+this.classList.add("selected");
+var u=A.filter(function(v){return v===null}).length;
+document.getElementById("resultBtn").disabled=u>0;
+document.getElementById("resultBtn").style.opacity=u>0?".5":"1";
+};
+});
+go(2);
+};
 
-document.getElementById("excelBtn").onclick=function(){if(typeof XLSX==="undefined"){var s=document.createElement("script");s.src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js";s.onload=doExportExcel;document.head.appendChild(s)}else{doExportExcel()}};
+document.getElementById("resultBtn").onclick=function(){
+T=A.reduce(function(a,b){return a+(b||0)},0);
+L=T<=4?"正常范围":T<=9?"轻度抑郁":T<=14?"中度抑郁":T<=19?"中重度抑郁":"重度抑郁";
+document.getElementById("totalScore").textContent=T+" / 27";
+document.getElementById("levelLabel").textContent=L;
 
-document.getElementById("copyBtn").onclick=function(){var note=document.getElementById("subNote").value.trim();var lines=["【PHQ-9-A 青少年抑郁筛查报告】","姓名："+BASIC.name+" | 性别："+BASIC.gender+" | 年龄："+BASIC.age,"总分："+TOTAL+"/27 | 结果："+LEVEL,"","各题得分："];ANSWERS.forEach(function(v,i){lines.push("  Q"+(i+1)+". "+PHQ9A[i].substring(0,24)+"... -> "+v+"分（"+scoreLabel(v)+"）")});lines.push("");if(note)lines.push("备注："+note);lines.push("--发送自厌学评估工具");var text=lines.join("\n");if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(text).then(function(){var tip=document.getElementById("submitTip");if(tip)tip.textContent="✓ 已复制，可粘贴到微信发给咨询师！"}).catch(function(){prompt("请手动复制：",text)})}else{prompt("请复制以下内容：",text)}};
+var scEl=document.getElementById("qScores");
+scEl.innerHTML="";
+A.forEach(function(v,i){
+scEl.innerHTML+="<div class="score-detail-row"><span class="q-name">"+(i+1)+". "+Q[i].substring(0,20)+"...</span><span class="q-score q-d "+sc(v)+"">"+v+"</span><span class="q-d "+sc(v)+"">"+sl(v)+"</span></div>";
+});
 
-document.getElementById("submitBtn").onclick=function(){var name=document.getElementById("subName").value.trim()||BASIC.name;var phone=document.getElementById("subPhone").value.trim()||"";var note=document.getElementById("subNote").value.trim()||"";var record={name:name,phone:phone,gender:BASIC.gender,age:BASIC.age,tool:"phq9a",toolName:"PHQ-9-A",maxScore:TOTAL,level:LEVEL,answers:ANSWERS.map(function(v,i){return{q:i+1,name:PHQ9A[i],score:v}}),scores:{"PHQ-9-A总分":TOTAL},note:note,time:new Date().toISOString()};try{var records=JSON.parse(localStorage.getItem("yanxue_records")||"[]");var dup=records.findIndex(function(r){return r.tool==="phq9a"&&r.name===record.name&&Math.abs(new Date(r.time)-new Date(record.time))<300000});if(dup>=0)records[dup]=record;else records.push(record);localStorage.setItem("yanxue_records",JSON.stringify(records))}catch(e){}alert("✓ 已保存，可前往咨询师后台查看");closeModal()};
+if(C)C.destroy();
+C=new Chart(document.getElementById("radarChart").getContext("2d"),{
+type:"radar",
+data:{labels:Q.map(function(q,i){return"Q"+(i+1)}),datasets:[{label:"症状得分",data:A,fill:true,backgroundColor:"rgba(74,105,189,0.15)",borderColor:"#4a69bd",pointBackgroundColor:"#4a69bd",pointRadius:5}]},
+options:{responsive:true,maintainAspectRatio:false,scales:{r:{min:0,max:3,ticks:{stepSize:1}}},plugins:{legend:{display:false}}}
+});
 
-document.getElementById("sendBtn").onclick=function(){document.getElementById("subName").value=BASIC.name;document.getElementById("submitModal").classList.add("show")};
-document.getElementById("closeModal").onclick=closeModal;
+var adv=document.getElementById("resultAdvice");
+if(T<=4){
+adv.innerHTML="<div class="result-section"><div class="result-title">✅ 评估结论</div><div class="info-box success"><div class="info-title">结果正常</div><div class="info-content">孩子的情绪状态在正常范围内。继续保持良好的亲子沟通和作息规律即可。</div></div></div>";
+}else if(T<=9){
+adv.innerHTML="<div class="result-section"><div class="result-title">💡 建议</div><div class="suggest-card"><h4>适当关注</h4><p>孩子有轻微的抑郁情绪波动，建议家长多倾听、少说教，保持规律作息和适度运动。</p></div></div>";
+}else if(T<=14){
+adv.innerHTML="<div class="result-section"><div class="result-title">⚠️ 建议寻求专业支持</div><div class="suggest-card"><h4>建议预约心理咨询</h4><p>孩子的情绪困扰已持续一段时间，建议预约专业心理咨询师进行系统评估。</p></div></div>";
+}else{
+adv.innerHTML="<div class="result-section"><div class="result-title">🚨 建议尽快寻求专业帮助</div><div class="suggest-card"><h4>请及时联系专业机构</h4><p>孩子的抑郁症状较为明显，建议尽快预约精神科医生或心理咨询师。</p></div><div class="suggest-card" style="background:#fff5f5"><h4 style="color:#c62828">如有任何自伤想法</h4><p>成都心理援助热线：<strong>028-8437-7525</strong><br>全国心理援助热线：400-161-9995</p></div></div>";
+}
+
+var rec={name:B.name,gender:B.gender,age:B.age,tool:"phq9a",toolName:"PHQ-9-A",maxScore:T,level:L,answers:A.map(function(v,i){return{q:i+1,name:Q[i],score:v}}),scores:{"PHQ-9-A总分":T},note:"",time:new Date().toISOString()};
+try{var rs=JSON.parse(localStorage.getItem("yanxue_records")||"[]");rs.push(rec);localStorage.setItem("yanxue_records",JSON.stringify(rs))}catch(e){}
+go(3);
+};
+
+document.getElementById("excelBtn").onclick=function(){
+var s=document.createElement("script");
+s.src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js";
+s.onload=function(){
+var rows=[["题号","题目","得分","频率"]];
+A.forEach(function(v,i){rows.push([i+1,Q[i],v,sl(v)])});
+rows.push([""],["姓名",B.name],["性别",B.gender],["年龄",B.age],["总分",T+"/27"],["评估结果",L]);
+var wb=XLSX.utils.book_new();
+var ws=XLSX.utils.aoa_to_sheet(rows);
+ws["!cols"]=[{wch:8},{wch:40},{wch:8},{wch:14}];
+XLSX.utils.book_append_sheet(wb,ws,"PHQ-9-A");
+XLSX.writeFile(wb,"PHQ9A_"+new Date().toISOString().slice(0,10)+".xlsx");
+};
+document.head.appendChild(s);
+};
+
+document.getElementById("sendBtn").onclick=function(){
+document.getElementById("subName").value=B.name;
+document.getElementById("submitModal").classList.add("show");
+};
+document.getElementById("closeModalBtn").onclick=function(){document.getElementById("submitModal").classList.remove("show")};
 document.getElementById("submitModal").querySelector(".modal-box").onclick=function(e){e.stopPropagation()};
-document.getElementById("submitModal").onclick=function(e){if(e.target===this)closeModal()};
+document.getElementById("submitModal").onclick=function(){this.classList.remove("show")};
+
+document.getElementById("copyBtn").onclick=function(){
+var note=document.getElementById("subNote").value.trim();
+var lines=["【PHQ-9-A 青少年抑郁筛查报告】","姓名："+B.name+" | 性别："+B.gender+" | 年龄："+B.age,"总分："+T+"/27 | 结果："+L,"","各题得分："];
+A.forEach(function(v,i){lines.push("  Q"+(i+1)+". "+Q[i].substring(0,24)+"... -> "+v+"分（"+sl(v)+"）")});
+if(note)lines.push("","备注："+note);
+var txt=lines.join("
+");
+if(navigator.clipboard){navigator.clipboard.writeText(txt).then(function(){alert("已复制，可粘贴到微信")})}
+else{prompt("请复制：",txt)}
+};
+
+document.getElementById("submitBtn").onclick=function(){
+var name=document.getElementById("subName").value.trim()||B.name;
+var phone=document.getElementById("subPhone").value.trim();
+var note=document.getElementById("subNote").value.trim();
+var rec={name:name,phone:phone,gender:B.gender,age:B.age,tool:"phq9a",toolName:"PHQ-9-A",maxScore:T,level:L,answers:A.map(function(v,i){return{q:i+1,name:Q[i],score:v}}),scores:{"PHQ-9-A总分":T},note:note,time:new Date().toISOString()};
+try{var rs=JSON.parse(localStorage.getItem("yanxue_records")||"[]");rs.push(rec);localStorage.setItem("yanxue_records",JSON.stringify(rs))}catch(e){}
+alert("已保存");
+document.getElementById("submitModal").classList.remove("show");
+};
 </script>
 </body>
 </html>

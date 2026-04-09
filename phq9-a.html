@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>青少年心理健康评估（PHQ-A）</title>
-    <meta name="description" content="科学评估青少年厌学程度，3维度12题量化分析">
+    <meta name="description" content="科学评估青少年厌学程度，3维度9题量化分析">
     <meta property="og:title" content="青少年心理健康评估（PHQ-A）">
     <meta property="og:description" content="9题量化评估">
     <meta property="og:image" content="https://raw.githubusercontent.com/miny-vc-3463/yanxue-tool/main/cover1.jpg">
@@ -138,7 +138,7 @@
         <!-- 欢迎页 step0 -->
         <div class="step active" id="step0">
             <div class="welcome-text">
-                <p><strong>欢迎使用PHQ-9-A 青少年抑郁筛查</strong></p>
+                <p><strong>欢迎使用青少年心理健康评估（PHQ-A）</strong></p>
                 <p style="margin-top:10px;">本工具用于筛查青少年抑郁症状，通过3个维度12道量化题，综合判定厌学严重程度，为干预优先级提供参考依据。</p>
                 <ul>
                     <li>⏱ 评估时长：约5-8分钟</li>
@@ -300,7 +300,7 @@
         <!--  step4 -->
         <div class="step" id="step4">
             <div class="dim-header">
-                <span class="dim-name">💭 情绪与态度（4题）</span>
+                <span class="dim-name">💭 </span>
                 <span class="dim-progress" id="dim3Progress">0/9 已答</span>
             </div>
             <div class="step-title">情绪与态度（得分越高，负面情绪越严重）</div>
@@ -513,19 +513,19 @@
         if (prefix === 'A') {
             dim = 'academic';
             ['A1','A2','A3','A4'].forEach(function(x){ if(answers[x]) count++; });
-            $('dim1Progress').textContent = count + '/4 已答';
+            $('dim1Progress').textContent = answered + '/9 已答';
             var sub = (answers.A1||0)+(answers.A2||0)+(answers.A3||0)+(answers.A4||0);
             $('subA').textContent = sub;
         } else if (prefix === 'S') {
             dim = 'school';
             ['S1','S2','S3','S4'].forEach(function(x){ if(answers[x]) count++; });
-            $('dim2Progress').textContent = count + '/4 已答';
+            $(';
             var sub = (answers.S1||0)+(answers.S2||0)+(answers.S3||0)+(answers.S4||0);
             $('subS').textContent = sub;
         } else if (prefix === 'E') {
             dim = 'emotion';
             ['E1','E2','E3','E4'].forEach(function(x){ if(answers[x]) count++; });
-            $('dim3Progress').textContent = count + '/4 已答';
+            $(';
             var sub = (answers.E1||0)+(answers.E2||0)+(answers.E3||0)+(answers.E4||0);
             $('subE').textContent = sub;
         }
@@ -678,7 +678,7 @@
             var total = finalScores.academic + finalScores.school + finalScores.emotion;
             var sev = SEVERITY.find(function(item){ return total <= item.max; }) || SEVERITY[SEVERITY.length-1];
             pdf.setFontSize(18); pdf.setFont('helvetica', 'bold'); pdf.setTextColor(225,112,85);
-            pdf.text('PHQ-9-A 青少年抑郁筛查报告', pageW / 2, y, { align: 'center' }); y += 8;
+            pdf.text('青少年心理健康评估（PHQ-A）报告', pageW / 2, y, { align: 'center' }); y += 8;
             pdf.setFontSize(10); pdf.setTextColor(150);
             pdf.text('基于成都地区常模 | ' + new Date().toLocaleDateString('zh-CN'), pageW / 2, y, { align: 'center' }); y += 12;
             pdf.setDrawColor(220); pdf.line(m, y, pageW - m, y); y += 8;

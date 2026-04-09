@@ -10,7 +10,7 @@
 <meta property="og:url" content="https://miny-vc-3463.github.io/yanxue-tool/phq9-a.html">
 <meta property="og:type" content="website">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC",sans-serif;background:linear-gradient(135deg,#4a69bd 0%,#6a89cc 100%);min-height:100vh;padding:20px}
@@ -162,8 +162,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC",sans-serif;backg
 <div class="info-content">本量表结果仅供参考，不能替代专业精神科医生或心理咨询师的评估。如有需要，请及时寻求专业帮助。</div>
 </div>
 <button type="button" class="btn" id="sendBtn">📨 发送给咨询师</button>
-<button type="button" class="btn btn-green" id="pdfBtn">📥 导出PDF报告</button>
-<button type="button" class="btn btn-green" id="excelBtn" style="margin-top:10px">📊 导出Excel</button>
+
+<button type="button" class="btn btn-green" id="excelBtn">📊 导出Excel</button>
 <div class="consultant-link"><a href="consultant.html" target="_blank">🔐 咨询师入口</a></div>
 </div>
 
@@ -229,7 +229,7 @@ else{adv.innerHTML="<div class='result-section'><div class='result-title'>🚨 �
 saveRecord();goStep(3);
 };
 
-document.getElementById("pdfBtn").onclick=function(){document.getElementById("loadingText").textContent="正在生成PDF...";document.getElementById("loadingOverlay").classList.add("show");setTimeout(function(){try{var jsPDF=window.jspdf.jsPDF;var d=new jsPDF();d.setFont("helvetica");d.setFontSize(18);d.setTextColor(40);d.text("PHQ-9-A 青少年抑郁筛查报告",105,25,{align:"center"});d.setFontSize(10);d.setTextColor(120);d.text("生成时间："+new Date().toLocaleString("zh-CN"),105,33,{align:"center"});d.setDrawColor(74,105,189);d.line(20,38,190,38);d.setFontSize(13);d.setTextColor(40);d.setFont("helvetica","bold");d.text("基本信息",20,48);d.setFontSize(11);d.setFont("helvetica","normal");d.setTextColor(60);d.text("姓名："+BASIC.name+" 性别："+BASIC.gender+" 年龄："+BASIC.age,20,56);d.text("总分："+TOTAL+" / 27  评估结果："+LEVEL,20,64);d.setDrawColor(200,210,240);d.line(20,70,190,70);d.setFontSize(13);d.setFont("helvetica","bold");d.setTextColor(40);d.text("各题得分",20,79);d.setFontSize(10);d.setFont("helvetica","normal");d.setTextColor(60);ANSWERS.forEach(function(v,i){var col=v>=2?[231,76,60]:v>=1?[243,156,18]:[39,174,96];d.setTextColor(col[0],col[1],col[2]);d.text("Q"+(i+1)+". "+PHQ9A[i].substring(0,36)+" -> "+v+" 分  ("+scoreLabel(v)+")",22,88+i*7)});d.setTextColor(40);d.setFontSize(9);d.text("本报告仅供参考，不能替代专业精神科医生或心理咨询师的评估。",105,285,{align:"center"});d.save("PHQ9A报告_"+BASIC.name+".pdf")}catch(e){alert("PDF生成失败:"+e.message)}document.getElementById("loadingOverlay").classList.remove("show")},100)};
+);d.setFontSize(10);d.setTextColor(120);d.text("生成时间："+new Date().toLocaleString("zh-CN"),105,33,{align:"center"});d.setDrawColor(74,105,189);d.line(20,38,190,38);d.setFontSize(13);d.setTextColor(40);d.setFont("helvetica","bold");d.text("基本信息",20,48);d.setFontSize(11);d.setFont("helvetica","normal");d.setTextColor(60);d.text("姓名："+BASIC.name+" 性别："+BASIC.gender+" 年龄："+BASIC.age,20,56);d.text("总分："+TOTAL+" / 27  评估结果："+LEVEL,20,64);d.setDrawColor(200,210,240);d.line(20,70,190,70);d.setFontSize(13);d.setFont("helvetica","bold");d.setTextColor(40);d.text("各题得分",20,79);d.setFontSize(10);d.setFont("helvetica","normal");d.setTextColor(60);ANSWERS.forEach(function(v,i){var col=v>=2?[231,76,60]:v>=1?[243,156,18]:[39,174,96];d.setTextColor(col[0],col[1],col[2]);d.text("Q"+(i+1)+". "+PHQ9A[i].substring(0,36)+" -> "+v+" 分  ("+scoreLabel(v)+")",22,88+i*7)});d.setTextColor(40);d.setFontSize(9);d.text("本报告仅供参考，不能替代专业精神科医生或心理咨询师的评估。",105,285,{align:"center"});d.save("PHQ9A报告_"+BASIC.name+".pdf")}catch(e){alert("PDF生成失败:"+e.message)}document.getElementById("loadingOverlay").classList.remove("show")},100)};
 
 document.getElementById("excelBtn").onclick=function(){if(typeof XLSX==="undefined"){var s=document.createElement("script");s.src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js";s.onload=doExportExcel;document.head.appendChild(s)}else{doExportExcel()}};
 

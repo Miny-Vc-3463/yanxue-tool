@@ -138,15 +138,15 @@
         <!-- 欢迎页 step0 -->
         <div class="step active" id="step0">
             <div class="welcome-text">
-                <p><strong>欢迎使用青少年厌学程度评估</strong></p>
-                <p style="margin-top:10px;">本工具用于科学评估6-18岁青少年厌学程度，通过3个维度12道量化题，综合判定厌学严重程度，为干预优先级提供参考依据。</p>
+                <p><strong>欢迎使用PHQ-9-A 青少年抑郁筛查</strong></p>
+                <p style="margin-top:10px;">本工具用于筛查青少年抑郁症状，通过3个维度12道量化题，综合判定厌学严重程度，为干预优先级提供参考依据。</p>
                 <ul>
                     <li>⏱ 评估时长：约5-8分钟</li>
                     <li>📋 题目数量：12道评估题</li>
-                    <li>📊 评估维度：学业参与度、学校适应、情绪态度</li>
+                    <li>📊 评估范围：过去2周内的情绪状态</li>
                     <li>👤 评估方式：支持自���/家长评/教师评</li>
                 </ul>
-                <p>请根据孩子最近 <strong>1个月</strong> 的实际情况作答。</p>
+                <p>请根据最近 <strong>2周</strong> 的实际情况作答。</p>
             </div>
             <button class="btn" id="startBtn">开始评估 →</button>
             <div class="consultant-link"><a href="consultant.html" target="_blank">🔐 咨询师入口</a></div>
@@ -188,13 +188,13 @@
             <button class="btn" onclick="submitBasicInfo()" style="margin-top:16px;">下一题 →</button>
         </div>
 
-        <!-- 学业参与度 step2 -->
+        <!-- PHQ-9-A step2 -->
         <div class="step" id="step2">
             <div class="dim-header">
-                <span class="dim-name">📚 学业参与度（4题）</span>
+                <span class="dim-name">📚 PHQ-9-A 评估问卷</span>
                 <span class="dim-progress" id="dim1Progress">0/4 已答</span>
             </div>
-            <div class="step-title">学业参与度（得分越高，参与度越低）</div>
+            <div class="step-title">PHQ-9-A 评估问卷</div>
             <div class="step-sub">请根据最近1个月的情况选择最符合的选项</div>
             <table class="likert-table">
                 <thead>
@@ -242,11 +242,11 @@
                     </tr>
                 </tbody>
             </table>
-            <div style="font-size:11px;color:#999;margin-top:6px;text-align:right;">学业参与度小计：<strong id="subA" style="color:#4a69bd;">—</strong> 分</div>
+            <div style="font-size:11px;color:#999;margin-top:6px;text-align:right;">PHQ-9-A小计：<strong id="subA" style="color:#4a69bd;">—</strong> 分</div>
             <button class="btn" onclick="nextFromDim1()">下一题 →</button>
         </div>
 
-        <!-- 学校适应 step3 -->
+        <!--  step3 -->
         <div class="step" id="step3">
             <div class="dim-header">
                 <span class="dim-name">🏫 学校出勤与适应（4题）</span>
@@ -293,11 +293,11 @@
                     </tr>
                 </tbody>
             </table>
-            <div style="font-size:11px;color:#999;margin-top:6px;text-align:right;">学校适应小计：<strong id="subS" style="color:#4a69bd;">—</strong> 分</div>
+            <div style="font-size:11px;color:#999;margin-top:6px;text-align:right;">小计：<strong id="subS" style="color:#4a69bd;">—</strong> 分</div>
             <button class="btn" onclick="nextFromDim2()">下一题 →</button>
         </div>
 
-        <!-- 情绪态度 step4 -->
+        <!--  step4 -->
         <div class="step" id="step4">
             <div class="dim-header">
                 <span class="dim-name">💭 情绪与态度（4题）</span>
@@ -344,7 +344,7 @@
                     </tr>
                 </tbody>
             </table>
-            <div style="font-size:11px;color:#999;margin-top:6px;text-align:right;">情绪态度小计：<strong id="subE" style="color:#4a69bd;">—</strong> 分</div>
+            <div style="font-size:11px;color:#999;margin-top:6px;text-align:right;">小计：<strong id="subE" style="color:#4a69bd;">—</strong> 分</div>
             <button class="btn btn-green" onclick="showResult()">📊 查看评估结果</button>
         </div>
 
@@ -436,7 +436,7 @@
     'use strict';
     var currentStep = 0, totalSteps = 5, answers = {}, finalScores = null;
     var basicInfo = {};
-    var DIM_NAMES = { academic: '学业参与度', school: '学校适应', emotion: '情绪态度' };
+    var DIM_NAMES = { academic: 'PHQ-9-A', school: '', emotion: '' };
 
     var SEVERITY = [
         { max: 15, level: '无明显厌学', color: '#27ae60', priority: '观察关注', desc: '偶尔抱怨学习，但不影响出勤和学业表现。建议保持关注。' },
@@ -453,9 +453,9 @@
     };
 
     var FINDINGS = {
-        academic: '学业参与度较低，建议从激发学习兴趣入手，避免过度施压。',
-        school: '学校适应存在困难，建议加强家校沟通，关注同伴关系质量。',
-        emotion: '情绪态度问题需要重点关注，建议优先进行情绪疏导和心理支持。'
+        academic: 'PHQ-9-A较低，建议从激发学习兴趣入手，避免过度施压。',
+        school: '存在困难，建议加强家校沟通，关注同伴关系质量。',
+        emotion: '问题需要重点关注，建议优先进行情绪疏导和心理支持。'
     };
 
     function $(id) { return document.getElementById(id); }
@@ -532,17 +532,17 @@
     }
 
     window.nextFromDim1 = function() {
-        if (!answers.A1||!answers.A2||!answers.A3||!answers.A4) { alert('请完成学业参与度所有题目'); return; }
+        if (!answers.A1||!answers.A2||!answers.A3||!answers.A4) { alert('请完成PHQ-9-A所有题目'); return; }
         goToStep(3);
     };
 
     window.nextFromDim2 = function() {
-        if (!answers.S1||!answers.S2||!answers.S3||!answers.S4) { alert('请完成学校适应所有题目'); return; }
+        if (!answers.S1||!answers.S2||!answers.S3||!answers.S4) { alert('请完成所有题目'); return; }
         goToStep(4);
     };
 
     window.showResult = function() {
-        if (!answers.E1||!answers.E2||!answers.E3||!answers.E4) { alert('请完成情绪态度所有题目'); return; }
+        if (!answers.E1||!answers.E2||!answers.E3||!answers.E4) { alert('请完成所有题目'); return; }
         finalScores = {
             academic: (answers.A1||0)+(answers.A2||0)+(answers.A3||0)+(answers.A4||0),
             school: (answers.S1||0)+(answers.S2||0)+(answers.S3||0)+(answers.S4||0),
@@ -621,7 +621,7 @@
     function buildSummaryHtml(s) {
         var total = s.academic + s.school + s.emotion;
         var sev = SEVERITY.find(function(item){ return total <= item.max; }) || SEVERITY[SEVERITY.length-1];
-        var h = '<div class="highlight-card" style="border-left-color:' + sev.color + ';"><h4 style="color:' + sev.color + ';">评估结论：' + sev.level + '</h4><p>总分：' + total + '分（学业参与度' + s.academic + ' + 学校适应' + s.school + ' + 情绪态度' + s.emotion + '）</p><p style="margin-top:4px;">' + sev.desc + '</p></div>';
+        var h = '<div class="highlight-card" style="border-left-color:' + sev.color + ';"><h4 style="color:' + sev.color + ';">评估结论：' + sev.level + '</h4><p>总分：' + total + '分（PHQ-9-A' + s.academic + ' + ' + s.school + ' + ' + s.emotion + '）</p><p style="margin-top:4px;">' + sev.desc + '</p></div>';
         Object.keys(s).forEach(function(d) {
             if (s[d] >= 10) {
                 h += '<div class="highlight-card warning"><h4>' + DIM_NAMES[d] + '：' + s[d] + '分（偏高）</h4><p>' + FINDINGS[d] + '</p></div>';
@@ -690,7 +690,7 @@
             var total = finalScores.academic + finalScores.school + finalScores.emotion;
             var sev = SEVERITY.find(function(item){ return total <= item.max; }) || SEVERITY[SEVERITY.length-1];
             pdf.setFontSize(18); pdf.setFont('helvetica', 'bold'); pdf.setTextColor(225,112,85);
-            pdf.text('青少年厌学程度评估报告', pageW / 2, y, { align: 'center' }); y += 8;
+            pdf.text('PHQ-9-A 青少年抑郁筛查报告', pageW / 2, y, { align: 'center' }); y += 8;
             pdf.setFontSize(10); pdf.setTextColor(150);
             pdf.text('基于成都地区常模 | ' + new Date().toLocaleDateString('zh-CN'), pageW / 2, y, { align: 'center' }); y += 12;
             pdf.setDrawColor(220); pdf.line(m, y, pageW - m, y); y += 8;
@@ -700,9 +700,9 @@
             txt('评估结论：' + sev.level + '（' + total + '分）', 13, true, [225,112,85]);
             txt(sev.desc, 10); y += 5;
             txt('三维度得分', 12, true, [225,112,85]);
-            txt('学业参与度：' + finalScores.academic + '分', 11, false, [40,40,40]);
-            txt('学校适应：' + finalScores.school + '分', 11, false, [40,40,40]);
-            txt('情绪态度：' + finalScores.emotion + '分', 11, false, [40,40,40]); y += 5;
+            txt('PHQ-9-A：' + finalScores.academic + '分', 11, false, [40,40,40]);
+            txt('：' + finalScores.school + '分', 11, false, [40,40,40]);
+            txt('：' + finalScores.emotion + '分', 11, false, [40,40,40]); y += 5;
             txt('干预优先级：' + sev.priority, 11, true, [40,40,40]);
             y += 5;
             pdf.setFillColor(255,248,225);

@@ -502,6 +502,36 @@
   } else {prompt('\u590D\u5236\u6B64\u5185\u5BB9\u53D1\u7ED9\u54A8\u8BE2\u5E08:',text);}
 }
 
+
+
+    function renderSeverity(total) {
+        var level, desc, cls;
+        if (total >= 15) { level = "中重度"; desc = "建议密切关注"; cls = "score-high"; }
+        else if (total >= 10) { level = "中度"; desc = "建议持续关注"; cls = "score-medium"; }
+        else if (total >= 5) { level = "轻度"; desc = "可定期跟进"; cls = "score-medium"; }
+        else { level = "正常范围"; desc = "继续保持"; cls = "score-low"; }
+        var sevEl = document.getElementById("severityLevel");
+        if (sevEl) {
+            sevEl.innerHTML = "<div class=\"dim-row\"><span class=\"dim-name\">风险等级</span><span class=\"dim-score " + cls + "\">" + level + "</span></div><div class=\"dim-row\" style=\"color:#666;font-size:13px\"><span class=\"dim-name\">建议</span><span>" + desc + "</span></div>";
+        }
+    }
+
+    function renderQ9Alert(q9Score) {
+        var isRisk = q9Score >= 1;
+        var cls = isRisk ? "score-high" : "score-low";
+        var text = isRisk ? "存在自伤/轻生念头" : "无自伤风险";
+        var alertEl = document.getElementById("q9Alert");
+        if (alertEl) {
+            alertEl.innerHTML = "<div class=\"dim-row\"><span class=\"dim-name\">第9题（自伤风险）</span><span class=\"dim-score " + cls + "\">" + text + "（得分：" + q9Score + "/3）</span></div>";
+        }
+    }
+
+    function showResultsAndDownload() {
+        var detailsEl = document.getElementById("resultDetails");
+        if (detailsEl) detailsEl.style.display = "block";
+        window.scrollTo({ top: 0, behavior: "smooth" });
+        setTimeout(function() { downloadExcel(); }, 500);
+    }
 </script>
 </body>
 </html>

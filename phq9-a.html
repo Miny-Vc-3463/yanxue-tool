@@ -191,7 +191,7 @@
         <!-- PHQ-9-A step2 -->
         <div class="step" id="step2">
             <div class="dim-header">
-                <span class="dim-name">📚 PHQ-9-A 评估问卷</span>
+                <span class="dim-name">PHQ-9-A 抑郁症状评估</span>
                 <span class="dim-progress" id="dim1Progress">0/9 已答</span>
             </div>
             <div class="step-title">PHQ-9-A 评估问卷</div>
@@ -209,7 +209,7 @@
                 </thead>
                 <tbody>
                     <tr>
-                        <td>拒绝完成作业</td>
+                        <td>1. 做事情时感觉毫无兴趣或乐趣</td>
                         <td class="likert-cell"><div class="likert-opt" data-q="A1" data-v="1">1<div class="likert-score-label">0分<div class="likert-score-label">完全不会</div></div></div></td>
                         <td class="likert-cell"><div class="likert-opt" data-q="A1" data-v="2">2</div></td>
                         <td class="likert-cell"><div class="likert-opt" data-q="A1" data-v="3">3</div></td>
@@ -249,7 +249,7 @@
         <!--  step3 -->
         <div class="step" id="step3">
             <div class="dim-header">
-                <span class="dim-name">🏫 学校出勤与适应（4题）</span>
+                <span class="dim-name"></span>
                 <span class="dim-progress" id="dim2Progress">0/9 已答</span>
             </div>
             <div class="step-title">学校出勤与适应（得分越高，适应越差）</div>
@@ -303,7 +303,7 @@
                 <span class="dim-name">💭 </span>
                 <span class="dim-progress" id="dim3Progress">0/9 已答</span>
             </div>
-            <div class="step-title">情绪与态度（得分越高，负面情绪越严重）</div>
+            <div class="step-title">PHQ-9-A 评估（9题）</div>
             <div class="step-sub">请根据最近1个月的情况选择最符合的选项</div>
             <table class="likert-table">
                 <thead>
@@ -326,22 +326,8 @@
                         <td class="likert-cell"><div class="likert-opt" data-q="E2" data-v="4">4</div></td>
                         <td class="likert-cell"><div class="likert-opt" data-q="E2" data-v="5">5<div class="likert-score-label">3分<div class="likert-score-label">几乎每天</div></div></div></td>
                     </tr>
-                    <tr>
-                        <td>对未来学业前景悲观</td>
-                        <td class="likert-cell"><div class="likert-opt" data-q="E3" data-v="1">1</div></td>
-                        <td class="likert-cell"><div class="likert-opt" data-q="E3" data-v="2">2</div></td>
-                        <td class="likert-cell"><div class="likert-opt" data-q="E3" data-v="3">3</div></td>
-                        <td class="likert-cell"><div class="likert-opt" data-q="E3" data-v="4">4</div></td>
-                        <td class="likert-cell"><div class="likert-opt" data-q="E3" data-v="5">5<div class="likert-score-label">3分<div class="likert-score-label">几乎每天</div></div></div></td>
-                    </tr>
-                    <tr>
-                        <td>因学习问题出现自我否定</td>
-                        <td class="likert-cell"><div class="likert-opt" data-q="E4" data-v="1">1</div></td>
-                        <td class="likert-cell"><div class="likert-opt" data-q="E4" data-v="2">2</div></td>
-                        <td class="likert-cell"><div class="likert-opt" data-q="E4" data-v="3">3</div></td>
-                        <td class="likert-cell"><div class="likert-opt" data-q="E4" data-v="4">4</div></td>
-                        <td class="likert-cell"><div class="likert-opt" data-q="E4" data-v="5">5<div class="likert-score-label">3分<div class="likert-score-label">几乎每天</div></div></div></td>
-                    </tr>
+                    
+                    
                 </tbody>
             </table>
             <div style="font-size:11px;color:#999;margin-top:6px;text-align:right;">小计：<strong id="subE" style="color:#4a69bd;">—</strong> 分</div>
@@ -459,6 +445,8 @@
     };
 
     function $(id) { return document.getElementById(id); }
+
+    function go() { goToStep(1); }
 
     function goToStep(n) {
         $('step'+currentStep).classList.remove('active');

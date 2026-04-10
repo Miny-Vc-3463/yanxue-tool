@@ -131,7 +131,7 @@
 </head>
 <body>
 <div class="container">
-    <div class="header"><h1>青少年心理健康评估（PHQ-A）</h1><p>PHQ-9-A 抑郁筛查量表</p></div>
+    <div class="header"><h1>青少年情绪状态自评量表</h1><p>9题情绪自评量表</p></div>
     <div class="content">
         <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
 
@@ -139,11 +139,11 @@
         <div class="step active" id="step0">
             <div class="welcome-text">
                 <p><strong>欢迎使用青少年心理健康评估（PHQ-A）</strong></p>
-                <p style="margin-top:10px;">本工具用于筛查青少年抑郁症状，通过3个维度12道量化题，综合判定厌学严重程度，为干预优先级提供参考依据。</p>
+                <p style="margin-top:10px;">本工具用于科学评估青少年情绪状态</p>
                 <ul>
                     <li>⏱ 评估时长：约5-8分钟</li>
                     <li>📋 题目数量：12道评估题</li>
-                    <li>📊 评估范围：过去2周内的情绪状态</li>
+                    <li>📊 请根据最近2周实际情况作答</li>
                     <li>👤 评估方式：支持自���/家长评/教师评</li>
                 </ul>
                 <p>请根据最近 <strong>2周</strong> 的实际情况作答。</p>
@@ -191,11 +191,11 @@
         <!-- PHQ-9-A step2 -->
         <div class="step" id="step2">
             <div class="dim-header">
-                <span class="dim-name">PHQ-9-A 抑郁症状评估</span>
+                <span class="dim-name">9题情绪自评量表
                 <span class="dim-progress" id="dim1Progress">0/9 已答</span>
             </div>
-            <div class="step-title">PHQ-9-A 评估问卷</div>
-            <div class="step-sub">请根据最近1个月的情况选择最符合的选项</div>
+            <div class="step-title">情绪状态自评</div>
+            <div class="step-sub">请根据最近2周的情况选择最符合的选项</div>
             <table class="likert-table">
                 <thead>
                     <tr>
@@ -253,7 +253,7 @@
                 <span class="dim-progress" id="dim2Progress">0/9 已答</span>
             </div>
             <div class="step-title">学校出勤与适应（得分越高，适应越差）</div>
-            <div class="step-sub">请根据最近1个月的情况选择最符合的选项</div>
+            <div class="step-sub">请根据最近2周的情况选择最符合的选项</div>
             <table class="likert-table">
                 <thead>
                     <tr><th>行为表现</th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th></tr>
@@ -300,11 +300,11 @@
         <!--  step4 -->
         <div class="step" id="step4">
             <div class="dim-header">
-                <span class="dim-name">💭 </span>
+                <span class="dim-name"></span>
                 <span class="dim-progress" id="dim3Progress">0/9 已答</span>
             </div>
             <div class="step-title">PHQ-9-A 评估（9题）</div>
-            <div class="step-sub">请根据最近1个月的情况选择最符合的选项</div>
+            <div class="step-sub">请根据最近2周的情况选择最符合的选项</div>
             <table class="likert-table">
                 <thead>
                     <tr><th>行为表现</th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th></tr>
@@ -339,211 +339,31 @@
             <div class="step-title">📊 评估报告</div>
             <div class="result-section">
                 <div class="result-title">三维度得分</div>
+                <div id="dimensionScores"><
+            <div style="text-align:center;padding:60px 20px">
+              <div style="font-size:48px;margin-bottom:20px">✅</div>
+              <h2 style="color:#4a69bd;margin-bottom:15px">评估已完成</h2>
+              <p style="color:#666;margin-bottom:30px">感谢您的认真作答</p>
+              <p style="color:#888;font-size:14px">如需查看详细结果，请联系咨询师</p>
+            </div>
+            <div id="resultDetails" style="display:none">
+              <div class="result-header">
+                <h2>📋 评估结果详情</h2>
+                <p>（此内容仅供咨询师查看）</p>
+              </div>
+              <div class="result-section">
                 <div id="dimensionScores"></div>
+              </div>
+              <div class="result-section">
+                <div id="severityLevel"></div>
+              </div>
+              <div class="result-section">
+                <div id="q9Alert"></div>
+              </div>
             </div>
-            <div class="result-section">
-                <div class="result-title">雷达图</div>
-                <div class="chart-container"><canvas id="radarChart"></canvas></div>
-            </div>
-            <div class="result-section">
-                <div class="result-title">厌学程度判定</div>
-                <div id="diagnosisResult"></div>
-            </div>
-            <div class="result-section">
-                <div class="result-title">干预建议</div>
-                <div id="interventionAdvice"></div>
-            </div>
-            <div class="disclaimer"><strong>⚠️ 免责声明：</strong>本评估工具仅供参考，不构成医疗诊断。如存在严重情绪或行为问题，请及时寻求专业心理咨询师或精神科医生的帮助。</div>
-            <button class="btn btn-green" onclick="showSummaryModal()">✅ 完成评估 → 填写信息并保存报告</button>
-            <button class="btn btn-gray" onclick="location.reload()" style="margin-top:10px;">🔄 重新评估</button>
-            <div class="consultant-link"><a href="consultant.html" target="_blank">🔐 咨询师入口</a></div>
-        </div>
-    </div>
-</div>
-
-<!-- 核心发现弹窗 -->
-<div class="modal-overlay" id="summaryModal">
-    <div class="modal-box">
-        <div class="modal-header">
-            <span class="modal-close" onclick="closeSummaryModal()">×</span>
-            <h2>🎯 评估发现</h2>
-            <p>以下为评估核心发现及建议</p>
-        </div>
-        <div class="modal-body">
-            <div id="summaryContent"></div>
-            <div class="btn-row">
-                <button class="btn btn-outline" onclick="closeSummaryModal()">返回报告</button>
-                <button class="btn btn-green" onclick="goToSubmitModal()">📋 填写信息并保存</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- 提交弹窗 -->
-<div class="modal-overlay" id="submitModal">
-    <div class="modal-box">
-        <div class="modal-header">
-            <span class="modal-close" onclick="closeModal()">×</span>
-            <h2>📋 完善联系信息</h2>
-            <p>填写后可保存评估报告，咨询师将主动与您联系</p>
-        </div>
-        <div class="modal-body">
-            <div id="modalForm">
-                <p style="font-size:11px;color:#999;margin-bottom:13px;">💡 提交后将自动生成评估报告PDF并保存，同时咨询师可在后台查看此评估结果。</p>
-                <div class="form-field"><label>您的姓名 <span>*</span></label><input type="text" id="mName" placeholder="请输入您的姓名" maxlength="20"></div>
-                <div class="form-field"><label>联系电话 <span>*</span></label><input type="tel" id="mPhone" placeholder="请输入手机号" maxlength="20"></div>
-                <div class="form-field"><label>备注（选填）</label><textarea id="mNote" rows="2" placeholder="如有特殊情况可简要说明"></textarea></div>
-                <div class="btn-row">
-                    <button class="btn btn-outline" onclick="closeModal()">稍后保存</button>
-                    <button class="btn btn-green" id="confirmBtn" onclick="doSubmit()">✅ 确认提交</button>
-                </div>
-            </div>
-            <div id="modalSuccess" style="display:none;" class="success-box">
-                <div class="icon">🎉</div>
-                <h3>提交成功！</h3>
-                <p>评估报告已保存至您的设备。<br>咨询师将在24小时内与您联系。</p>
-                <div class="actions">
-                    <button class="btn" onclick="location.reload()">🔄 重��评估</button>
-                    <button class="btn btn-gray" onclick="closeModal(); window.scrollTo({top:0,behavior:'smooth'});" style="margin-top:8px;">👀 查看报告</button>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- 加载遮罩 -->
-<div class="loading-overlay" id="loadingOverlay">
-    <div class="spinner"></div>
-    <div class="loading-text" id="loadingText">正在生成报告...</div>
-</div>
-
-<script>
-(function() {
-    'use strict';
-    var currentStep = 0, totalSteps = 5, answers = {}; window.answerValues = {};, finalScores = null;
-    var basicInfo = {};
-    var DIM_NAMES = { academic: 'PHQ-9-A', school: '', emotion: '' };
-
-    var SEVERITY = [
-        { max: 15, level: '无明显厌学', color: '#27ae60', priority: '观察关注', desc: '偶尔抱怨学习，但不影响出勤和学业表现。建议保持关注。' },
-        { max: 30, level: '轻度厌学', color: '#f39c12', priority: '预防性干预', desc: '对学习兴趣下降，偶尔出现上学抵触情绪。建议增加学习趣味性，关注情绪变化。' },
-        { max: 45, level: '中度厌学', color: '#e67e22', priority: '针对性干预', desc: '频繁拒绝学习任务，每周缺勤1-2天。建议寻求专业心理咨询，配合家庭支持。' },
-        { max: 60, level: '重度厌学', color: '#e74c3c', priority: '强���干预', desc: '长期拒绝上学（≥2周），情绪问题明显。建议专业干预+家庭系统治疗。' },
-        { max: 75, level: '极重度厌学', color: '#8e44ad', priority: '危机干预', desc: '完全休学，伴随严重情绪/行为障碍。建议立即寻求精神科/危机干预。' }
-    ];
-
-    var INTERVENTIONS = {
-        academic: { content: '建议改善学习方法，降低学习难度要求，增加正向反馈。可尝试将大任务拆解为小目标，逐步重建学习兴趣。' },
-        school: { content: '建议与学校老师建立沟通机制，了解孩子在校表现，创造安全的学校环境。可考虑暂时调整学习节奏。' },
-        emotion: { content: '建议进行情绪管理训练，如正念练习、情绪表达写作等。必要时寻求专业心理评估和支持。' }
-    };
-
-    var FINDINGS = {
-        academic: 'PHQ-9-A较低，建议从激发学习兴趣入手，避免过度施压。',
-        school: '存在困难，建议加强家校沟通，关注同伴关系质量。',
-        emotion: '问题需要重点关注，建议优先进行情绪疏导和心理支持。'
-    };
-
-    function $(id) { return document.getElementById(id); }
-
-    function go() { goToStep(1); }
-
-    function goToStep(n) {
-        $('step'+currentStep).classList.remove('active');
-        currentStep = n;
-        $('step'+currentStep).classList.add('active');
-        $('progressFill').style.width = (currentStep / totalSteps * 100) + '%';
-        window.scrollTo(0, 0);
-    }
-
-    // 基本信息
-    $('startBtn').addEventListener('click', function() { goToStep(1); });
-
-    document.querySelectorAll('#genderGroup .radio-item').forEach(function(item) {
-        item.addEventListener('click', function() {
-            document.querySelectorAll('#genderGroup .radio-item').forEach(function(x){ x.classList.remove('selected'); });
-            item.classList.add('selected');
-            basicInfo.gender = item.dataset.v;
-        });
-    });
-
-    document.querySelectorAll('#methodGroup .radio-item').forEach(function(item) {
-        item.addEventListener('click', function() {
-            document.querySelectorAll('#methodGroup .radio-item').forEach(function(x){ x.classList.remove('selected'); });
-            item.classList.add('selected');
-            basicInfo.method = item.dataset.v;
-        });
-    });
-
-    window.submitBasicInfo = function() {
-        basicInfo.name = $('infoName').value.trim() || '匿名';
-        basicInfo.grade = $('infoGrade').value.trim() || '';
-        basicInfo.duration = $('infoDuration').value.trim() || '';
-        goToStep(2);
-    };
-
-    // Likert 选项
-    document.querySelectorAll('.likert-opt').forEach(function(opt) {
-        opt.addEventListener('click', function() {
-            var q = opt.dataset.q;
-            var v = parseInt(opt.dataset.v, 10);
-            // 同题目的其他选项取消选中
-            document.querySelectorAll('.likert-opt[data-q="'+q+'"]').forEach(function(x){ x.classList.remove('selected'); });
-            opt.classList.add('selected');
-            answers[q] = v; window.answerValues = window.answerValues || {}; window.answerValues[q] = v;
-            updateDimProgress(q);
-        });
-    });
-
-    function updateDimProgress(q) {
-        var prefix = q.charAt(0);
-        var dim, count = 0;
-        if (prefix === 'A') {
-            dim = 'academic';
-            ['A1','A2','A3','A4'].forEach(function(x){ if(answers[x]) count++; });
-            $('dim1Progress').textContent = answered + '/9 已答';
-            var sub = (answers.A1||0)+(answers.A2||0)+(answers.A3||0)+(answers.A4||0);
-            $('subA').textContent = sub;
-        } else if (prefix === 'S') {
-            dim = 'school';
-            ['S1','S2','S3','S4'].forEach(function(x){ if(answers[x]) count++; });
-            $(';
-            var sub = (answers.S1||0)+(answers.S2||0)+(answers.S3||0)+(answers.S4||0);
-            $('subS').textContent = sub;
-        } else if (prefix === 'E') {
-            dim = 'emotion';
-            ['E1','E2','E3','E4'].forEach(function(x){ if(answers[x]) count++; });
-            $(';
-            var sub = (answers.E1||0)+(answers.E2||0)+(answers.E3||0)+(answers.E4||0);
-            $('subE').textContent = sub;
-        }
-    }
-
-    window.nextFromDim1 = function() {
-        if (!answers.A1||!answers.A2||!answers.A3||!answers.A4) { alert('请完成PHQ-9-A所有题目'); return; }
-        goToStep(3);
-    };
-
-    window.nextFromDim2 = function() {
-        if (!answers.S1||!answers.S2||!answers.S3||!answers.S4) { alert('请完成所有题目'); return; }
-        goToStep(4);
-    };
-
-    window.showResult = function() {
-        if (!answers.E1||!answers.E2||!answers.E3||!answers.E4) { alert('请完成所有题目'); return; }
-        finalScores = {
-            academic: (answers.A1||0)+(answers.A2||0)+(answers.A3||0)+(answers.A4||0),
-            school: (answers.S1||0)+(answers.S2||0)+(answers.S3||0)+(answers.S4||0),
-            emotion: (answers.E1||0)+(answers.E2||0)+(answers.E3||0)+(answers.E4||0)
-        };
-        renderScores(finalScores);
-        renderRadar(finalScores);
-        renderDiagnosis(finalScores);
-        renderIntervention(finalScores);
-        goToStep(5);
-    };
-
-    function renderScores(s){var total=s.academic+s.school+s.emotion;var h="<div style=\"font-size:13px;color:#4a69bd;font-weight:700;margin-bottom:10px\">📊 各题得分（每题0-3分）</div>";var qNames=["做事情时感觉毫无兴趣或乐趣","感觉心情低落、沮丧或绝望","入睡困难、睡不着或睡眠过多","感觉疲倦或没有活力","食欲不振或吃得太多","觉得自己很糟，或觉得自己很失败","注意力难以集中","动作或说话缓慢或烦躁不安","有自伤或轻生念头"];var keys=["A1","A2","A3","A4","B1","B2","B3","B4","C1"];for(var i=0;i<9&&i<keys.length;i++){var k=keys[i];var sc=window.answerValues?(answerValues[k]||0):0;var cls=sc>=2?"score-high":(sc>=1?"score-medium":"score-low");var qLabel="Q"+(i+1);var qName=qNames[i];if(i===8)qName="⚠️ "+qName;h+="<div class=\"dim-row\"><span class=\"dim-name\">"+qLabel+". "+qName+"</span><span class=\"dim-score "+cls+"\">"+sc+"分</span></div>"}h+="<div class=\"dim-row\" style=\"border-top:2px solid #4a69bd;margin-top:8px;padding-top:10px;background:#f0f4ff;border-radius:8px\"><span class=\"dim-name\"><strong>总分</strong></span><span class=\"dim-score score-high\"><strong>"+total+" / 27分</strong></span></div>";$("dimensionScores").innerHTML=h}
+            <div style="text-align:center;padding:20px">
+              <button class="btn btn-primary" onclick="showResultsAndDownload()">📥 下载评估报告（咨询师）</button>
+            </div></div>";$("dimensionScores").innerHTML=h}
 
     function renderRadar(s) {
         var ctx = $('radarChart').getContext('2d');
@@ -676,35 +496,7 @@
             txt('评估结论：' + sev.level + '（' + total + '分）', 13, true, [225,112,85]);
             txt(sev.desc, 10); y += 5;
             txt('三维度得分', 12, true, [225,112,85]);
-            txt('PHQ-9-A：' + finalScores.academic + '分', 11, false, [40,40,40]);
-            txt('：' + finalScores.school + '分', 11, false, [40,40,40]);
-            txt('：' + finalScores.emotion + '分', 11, false, [40,40,40]); y += 5;
-            txt('干预优先级：' + sev.priority, 11, true, [40,40,40]);
-            y += 5;
-            pdf.setFillColor(255,248,225);
-            pdf.rect(m, y - 3, pageW - m * 2, 15, 'F');
-            txt('⚠️ 免责声明：本评估工具仅供参考，不构成医疗诊断。', 8, false, [121,85,72]);
-            pdf.save('青少年厌学评估_' + (basicInfo.name||'匿名') + '_' + new Date().toISOString().slice(0,10) + '.pdf');
-        } catch(e) { console.error('PDF生成失败', e); alert('PDF生成遇到问题，数据已保存。'); }
-        setTimeout(function() { $('modalForm').style.display = 'none'; $('modalSuccess').style.display = 'block'; }, 800);
-    };
-
-    document.addEventListener('keydown', function(e) { if (e.key === 'Escape') { closeModal(); closeSummaryModal(); } });
-})();
-
-function exportExcel(){try{var d=JSON.parse(localStorage.getItem("yanxue_records")||"[]");if(!d.length){alert("no data");return}var wb=XLSX.utils.book_new();var rows=[["date","name","score","summary"]];d.forEach(function(r){rows.push([r.date||"",r.name||"",r.score||"",(r.summary||"").substring(0,100)])});var ws=XLSX.utils.aoa_to_sheet(rows);ws["!cols"]=[{wch:20},{wch:12},{wch:8},{wch:40}];XLSX.utils.book_append_sheet(wb,ws,"records");XLSX.writeFile(wb,"yanxue_records_"+(new Date().toISOString().slice(0,10))+".xlsx")}catch(e){alert("export error:"+e.message)}}
-
-
-function copyRecord(){
-  var name=document.getElementById('mName')&&document.getElementById('mName').value||'';
-  var phone=document.getElementById('mPhone')&&document.getElementById('mPhone').value||'';
-  var note=document.getElementById('mNote')&&document.getElementById('mNote').value||'';
-  var data={tool:"teen",name:name,phone:phone,note:note,time:new Date().toISOString(),scores:window._scores||{},maxScore:window._maxScore||0};
-  var text='\u300A厌学程度评估\u300B\u8BC4\u4F30\u62A5\u544A\n\u300A\u8BF7\u5C06\u6B64\u4EE3\u7801\u53D1\u7ED9\u54A8\u8BE2\u5E08\u300B\n\n'+JSON.stringify(data,null,2);
-  if(navigator.clipboard&&navigator.clipboard.writeText){
-    navigator.clipboard.writeText(text).then(function(){
-      var el=document.createElement('div');el.style='position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:#27ae60;color:#fff;padding:20px 30px;border-radius:12px;font-size:14px;z-index:99999;text-align:center';
-      el.innerHTML='\u2705 \u5DF2\u590D\u5236\u5230\u526A\u8D34\u677F\uFF01<br><span style="font-size:12px;opacity:0.8">\u8BF7\u76F4\u63A5\u7C98\u8D34\u5230\u5FAE\u4FE1\u53D1\u7ED9\u54A8\u8BE2\u5E08</span>';
+            txt('<span style="font-size:12px;opacity:0.8">\u8BF7\u76F4\u63A5\u7C98\u8D34\u5230\u5FAE\u4FE1\u53D1\u7ED9\u54A8\u8BE2\u5E08</span>';
       document.body.appendChild(el);setTimeout(function(){document.body.removeChild(el)},3000);
     }).catch(function(){prompt('\u624B\u52A8\u590D\u5236:',text)});
   } else {prompt('\u590D\u5236\u6B64\u5185\u5BB9\u53D1\u7ED9\u54A8\u8BE2\u5E08:',text);}
